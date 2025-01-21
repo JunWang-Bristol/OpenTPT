@@ -1,0 +1,5 @@
+pyserial
+pyvisa
+pyvisa-py
+pyusb
+picosdk

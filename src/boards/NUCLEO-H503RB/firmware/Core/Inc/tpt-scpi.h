@@ -6,6 +6,7 @@ extern "C" {
 
 #include "scpi/scpi.h"
 
+#define TPT_MAXIMUM_NUMBER_PULSES 256
 #define SCPI_INPUT_BUFFER_LENGTH 256
 #define SCPI_ERROR_QUEUE_SIZE 17
 #define SCPI_IDN1 "OPEN_TPT"
@@ -24,8 +25,13 @@ scpi_result_t SCPI_Control(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_reg_val
 scpi_result_t SCPI_Reset(scpi_t * context);
 scpi_result_t SCPI_Flush(scpi_t * context);
 
-
-scpi_result_t SCPI_SystemCommTcpipControlQ(scpi_t * context);
+scpi_result_t TPT_AddPulse(scpi_t * context);
+scpi_result_t TPT_ClearPulses(scpi_t * context);
+scpi_result_t TPT_ReadPulses(scpi_t * context);
+scpi_result_t TPT_GetMinimumPeriod(scpi_t * context);
+scpi_result_t TPT_RunPulses(scpi_t * context);
+scpi_result_t TPT_GetCountPulses(scpi_t * context);
+scpi_result_t TPT_StopPulses(scpi_t * context);
 
 #ifdef __cplusplus
 }

@@ -59,7 +59,7 @@ class BK9129B(unittest.TestCase):
     def test_source_voltage(self):
         print("test_source_voltage")
         available_channels = self.psut.get_available_channels()
-        for x in range(2):
+        for x in range(10):
             channel = random.choice(available_channels)
             maximum_source_voltage = self.psut.get_maximum_source_voltage(channel)
             minimum_source_voltage = self.psut.get_minimum_source_voltage(channel)
@@ -71,7 +71,7 @@ class BK9129B(unittest.TestCase):
     def test_all_source_voltages(self):
         print("test_all_source_voltages")
         available_channels = self.psut.get_available_channels()
-        for x in range(2):
+        for x in range(10):
             voltages = []
             for channel in available_channels:
                 maximum_source_voltage = self.psut.get_maximum_source_voltage(channel)
@@ -85,7 +85,7 @@ class BK9129B(unittest.TestCase):
     def test_voltage_limit(self):
         print("test_voltage_limit")
         available_channels = self.psut.get_available_channels()
-        for x in range(2):
+        for x in range(10):
             channel = random.choice(available_channels)
             maximum_voltage_limit = self.psut.get_maximum_source_voltage(channel)
             minimum_voltage_limit = self.psut.get_minimum_source_voltage(channel)
@@ -97,7 +97,7 @@ class BK9129B(unittest.TestCase):
     def test_current_limit(self):
         print("test_current_limit")
         available_channels = self.psut.get_available_channels()
-        for x in range(2):
+        for x in range(10):
             channel = random.choice(available_channels)
             maximum_current_limit = self.psut.get_maximum_source_current(channel)
             minimum_current_limit = self.psut.get_minimum_source_current(channel)
@@ -109,7 +109,7 @@ class BK9129B(unittest.TestCase):
     def test_measured_voltage(self):
         print("test_measured_voltage")
         available_channels = self.psut.get_available_channels()
-        for x in range(2):
+        for x in range(10):
             channel = random.choice(available_channels)
             maximum_source_voltage = self.psut.get_maximum_source_voltage(channel)
             minimum_source_voltage = self.psut.get_minimum_source_voltage(channel)
@@ -129,7 +129,7 @@ class BK9129B(unittest.TestCase):
     def test_all_measured_voltages(self):
         print("test_all_measured_voltages")
         available_channels = self.psut.get_available_channels()
-        for x in range(2):
+        for x in range(10):
             voltages = []
             for channel in available_channels:
                 maximum_source_voltage = self.psut.get_maximum_source_voltage(channel)
@@ -150,7 +150,7 @@ class BK9129B(unittest.TestCase):
         print("test_measured_current")
         # This test require a resistor (recommended 1kOhm) in channel 1
         resistance = 1000
-        for x in range(2):
+        for x in range(10):
             channel = 1
             maximum_source_voltage = self.psut.get_maximum_source_voltage(channel)
             voltage = round(random.uniform(maximum_source_voltage / 2, maximum_source_voltage), 4)
@@ -166,7 +166,7 @@ class BK9129B(unittest.TestCase):
         # This test require a resistor (recommended 1kOhm) in channel 1
         available_channels = self.psut.get_available_channels()
         resistance = 1000
-        for x in range(2):
+        for x in range(10):
             maximum_source_voltage = self.psut.get_maximum_source_voltage(1)
             minimum_source_voltage = self.psut.get_minimum_source_voltage(1)
             voltage = round(random.uniform(minimum_source_voltage, maximum_source_voltage), 4)
@@ -186,7 +186,7 @@ class BK9129B(unittest.TestCase):
         print("test_measured_power")
         # This test require a resistor (recommended 1kOhm) in channel 1
         resistance = 1000
-        for x in range(2):
+        for x in range(10):
             channel = 1
             maximum_source_voltage = self.psut.get_maximum_source_voltage(channel)
             voltage = round(random.uniform(maximum_source_voltage / 2, maximum_source_voltage), 4)
@@ -202,7 +202,7 @@ class BK9129B(unittest.TestCase):
         # This test require a resistor (recommended 1kOhm) in channel 1
         available_channels = self.psut.get_available_channels()
         resistance = 1000
-        for x in range(2):
+        for x in range(10):
             maximum_source_voltage = self.psut.get_maximum_source_voltage(1)
             minimum_source_voltage = self.psut.get_minimum_source_voltage(1)
             voltage = round(random.uniform(minimum_source_voltage, maximum_source_voltage), 4)

@@ -49,18 +49,8 @@ class ST(Board):
     def read_pulses(self):
         return ast.literal_eval(f"[{self.visa_session.query('CONF:PUL?')}]")
 
-    def run_pulses(self, number_repetitions=None):
-        if number_repetitions is not None and number_repetitions > 0:
-            self.visa_session.write(f'CONF:PUL:RUN {number_repetitions}')
-        else:
-            self.visa_session.write('CONF:PUL:RUN')
-        data = self.visa_session.read_raw()
-        print(data)
-
-    def stop_pulses(self):
-        self.visa_session.write('CONF:PUL:STOP')
-        data = self.visa_session.read_raw()
-        print(data)
+    def run_pulses(self, number_repetitions=1):
+        self.visa_session.write(f'CONF:PUL:RUN {number_repetitions}')
 
     def count_trains(self):
         return int(self.visa_session.query('CONF:PUL:COUNT?').rstrip('\r'))

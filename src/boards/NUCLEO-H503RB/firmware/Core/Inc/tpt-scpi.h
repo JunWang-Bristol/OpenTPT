@@ -5,6 +5,7 @@ extern "C" {
 #endif
 
 #include "scpi/scpi.h"
+#include "main.h"
 
 #define TPT_MAXIMUM_NUMBER_PULSES 256
 #define SCPI_INPUT_BUFFER_LENGTH 256
@@ -18,6 +19,7 @@ extern scpi_interface_t scpi_interface;
 extern char scpi_input_buffer[];
 extern scpi_error_t scpi_error_queue_data[];
 extern scpi_t scpi_context;
+extern TIM_HandleTypeDef htim2;
 
 size_t SCPI_Write(scpi_t * context, const char * data, size_t len);
 int SCPI_Error(scpi_t * context, int_fast16_t err);
@@ -31,7 +33,6 @@ scpi_result_t TPT_ReadPulses(scpi_t * context);
 scpi_result_t TPT_GetMinimumPeriod(scpi_t * context);
 scpi_result_t TPT_RunPulses(scpi_t * context);
 scpi_result_t TPT_GetCountPulses(scpi_t * context);
-scpi_result_t TPT_StopPulses(scpi_t * context);
 
 #ifdef __cplusplus
 }

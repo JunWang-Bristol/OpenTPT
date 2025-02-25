@@ -151,18 +151,25 @@ class BK9129B(unittest.TestCase):
         number_samples = int(self.out.get_maximum_samples() * 0.1)
         desired_time = 4e-09
         self.out.run_acquisition_block(desired_time, number_samples)
+
         data = self.out.read_data(
             channels=[0, "B"],
             number_samples=number_samples
         )
 
-        self.assertEqual(number_samples, len(data[0]))
-        self.assertEqual(number_samples, len(data["B"]))
+        self.assertEqual(number_samples, len(data[0]["data"]))
+        self.assertEqual(number_samples, len(data[0]["time"]))
+        self.assertEqual(number_samples, len(data["B"]["data"]))
+        self.assertEqual(number_samples, len(data["B"]["time"]))
 
         for key, datum in data.items():
-            plt.plot(datum)
+            plt.plot(datum["time"], datum["data"])
         plt.show()
 
 
 if __name__ == '__main__':  # pragma: no cover
     unittest.main()
+
+
+# 6404D
+# 3406D

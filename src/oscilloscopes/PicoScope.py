@@ -40,6 +40,7 @@ class PicoScope(Oscilloscope):
     def __init__(self, port, strict=False):
         self.handle = ctypes.c_int16()
         self.strict = strict
+        self.sampling_time = None
         status = {}
 
         # Don't ask...
@@ -290,9 +291,10 @@ class PicoScope(Oscilloscope):
         if number_samples is None:
             number_samples = self.get_maximum_samples()
 
+        self.sampling_time = sampling_time
+
         timebase = self.convert_time_to_timebase(sampling_time)
         number_pre_trigger_samples = round(number_samples * 0.01)  # hardcoded
-        # number_post_trigger_samples = round(number_samples - number_pre_trigger_samples)
         number_post_trigger_samples = round(number_samples - number_pre_trigger_samples)
         number_pre_trigger_samples = ctypes.c_int32(number_pre_trigger_samples)
         number_post_trigger_samples = ctypes.c_int32(number_post_trigger_samples)
@@ -333,12 +335,12 @@ class PicoScope(Oscilloscope):
 
         overflow = ctypes.c_int16(0)
         overflow = ctypes.byref(overflow)
-        number_samples = ctypes.c_int16(number_samples)
-        number_samples = ctypes.byref(number_samples)
+        number_samples_ctype = ctypes.c_int32(number_samples)
+        number_samples_ctype = ctypes.byref(number_samples_ctype)
 
         status = ps.ps2000aGetValues(self.handle,
                                      0,
-                                     number_samples,
+                                     number_samples_ctype,
                                      0,
                                      0,
                                      ps.PS2000A_RATIO_MODE['PS2000A_RATIO_MODE_NONE'],
@@ -349,7 +351,9 @@ class PicoScope(Oscilloscope):
         for channel in channels:
             data_in_adc_count = numpy.array(buffers[channel])
             data_in_volts = data_in_adc_count / self.get_maximum_ADC_count() * self.get_channel_configuration(channel_index).input_voltage_range
-            data[channel] = data_in_volts
+            data[channel] = {}
+            data[channel]["data"] = data_in_volts
+            data[channel]["time"] = numpy.linspace(0, (number_samples - 1) * self.sampling_time, number_samples)
         return data
 
 

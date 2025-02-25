@@ -11,7 +11,7 @@ extern "C" {
 #define SCPI_INPUT_BUFFER_LENGTH 256
 #define SCPI_ERROR_QUEUE_SIZE 17
 #define SCPI_IDN1 "OPEN_TPT"
-#define SCPI_IDN2 "50V3A"
+#define SCPI_IDN2 "2402"
 #define SCPI_IDN3 "00000000"
 #define SCPI_IDN4 "0.0.1"
 extern scpi_command_t scpi_commands[];
@@ -30,9 +30,11 @@ scpi_result_t SCPI_Flush(scpi_t * context);
 scpi_result_t TPT_AddPulse(scpi_t * context);
 scpi_result_t TPT_ClearPulses(scpi_t * context);
 scpi_result_t TPT_ReadPulses(scpi_t * context);
-scpi_result_t TPT_GetMinimumPeriod(scpi_t * context);
+scpi_result_t TPT_GetMinimumPulse(scpi_t * context);
+scpi_result_t TPT_GetMaximumPulse(scpi_t * context);
 scpi_result_t TPT_RunPulses(scpi_t * context);
 scpi_result_t TPT_GetCountPulses(scpi_t * context);
+scpi_result_t TPT_CoreOpcQ(scpi_t * context);
 
 #ifdef __cplusplus
 }

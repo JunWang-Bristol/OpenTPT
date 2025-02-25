@@ -140,7 +140,7 @@ int main(void)
           scpi_input_buffer, SCPI_INPUT_BUFFER_LENGTH,
           scpi_error_queue_data, SCPI_ERROR_QUEUE_SIZE);
 
-  printf("SCPI Interactive demo\r\n");
+  printf("TPT 2402 r1 SCPI interface\r\n");
 
   /* USER CODE END 2 */
 

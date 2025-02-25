@@ -19,20 +19,8 @@ class ST(Board):
         self.visa_session.stop_bits = pyvisa.constants.StopBits.one
         self.visa_session.parity = pyvisa.constants.Parity.none
 
-        # # Put device into remote control mode
-        # self.visa_session.write('SYST:REM')
-        # self.visa_session.write('*WAI')
-
-        # test = self.visa_session.query('*TST?')
-        # assert test == "0", f"Initial test return fail: {test}"
-
-        # self.voltages = None
-        # self.channels = None
-
     def reset(self):
         self.visa_session.write('*RST')
-        data = self.visa_session.read_raw()
-        print(data)
 
     def get_identification(self):
         return self.visa_session.query('*IDN?\n')
@@ -41,6 +29,8 @@ class ST(Board):
         return self.visa_session.query('SYST:VERS?')
 
     def add_pulse(self, pulse):
+        if not self.get_minimum_period() <= pulse <= self.get_maximum_period():
+            raise Exception(f"Pulse period {pulse} must be between minimum {self.get_minimum_period()} and maximum {self.get_maximum_period()}")
         self.visa_session.write(f'CONF:PUL:ADD {pulse}')
 
     def clear_pulses(self):
@@ -50,13 +40,26 @@ class ST(Board):
         return ast.literal_eval(f"[{self.visa_session.query('CONF:PUL?')}]")
 
     def run_pulses(self, number_repetitions=1):
-        self.visa_session.write(f'CONF:PUL:RUN {number_repetitions}')
+        self.visa_session.write(f'APP:PUL:RUN {number_repetitions}')
+        # try:
+        #     while True:
+        #         data = self.visa_session.read_raw()
+        #         print(data)
+        # except pyvisa.errors.VisaIOError as e:
+        #     print(e)
+        # result = None
+        # while result != "1":
+        #     print(result)
+        #     result = self.visa_session.query('*OPC?').rstrip('\r')
 
     def count_trains(self):
-        return int(self.visa_session.query('CONF:PUL:COUNT?').rstrip('\r'))
+        return int(self.visa_session.query('APP:PUL:COUNT?').rstrip('\r'))
 
     def get_minimum_period(self):
         return float(self.visa_session.query('CONF:PUL:MIN?').rstrip('\r'))
+
+    def get_maximum_period(self):
+        return float(self.visa_session.query('CONF:PUL:MAX?').rstrip('\r'))
 
     def close(self):
         self.visa_session.close()

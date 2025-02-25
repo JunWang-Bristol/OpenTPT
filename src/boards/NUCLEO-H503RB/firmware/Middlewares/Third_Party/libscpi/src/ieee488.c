@@ -411,14 +411,3 @@ scpi_result_t SCPI_CoreTstQ(scpi_t * context) {
     return SCPI_RES_OK;
 }
 
-/**
- * *WAI
- * @param context
- * @return 
- */
-scpi_result_t SCPI_CoreWai(scpi_t * context) {
-    (void) context;
-    /* NOP */
-    return SCPI_RES_OK;
-}
-

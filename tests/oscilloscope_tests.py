@@ -2,6 +2,7 @@ import unittest
 import context  # noqa: F401
 from oscilloscope import Oscilloscope
 import random
+import matplotlib.pyplot as plt
 
 
 class BK9129B(unittest.TestCase):
@@ -131,16 +132,36 @@ class BK9129B(unittest.TestCase):
             real_sampling_time = self.out.get_real_sampling_time(desired_time, 12345)
             self.assertAlmostEqual(desired_time, real_sampling_time, None, "", desired_time * 0.1)
 
-    def test_run_acquisition_block(self):
-        timebase = random.randint(0, 2**32 - 1)
-        desired_time = self.out.convert_timebase_to_time(timebase)
-        self.out.run_acquisition_block(desired_time)
-
     def test_read_data(self):
-        timebase = random.randint(0, 2**32 - 1)
-        desired_time = self.out.convert_timebase_to_time(timebase)
-        self.out.run_acquisition_block(desired_time)
-        self.out.read_data(0)
+        self.out.set_channel_configuration(
+            channel=0, 
+            input_voltage_range=5, 
+            coupling=0, 
+            analog_offset=0
+        )
+        self.out.set_channel_configuration(
+            channel="B", 
+            input_voltage_range=9, 
+            coupling=0, 
+            analog_offset=0
+        )
+        self.out.set_rising_trigger(0, 3)
+        self.out.arm_trigger(0)
+
+        number_samples = int(self.out.get_maximum_samples() * 0.1)
+        desired_time = 4e-09
+        self.out.run_acquisition_block(desired_time, number_samples)
+        data = self.out.read_data(
+            channels=[0, "B"],
+            number_samples=number_samples
+        )
+
+        self.assertEqual(number_samples, len(data[0]))
+        self.assertEqual(number_samples, len(data["B"]))
+
+        for key, datum in data.items():
+            plt.plot(datum)
+        plt.show()
 
 
 if __name__ == '__main__':  # pragma: no cover

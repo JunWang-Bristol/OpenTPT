@@ -1,8 +1,9 @@
 import re
+import numpy
 import ctypes
 from picosdk.ps2000a import ps2000a as ps
 from oscilloscope import Oscilloscope
-from picosdk.functions import adc2mV, mV2adc, assert_pico_ok
+from picosdk.functions import assert_pico_ok
 
 
 class PicoScope(Oscilloscope):
@@ -36,8 +37,9 @@ class PicoScope(Oscilloscope):
         def disable(self):
             self.enabled = False
 
-    def __init__(self, port):
+    def __init__(self, port, strict=False):
         self.handle = ctypes.c_int16()
+        self.strict = strict
         status = {}
 
         # Don't ask...
@@ -96,6 +98,8 @@ class PicoScope(Oscilloscope):
     def set_channel_configuration(self, channel, input_voltage_range, coupling, analog_offset, enable=True):
         channel_index = self.check_channel(channel)
 
+        input_voltage_range = self.check_input_voltage_range(input_voltage_range)
+
         [minimum_analog_offset_range, maximum_analog_offset_range] = self.get_analog_offset_range(coupling, input_voltage_range)
         if not minimum_analog_offset_range < analog_offset < maximum_analog_offset_range:
             raise Exception(f"Analog offset {analog_offset} is not between limits for input voltage range {input_voltage_range}: [{minimum_analog_offset_range}, {maximum_analog_offset_range}]")
@@ -151,6 +155,24 @@ class PicoScope(Oscilloscope):
         else:
             raise Exception(f"Channel {channel} does not exist on this device")
 
+    def check_input_voltage_range(self, input_voltage_range):
+
+        if isinstance(input_voltage_range, int):
+            input_voltage_range = float(input_voltage_range)
+
+        if input_voltage_range not in self.get_input_voltage_ranges():
+            if self.strict:
+                raise Exception(f"Input voltage range {input_voltage_range} must be one of {self.get_input_voltage_ranges()}")
+            else:
+                for voltage in self.get_input_voltage_ranges():
+                    if voltage > input_voltage_range:
+                        input_voltage_range = voltage
+                        break
+                else:
+                    input_voltage_range = self.get_input_voltage_ranges()[-1]
+
+        return input_voltage_range
+
     def get_maximum_ADC_count(self):
         maxADC = ctypes.c_int16(0)
         ps.ps2000aMaximumValue(self.handle, ctypes.byref(maxADC))
@@ -161,7 +183,7 @@ class PicoScope(Oscilloscope):
         ps.ps2000aMinimumValue(self.handle, ctypes.byref(minADC))
         return minADC.value
 
-    def set_trigger(self, channel, threshold_voltage, direction, delayed_samples=0, timeout=5000, enable=True):
+    def set_trigger(self, channel, threshold_voltage, direction, delayed_samples=0, timeout=0, enable=True):
         channel_index = self.check_channel(channel)
 
         input_voltage_range = self.get_channel_configuration(channel_index).input_voltage_range
@@ -177,10 +199,10 @@ class PicoScope(Oscilloscope):
         assert_pico_ok(status)
         self.trigger_info[channel_index] = self.TriggerInfo(channel_index, threshold_voltage, direction, delayed_samples, timeout)
 
-    def set_rising_trigger(self, channel, threshold_voltage, delayed_samples=0, timeout=5000):
+    def set_rising_trigger(self, channel, threshold_voltage, delayed_samples=0, timeout=0):
         self.set_trigger(channel, threshold_voltage, ps.PS2000A_THRESHOLD_DIRECTION['PS2000A_RISING'], delayed_samples, timeout, True)
 
-    def set_falling_trigger(self, channel, threshold_voltage, delayed_samples=0, timeout=5000):
+    def set_falling_trigger(self, channel, threshold_voltage, delayed_samples=0, timeout=0):
         self.set_trigger(channel, threshold_voltage, ps.PS2000A_THRESHOLD_DIRECTION['PS2000A_FALLING'], delayed_samples, timeout, True)
 
     def get_trigger_configuration(self, channel):
@@ -267,10 +289,13 @@ class PicoScope(Oscilloscope):
     def run_acquisition_block(self, sampling_time, number_samples=None):
         if number_samples is None:
             number_samples = self.get_maximum_samples()
+
         timebase = self.convert_time_to_timebase(sampling_time)
-        aux = round(number_samples * 0.01)  # hardcoded
-        number_pre_trigger_samples = ctypes.c_int32(aux)
-        number_post_trigger_samples = ctypes.c_int32(number_samples - aux)
+        number_pre_trigger_samples = round(number_samples * 0.01)  # hardcoded
+        # number_post_trigger_samples = round(number_samples - number_pre_trigger_samples)
+        number_post_trigger_samples = round(number_samples - number_pre_trigger_samples)
+        number_pre_trigger_samples = ctypes.c_int32(number_pre_trigger_samples)
+        number_post_trigger_samples = ctypes.c_int32(number_post_trigger_samples)
 
         status = ps.ps2000aRunBlock(self.handle,
                                     number_pre_trigger_samples,
@@ -284,30 +309,48 @@ class PicoScope(Oscilloscope):
         assert_pico_ok(status)
         return True
 
-    def read_data(self, channel, number_samples=None):
+    def read_data(self, channels, number_samples=None):
         if number_samples is None:
             number_samples = self.get_maximum_samples()
-        channel_index = self.check_channel(channel)
-        print("number_samples")
-        print(number_samples)
-        print("channel_index")
-        print(channel_index)
+
+        buffers = {}
+        for channel in channels:
+            channel_index = self.check_channel(channel)
+            buffer = (ctypes.c_int16 * number_samples)()
+            buffers[channel] = buffer
+            status = ps.ps2000aSetDataBuffers(self.handle,
+                                              channel_index,
+                                              ctypes.byref(buffer),
+                                              None,
+                                              number_samples,
+                                              0,
+                                              ps.PS2000A_RATIO_MODE['PS2000A_RATIO_MODE_NONE'])
 
         ready = ctypes.c_int16(0)
         while ready.value == 0:
             status = ps.ps2000aIsReady(self.handle, ctypes.byref(ready))
         assert_pico_ok(status)
 
-        buffer = (ctypes.c_int16 * number_samples)()
-        status = ps.ps2000aSetDataBuffers(self.handle,
-                                          channel_index,
-                                          ctypes.byref(buffer),
-                                          None,
-                                          number_samples,
-                                          0,
-                                          ps.PS2000A_RATIO_MODE['PS2000A_RATIO_MODE_NONE'])
+        overflow = ctypes.c_int16(0)
+        overflow = ctypes.byref(overflow)
+        number_samples = ctypes.c_int16(number_samples)
+        number_samples = ctypes.byref(number_samples)
 
-        return True
+        status = ps.ps2000aGetValues(self.handle,
+                                     0,
+                                     number_samples,
+                                     0,
+                                     0,
+                                     ps.PS2000A_RATIO_MODE['PS2000A_RATIO_MODE_NONE'],
+                                     overflow)
+        assert_pico_ok(status)
+
+        data = {}
+        for channel in channels:
+            data_in_adc_count = numpy.array(buffers[channel])
+            data_in_volts = data_in_adc_count / self.get_maximum_ADC_count() * self.get_channel_configuration(channel_index).input_voltage_range
+            data[channel] = data_in_volts
+        return data
 
 
 class PicoScope2408B(PicoScope):

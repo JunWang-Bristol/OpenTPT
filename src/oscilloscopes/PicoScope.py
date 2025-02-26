@@ -52,6 +52,11 @@ class PicoScope(Oscilloscope):
         self.number_samples = int(self.get_maximum_samples())
         self.sampling_time = None
 
+        self.channel_labels = {}
+        for channel in self._get_channels():
+            channel_index = self.check_channel(channel)
+            self.channel_labels[channel_index] = channel
+
     def set_number_samples(self, number_samples):
         self.number_samples = number_samples
 
@@ -224,6 +229,8 @@ class PicoScope(Oscilloscope):
 
     def check_channel(self, channel):
         if isinstance(channel, str):
+            if "_CHANNEL_" in channel:
+                channel = channel.split("_CHANNEL_")[1]
             if channel in ["0", "1", "2", "3"]:
                 return int(channel)
             elif channel == "A":
@@ -262,6 +269,10 @@ class PicoScope(Oscilloscope):
                     input_voltage_range = self.get_input_voltage_ranges()[-1]
 
         return input_voltage_range
+
+    def set_channel_label(self, channel, label):
+        channel_index = self.check_channel(channel)
+        self.channel_labels[channel_index] = label
 
     def get_maximum_ADC_count(self):
         maxADC = ctypes.c_int16(0)
@@ -418,12 +429,14 @@ class PicoScope(Oscilloscope):
         assert_pico_ok(status)
 
         data = {}
+        data["time"] = numpy.linspace(0, (number_samples - 1) * self.sampling_time, number_samples)
+        data["data"] = {}
         for channel in channels:
+            channel_index = self.check_channel(channel)
+
             data_in_adc_count = numpy.array(buffers[channel])
             data_in_volts = data_in_adc_count / self.get_maximum_ADC_count() * self.get_channel_configuration(channel_index).input_voltage_range
-            data[channel] = {}
-            data[channel]["data"] = data_in_volts
-            data[channel]["time"] = numpy.linspace(0, (number_samples - 1) * self.sampling_time, number_samples)
+            data["data"][self.channel_labels[channel_index]] = data_in_volts
         return data
 
 
@@ -435,7 +448,7 @@ class PicoScope2408B(PicoScope):
         status["ApplyFix"] = ps2.ps2000aApplyFix(0x421ced9168, 0x1420011e6)
         super().__init__(port, strict)
 
-    # 2408B specific    
+    # 2408B specific
     def convert_time_to_timebase(self, time):
         if time > 34.35973836:
             raise Exception(f"Too much time: {time} seconds. Maximum supported: 34.35973836 seconds")
@@ -448,7 +461,7 @@ class PicoScope2408B(PicoScope):
         else:
             return int(time * 125000000 + 2)
 
-    # 2408B specific        
+    # 2408B specific
     def convert_timebase_to_time(self, timebase):
         if timebase > 2**32 - 1:
             raise Exception(f"Too much timebase: {timebase} seconds. Maximum supported: {2**32 - 1}")
@@ -483,7 +496,7 @@ class PicoScope2408B(PicoScope):
 
     @staticmethod
     def _get_channels():
-        return ps2.PS2000A_CHANNEL
+        return [x for x in ps2.PS2000A_CHANNEL if "_CHANNEL_" in x]
 
     @staticmethod
     def _get_status():

@@ -132,7 +132,7 @@ class PicoScope2408B(unittest.TestCase):
             real_sampling_time = self.out.get_real_sampling_time(desired_time, 12345)
             self.assertAlmostEqual(desired_time, real_sampling_time, None, "", desired_time * 0.1)
 
-    @unittest.skip
+    # @unittest.skip
     def test_read_data(self):
         self.out.set_channel_configuration(
             channel=0, 
@@ -150,7 +150,7 @@ class PicoScope2408B(unittest.TestCase):
         self.out.arm_trigger(0)
 
         number_samples = int(self.out.get_maximum_samples() * 0.1)
-        desired_time = 1e-09
+        desired_time = 4e-09
         self.out.run_acquisition_block(desired_time, number_samples)
 
         data = self.out.read_data(
@@ -163,8 +163,8 @@ class PicoScope2408B(unittest.TestCase):
         self.assertEqual(number_samples, len(data["B"]["data"]))
         self.assertEqual(number_samples, len(data["B"]["time"]))
 
-        for key, datum in data.items():
-            plt.plot(datum["time"], datum["data"])
+        for key, datum in data["data"].items():
+            plt.plot(data["time"], datum)
         plt.show()
 
 

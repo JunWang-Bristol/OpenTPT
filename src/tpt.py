@@ -6,6 +6,14 @@ import matplotlib.pyplot as plt
 
 class TPT():
 
+    class MeasureParameters():
+        def __init__(self, effective_area, number_turns, magnetic_flux_density_ac_peak_to_peak, magnetic_flux_density_dc_bias, frequency):
+            self.effective_area = effective_area
+            self.number_turns = number_turns
+            self.magnetic_flux_density_ac_peak_to_peak = magnetic_flux_density_ac_peak_to_peak
+            self.magnetic_flux_density_dc_bias = magnetic_flux_density_dc_bias
+            self.frequency = frequency
+
     class TestParameters():
         def __init__(self, positive_voltage, negative_voltage):
             self.positive_voltage = positive_voltage
@@ -17,15 +25,13 @@ class TPT():
         self.oscilloscope = self.setup_oscilloscope(oscilloscope, oscilloscope_port)
         self.board = self.setup_board(board, board_port)
 
-    def calculate_test_parameters(self, inductance, number_turns, magnetic_flux_density_peak, magnetic_flux_density_dc_bias, frequency):
-        # do magic
-        # hardcoded
-        positive_voltage = 30
-        negative_voltage = 30
-        dc_bias_period = 100e-6
-        steady_period = 10e-6
-        steady_repetitions = 5
-        demagnetization_period = 100e-6
+    def calculate_test_parameters(self, measure_parameters):
+        steady_period = 1.0 / (2 * measure_parameters.frequency)
+        positive_voltage = measure_parameters.effective_area * measure_parameters.number_turns * measure_parameters.magnetic_flux_density_ac_peak_to_peak / 2 / steady_period
+        negative_voltage = positive_voltage
+        dc_bias_period = measure_parameters.effective_area * measure_parameters.number_turns * measure_parameters.magnetic_flux_density_dc_bias / positive_voltage
+        steady_repetitions = 5  # hardcoded
+        demagnetization_period = dc_bias_period
 
         parameters = self.TestParameters(positive_voltage, negative_voltage)
         parameters.pulses_periods = [dc_bias_period]
@@ -45,18 +51,8 @@ class TPT():
         board = Board.factory(board, port)
         return board
 
-    def run_test(self):
-        positive_voltage = 30
-        negative_voltage = 30
-        dc_bias_period = 100e-6
-        steady_period = 10e-6
-        steady_repetitions = 5
-        demagnetization_period = 100e-6
-
-        parameters = self.TestParameters(positive_voltage, negative_voltage)
-        parameters.pulses_periods = [dc_bias_period]
-        parameters.pulses_periods.extend([steady_period, steady_period] * steady_repetitions)
-        parameters.pulses_periods.append(demagnetization_period)
+    def run_test(self, measure_parameters):
+        parameters = self.calculate_test_parameters(measure_parameters)
 
         # POWER SUPPLY SETUP START
 
@@ -65,12 +61,12 @@ class TPT():
         self.power_supply.reset_limits()
 
         self.power_supply.set_source_voltage(1, parameters.positive_voltage)
-        read_voltage = float(self.power_supply.get_source_voltage(1))
-        assert float(parameters.positive_voltage) == read_voltage, f"Wrong voltage measured at PSU: {read_voltage}, expected {parameters.positive_voltage}"
+        read_voltage = float(round(self.power_supply.get_source_voltage(1), 6))
+        assert float(round(parameters.positive_voltage, 6)) == read_voltage, f"Wrong voltage measured at PSU: {read_voltage}, expected {parameters.positive_voltage}"
 
         self.power_supply.set_source_voltage(2, parameters.negative_voltage)
-        read_voltage = float(self.power_supply.get_source_voltage(2))
-        assert float(parameters.negative_voltage) == read_voltage, f"Wrong voltage measured at PSU: {read_voltage}, expected {parameters.negative_voltage}"
+        read_voltage = float(round(self.power_supply.get_source_voltage(2), 6))
+        assert float(round(parameters.negative_voltage, 6)) == read_voltage, f"Wrong voltage measured at PSU: {read_voltage}, expected {parameters.negative_voltage}"
 
         # POWER SUPPLY SETUP END
 
@@ -93,6 +89,8 @@ class TPT():
 
         # self.oscilloscope.set_number_samples(int(self.oscilloscope.get_maximum_samples()))
         self.oscilloscope.set_sampling_time(4e-09)
+        self.oscilloscope.set_channel_label(0, "Input Voltage")
+        self.oscilloscope.set_channel_label(1, "Output Voltage")
 
         # OSCILLOSCOPE SETUP STOP
 
@@ -115,8 +113,8 @@ class TPT():
             channels=[0, 1]
         )
 
-        for key, datum in data.items():
-            plt.plot(datum["time"], datum["data"])
+        for key, datum in data["data"].items():
+            plt.plot(data["time"], datum)
         plt.show()
 
         print(data)
@@ -125,10 +123,18 @@ class TPT():
 if __name__ == "__main__":
     tpt = TPT(
         power_supply="BK9129B",
-        power_supply_port="COM3",
+        power_supply_port="COM4",
         oscilloscope="PicoScope2408B",
         oscilloscope_port="COM5",
-        board_port="COM6",
-        board="NUCLEO-H503RB"
+        board="NUCLEO-H503RB",
+        board_port="COM6"
     )
-    tpt.run_test()
+
+    measure_parameters = TPT.MeasureParameters(
+        effective_area=0.0000638,
+        number_turns=5,
+        magnetic_flux_density_ac_peak_to_peak=0.2,
+        magnetic_flux_density_dc_bias=0.2,
+        frequency=100000,
+    )
+    tpt.run_test(measure_parameters)

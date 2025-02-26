@@ -3,3 +3,4 @@ pyvisa
 pyvisa-py
 pyusb
 picosdk
+matplotlib

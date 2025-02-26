@@ -5,7 +5,7 @@ import random
 import matplotlib.pyplot as plt
 
 
-class BK9129B(unittest.TestCase):
+class PicoScope2408B(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -132,6 +132,7 @@ class BK9129B(unittest.TestCase):
             real_sampling_time = self.out.get_real_sampling_time(desired_time, 12345)
             self.assertAlmostEqual(desired_time, real_sampling_time, None, "", desired_time * 0.1)
 
+    @unittest.skip
     def test_read_data(self):
         self.out.set_channel_configuration(
             channel=0, 

@@ -4,6 +4,12 @@ class Oscilloscope():
         if name == "PicoScope2408B":
             from oscilloscopes.PicoScope import PicoScope2408B
             return PicoScope2408B(port)
+        if name == "PicoScope3406D":
+            from oscilloscopes.PicoScope import PicoScope3406D
+            return PicoScope3406D(port)
+        if name == "PicoScope6404D":
+            from oscilloscopes.PicoScope import PicoScope6404D
+            return PicoScope6404D(port)
 
     def check_channel_index(self, channel_index):
         raise NotImplementedError

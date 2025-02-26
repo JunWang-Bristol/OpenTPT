@@ -150,7 +150,7 @@ class PicoScope2408B(unittest.TestCase):
         self.out.arm_trigger(0)
 
         number_samples = int(self.out.get_maximum_samples() * 0.1)
-        desired_time = 4e-09
+        desired_time = 1e-09
         self.out.run_acquisition_block(desired_time, number_samples)
 
         data = self.out.read_data(

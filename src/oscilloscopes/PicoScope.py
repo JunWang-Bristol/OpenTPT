@@ -42,7 +42,6 @@ class PicoScope(Oscilloscope):
     def __init__(self, port, strict=False):
         self.handle = ctypes.c_int16()
         self.strict = strict
-        self.sampling_time = None
 
         status = self._open_unit(ctypes.byref(self.handle), None)
         assert_pico_ok(status)
@@ -50,6 +49,20 @@ class PicoScope(Oscilloscope):
         self.channel_info = {}
         self.trigger_info = {}
         self.number_segments = 1
+        self.number_samples = int(self.get_maximum_samples())
+        self.sampling_time = None
+
+    def set_number_samples(self, number_samples):
+        self.number_samples = number_samples
+
+    def get_number_samples(self):
+        return self.number_samples
+
+    def set_sampling_time(self, sampling_time):
+        self.sampling_time = sampling_time
+
+    def get_sampling_time(self):
+        return self.sampling_time
 
     @staticmethod
     def _get_channels_max():
@@ -343,11 +356,12 @@ class PicoScope(Oscilloscope):
         assert_pico_ok(status)
         return time_interval_ns.value * 1e-9
 
-    def run_acquisition_block(self, sampling_time, number_samples=None):
+    def run_acquisition_block(self, sampling_time=None, number_samples=None):
         if number_samples is None:
-            number_samples = self.get_maximum_samples()
+            number_samples = self.number_samples
 
-        self.sampling_time = sampling_time
+        if sampling_time is None:
+            sampling_time = self.sampling_time
 
         timebase = self.convert_time_to_timebase(sampling_time)
         number_pre_trigger_samples = round(number_samples * 0.01)  # hardcoded
@@ -369,7 +383,7 @@ class PicoScope(Oscilloscope):
 
     def read_data(self, channels, number_samples=None):
         if number_samples is None:
-            number_samples = self.get_maximum_samples()
+            number_samples = self.number_samples
 
         buffers = {}
         for channel in channels:

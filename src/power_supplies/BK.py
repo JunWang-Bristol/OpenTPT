@@ -6,7 +6,7 @@ from power_supply import PowerSupply
 class BK(PowerSupply):
     def __init__(self, port):
         rm = pyvisa.ResourceManager()
-        print(rm.list_resources())
+        # print(rm.list_resources())
         if 'COM' in port:
             port = port.split('COM')[1]
 

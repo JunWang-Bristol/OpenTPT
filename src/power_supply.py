@@ -88,3 +88,8 @@ class PowerSupply():
 
     def get_all_measured_powers(self):
         raise NotImplementedError
+
+    def reset_limits(self):
+        for channel in self.get_available_channels():
+            self.set_current_limit(channel, self.get_maximum_source_current(channel))
+            self.set_voltage_limit(channel, self.get_maximum_source_voltage(channel))

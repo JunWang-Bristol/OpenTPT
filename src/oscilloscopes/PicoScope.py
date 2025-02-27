@@ -635,7 +635,7 @@ class PicoScope3406D(PicoScope):
 
     @staticmethod
     def _get_channels():
-        return ps3.PS3000A_CHANNEL
+        return [x for x in ps3.PS3000A_CHANNEL if "_CHANNEL_" in x]
 
     @staticmethod
     def _get_status():
@@ -782,7 +782,7 @@ class PicoScope6404D(PicoScope):
 
     @staticmethod
     def _get_channels():
-        return ps6.PICO_CHANNEL
+        return [x for x in ps6.PICO_CHANNEL if "_CHANNEL_" in x]
 
     @staticmethod
     def _get_status():

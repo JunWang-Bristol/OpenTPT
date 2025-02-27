@@ -34,20 +34,20 @@ class BK(PowerSupply):
     def get_available_channels(self):
         return self.channels
 
-    def check_channel_index(self, channel_index):
-        assert channel_index in self.channels or channel_index in [str(x) for x in self.channels], f"Wrong channel index: {channel_index}"
+    def check_channel(self, channel):
+        assert channel in self.channels or channel in [str(x) for x in self.channels], f"Wrong channel index: {channel}"
 
-    def enable_output(self, channel_index):
-        self.check_channel_index(channel_index)
-        self.visa_session.write(f'INST:NSEL {channel_index}')
+    def enable_output(self, channel):
+        self.check_channel(channel)
+        self.visa_session.write(f'INST:NSEL {channel}')
         self.visa_session.write('*WAI')
         self.visa_session.write('CHAN:OUTP:STAT 1')
         self.visa_session.write('*WAI')
         return self.visa_session.query('CHAN:OUTP:STAT?') == '1'
 
-    def is_output_enabled(self, channel_index):
-        self.check_channel_index(channel_index)
-        self.visa_session.write(f'INST:NSEL {channel_index}')
+    def is_output_enabled(self, channel):
+        self.check_channel(channel)
+        self.visa_session.write(f'INST:NSEL {channel}')
         self.visa_session.write('*WAI')
         return self.visa_session.query('CHAN:OUTP:STAT?') == '1'
 
@@ -56,9 +56,9 @@ class BK(PowerSupply):
         self.visa_session.write('*WAI')
         return self.visa_session.query('OUTP:STAT?') == '1'
 
-    def disable_output(self, channel_index):
-        self.check_channel_index(channel_index)
-        self.visa_session.write(f'INST:NSEL {channel_index}')
+    def disable_output(self, channel):
+        self.check_channel(channel)
+        self.visa_session.write(f'INST:NSEL {channel}')
         self.visa_session.write('*WAI')
         self.visa_session.write('CHAN:OUTP:STAT 0')
         self.visa_session.write('*WAI')
@@ -75,9 +75,9 @@ class BK(PowerSupply):
         self.visa_session.write('*WAI')
         return self.visa_session.query('*OPC?') == '1'
 
-    def set_source_voltage(self, channel_index, voltage):
-        self.check_channel_index(channel_index)
-        self.voltages[channel_index - 1] = voltage
+    def set_source_voltage(self, channel, voltage):
+        self.check_channel(channel)
+        self.voltages[channel - 1] = voltage
         return self.set_all_source_voltages(self.voltages)
 
     def get_all_source_voltages(self):
@@ -85,71 +85,71 @@ class BK(PowerSupply):
         voltages = [float(x) for x in voltages_str.split(',')]
         return voltages
 
-    def get_source_voltage(self, channel_index):
-        self.check_channel_index(channel_index)
-        return self.get_all_source_voltages()[channel_index - 1]
+    def get_source_voltage(self, channel):
+        self.check_channel(channel)
+        return self.get_all_source_voltages()[channel - 1]
 
-    def set_current_limit(self, channel_index, limit):
-        self.check_channel_index(channel_index)
-        self.visa_session.write(f'INST:NSEL {channel_index}')
+    def set_current_limit(self, channel, limit):
+        self.check_channel(channel)
+        self.visa_session.write(f'INST:NSEL {channel}')
         self.visa_session.write('*WAI')
         self.visa_session.write(f'CURR {limit}')
         self.visa_session.write('*WAI')
         return self.visa_session.query('*OPC?') == '1'
 
-    def get_current_limit(self, channel_index):
-        self.check_channel_index(channel_index)
-        self.visa_session.write(f'INST:NSEL {channel_index}')
+    def get_current_limit(self, channel):
+        self.check_channel(channel)
+        self.visa_session.write(f'INST:NSEL {channel}')
         self.visa_session.write('*WAI')
         limit = float(self.visa_session.query('CURR?'))
         return limit
 
-    def get_maximum_source_current(self, channel_index=1):
-        self.check_channel_index(channel_index)
-        self.visa_session.write(f'INST:NSEL {channel_index}')
+    def get_maximum_source_current(self, channel=1):
+        self.check_channel(channel)
+        self.visa_session.write(f'INST:NSEL {channel}')
         self.visa_session.write('*WAI')
         limit = float(self.visa_session.query('CURR? MAX'))
         return limit
 
-    def get_minimum_source_current(self, channel_index=1):
-        self.check_channel_index(channel_index)
-        self.visa_session.write(f'INST:NSEL {channel_index}')
+    def get_minimum_source_current(self, channel=1):
+        self.check_channel(channel)
+        self.visa_session.write(f'INST:NSEL {channel}')
         self.visa_session.write('*WAI')
         limit = float(self.visa_session.query('CURR? MIN'))
         return limit
 
-    def set_voltage_limit(self, channel_index, limit):
-        self.check_channel_index(channel_index)
-        self.visa_session.write(f'INST:NSEL {channel_index}')
+    def set_voltage_limit(self, channel, limit):
+        self.check_channel(channel)
+        self.visa_session.write(f'INST:NSEL {channel}')
         self.visa_session.write('*WAI')
         self.visa_session.write(f'VOLT:LIMIT {limit}')
         self.visa_session.write('*WAI')
         return self.visa_session.query('*OPC?') == '1'
 
-    def get_voltage_limit(self, channel_index):
-        self.check_channel_index(channel_index)
-        self.visa_session.write(f'INST:NSEL {channel_index}')
+    def get_voltage_limit(self, channel):
+        self.check_channel(channel)
+        self.visa_session.write(f'INST:NSEL {channel}')
         self.visa_session.write('*WAI')
         limit = float(self.visa_session.query('VOLT:LIMIT?'))
         return limit
 
-    def get_maximum_source_voltage(self, channel_index=1):
-        self.check_channel_index(channel_index)
-        self.visa_session.write(f'INST:NSEL {channel_index}')
+    def get_maximum_source_voltage(self, channel=1):
+        self.check_channel(channel)
+        self.visa_session.write(f'INST:NSEL {channel}')
         self.visa_session.write('*WAI')
         limit = float(self.visa_session.query('VOLT:LIMIT? MAX'))
         return limit
 
-    def get_minimum_source_voltage(self, channel_index=1):
-        self.check_channel_index(channel_index)
-        self.visa_session.write(f'INST:NSEL {channel_index}')
+    def get_minimum_source_voltage(self, channel=1):
+        self.check_channel(channel)
+        self.visa_session.write(f'INST:NSEL {channel}')
         self.visa_session.write('*WAI')
         limit = float(self.visa_session.query('VOLT:LIMIT? MIN'))
         return limit
 
-    def get_measured_voltage(self, channel_index):
-        self.check_channel_index(channel_index)
-        self.visa_session.write(f'INST:NSEL {channel_index}')
+    def get_measured_voltage(self, channel):
+        self.check_channel(channel)
+        self.visa_session.write(f'INST:NSEL {channel}')
         self.visa_session.write('*WAI')
         voltage = float(self.visa_session.query('MEAS:VOLT?'))
         return voltage
@@ -159,9 +159,9 @@ class BK(PowerSupply):
         voltages = [float(x) for x in voltages_str.split(',')]
         return voltages
 
-    def get_measured_current(self, channel_index):
-        self.check_channel_index(channel_index)
-        self.visa_session.write(f'INST:NSEL {channel_index}')
+    def get_measured_current(self, channel):
+        self.check_channel(channel)
+        self.visa_session.write(f'INST:NSEL {channel}')
         self.visa_session.write('*WAI')
         current = float(self.visa_session.query('MEAS:CURR?'))
         return current
@@ -171,9 +171,9 @@ class BK(PowerSupply):
         currents = [float(x) for x in currents_str.split(',')]
         return currents
 
-    def get_measured_power(self, channel_index):
-        self.check_channel_index(channel_index)
-        self.visa_session.write(f'INST:NSEL {channel_index}')
+    def get_measured_power(self, channel):
+        self.check_channel(channel)
+        self.visa_session.write(f'INST:NSEL {channel}')
         self.visa_session.write('*WAI')
         power = float(self.visa_session.query('MEAS:POW?'))
         return power

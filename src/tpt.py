@@ -56,16 +56,23 @@ class TPT():
 
         # POWER SUPPLY SETUP START
 
-        self.power_supply.disable_output(1)
-        self.power_supply.disable_output(2)
+        self.power_supply.disable_output(
+            channel=1
+        )
+        self.power_supply.disable_output(
+            channel=2
+        )
         self.power_supply.reset_limits()
 
-        self.power_supply.set_source_voltage(1, parameters.positive_voltage)
-        read_voltage = float(round(self.power_supply.get_source_voltage(1), 6))
+        self.power_supply.set_source_voltage(
+            channel=1,
+            voltage=parameters.positive_voltage
+        )
+        read_voltage = float(round(self.power_supply.get_source_voltage(channel=1), 6))
         assert float(round(parameters.positive_voltage, 6)) == read_voltage, f"Wrong voltage measured at PSU: {read_voltage}, expected {parameters.positive_voltage}"
 
         self.power_supply.set_source_voltage(2, parameters.negative_voltage)
-        read_voltage = float(round(self.power_supply.get_source_voltage(2), 6))
+        read_voltage = float(round(self.power_supply.get_source_voltage(channel=2), 6))
         assert float(round(parameters.negative_voltage, 6)) == read_voltage, f"Wrong voltage measured at PSU: {read_voltage}, expected {parameters.negative_voltage}"
 
         # POWER SUPPLY SETUP END
@@ -84,13 +91,25 @@ class TPT():
             coupling=0, 
             analog_offset=0
         )
-        self.oscilloscope.set_rising_trigger(0, 3)
-        self.oscilloscope.arm_trigger(0)
+        self.oscilloscope.set_rising_trigger(
+            channel=0,
+            threshold_voltage=3,
+            timeout=5000
+        )
+        self.oscilloscope.arm_trigger(
+            channel=0
+        )
 
         # self.oscilloscope.set_number_samples(int(self.oscilloscope.get_maximum_samples()))
         self.oscilloscope.set_sampling_time(4e-09)
-        self.oscilloscope.set_channel_label(0, "Input Voltage")
-        self.oscilloscope.set_channel_label(1, "Output Voltage")
+        self.oscilloscope.set_channel_label(
+            channel=0,
+            label="Input Voltage"
+        )
+        self.oscilloscope.set_channel_label(
+            channel=1,
+            label="Output Voltage"
+        )
 
         # OSCILLOSCOPE SETUP STOP
 
@@ -98,16 +117,24 @@ class TPT():
         self.board.reset()
         self.board.clear_pulses()
         for pulse_period in parameters.pulses_periods:
-            self.board.add_pulse(pulse_period)
+            self.board.add_pulse(
+                pulse_period=pulse_period
+            )
 
         # BOARD SETUP STOP
 
-        self.power_supply.enable_output(1)
-        self.power_supply.enable_output(2)
+        self.power_supply.enable_output(
+            channel=1
+        )
+        self.power_supply.enable_output(
+            channel=2
+        )
 
         self.oscilloscope.run_acquisition_block()
 
-        self.board.run_pulses(1)
+        self.board.run_pulses(
+            number_repetitions=1
+        )
 
         data = self.oscilloscope.read_data(
             channels=[0, 1]
@@ -123,7 +150,7 @@ class TPT():
 if __name__ == "__main__":
     tpt = TPT(
         power_supply="BK9129B",
-        power_supply_port="COM4",
+        power_supply_port="COM3",
         oscilloscope="PicoScope2408B",
         oscilloscope_port="COM5",
         board="NUCLEO-H503RB",

@@ -28,10 +28,10 @@ class ST(Board):
     def get_version(self):
         return self.visa_session.query('SYST:VERS?')
 
-    def add_pulse(self, pulse):
-        if not self.get_minimum_period() <= pulse <= self.get_maximum_period():
-            raise Exception(f"Pulse period {pulse} must be between minimum {self.get_minimum_period()} and maximum {self.get_maximum_period()}")
-        self.visa_session.write(f'CONF:PUL:ADD {pulse}')
+    def add_pulse(self, pulse_period):
+        if not self.get_minimum_period() <= pulse_period <= self.get_maximum_period():
+            raise Exception(f"Pulse period {pulse_period} must be between minimum {self.get_minimum_period()} and maximum {self.get_maximum_period()}")
+        self.visa_session.write(f'CONF:PUL:ADD {pulse_period}')
 
     def clear_pulses(self):
         self.visa_session.write('CONF:PUL:CLEAR')

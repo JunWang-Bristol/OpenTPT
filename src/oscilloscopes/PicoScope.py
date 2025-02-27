@@ -3,7 +3,7 @@ import numpy
 import ctypes
 from picosdk.ps2000a import ps2000a as ps2
 from picosdk.ps3000a import ps3000a as ps3
-from picosdk.ps6000a import ps6000a as ps6
+from picosdk.ps6000 import ps6000 as ps6
 from oscilloscope import Oscilloscope
 from picosdk.functions import assert_pico_ok
 
@@ -726,8 +726,8 @@ class PicoScope6404D(PicoScope):
     def __init__(self, port, strict=False):        # Don't ask...
         status = {}
 
-        ps6.make_symbol("_ApplyFix", "ps6000aApplyFix", ctypes.c_uint32, [ctypes.c_int32, ctypes.c_int16], "PICO_STATUS ps6000aApplyFix ( int32_t fixNo, int16_t value );")
-        status["ApplyFix"] = ps6.ps6000aApplyFix(0x421ced9168, 0x1420011e6)
+        ps6.make_symbol("_ApplyFix", "ps6000ApplyFix", ctypes.c_uint32, [ctypes.c_int32, ctypes.c_int16], "PICO_STATUS ps6000ApplyFix ( int32_t fixNo, int16_t value );")
+        status["ApplyFix"] = ps6.ps6000ApplyFix(0x421ced9168, 0x1420011e6)
         super().__init__(port, strict)
 
     # 6404D specific    
@@ -778,11 +778,11 @@ class PicoScope6404D(PicoScope):
 
     @staticmethod
     def _get_channels_max():
-        return ps6.PICO_CHANNEL['PS6000A_MAX_CHANNELS']
+        return ps6.PS6000_CHANNEL['PS6000_MAX_CHANNELS']
 
     @staticmethod
     def _get_channels():
-        return [x for x in ps6.PICO_CHANNEL if "_CHANNEL_" in x]
+        return [x for x in ps6.PS6000_CHANNEL if "_CHANNEL_" in x]
 
     @staticmethod
     def _get_status():
@@ -790,91 +790,86 @@ class PicoScope6404D(PicoScope):
 
     @staticmethod
     def _voltage_ranges():
-        return ps6.PICO_CONNECT_PROBE_RANGE
+        aux = {
+            v: float(k.split('_')[1][:-1]) if k[-2] != 'M' else (0.001 * float(k.split('_')[1][:-2]))
+            for k, v in ps6.PS6000_RANGE.items() if k != "PS6000_MAX_RANGES"
+        }
+        return aux
 
     @staticmethod
     def _ranges():
-        return ps6.PICO_CONNECT_PROBE_RANGE
+        return ps6.PS6000_RANGE
 
     @staticmethod
     def _threshold_directions():
-        return ps6.PICO_THRESHOLD_DIRECTION
+        return ps6.PS6000_THRESHOLD_DIRECTION
 
     @staticmethod
     def _threshold_direction_rising():
-        return ps6.PICO_THRESHOLD_DIRECTION['PICO_RISING']
+        return ps6.PS6000_THRESHOLD_DIRECTION['PS6000_RISING']
 
     @staticmethod
     def _threshold_direction_falling():
-        return ps6.PICO_THRESHOLD_DIRECTION['PICO_FALLING']
+        return ps6.PS6000_THRESHOLD_DIRECTION['PS6000_FALLING']
 
     @staticmethod
     def _ratio_modes_none():
-        return ps6.PICO_RATIO_MODE['PICO_RATIO_MODE_RAW']
+        return ps6.PS6000_RATIO_MODE['PS6000_RATIO_MODE_NONE']
 
     @staticmethod
     def _ratio_modes():
-        return ps6.PICO_RATIO_MODE
+        return ps6.PS6000_RATIO_MODE
 
     @staticmethod
-    def _open_unit(status, serial, resolution=0):
-        return ps6.ps6000aOpenUnit(status, serial, resolution)
+    def _open_unit(status, serial):
+        return ps6.ps6000OpenUnit(status, serial)
 
     @staticmethod
     def _get_analogue_offset(handle, range, coupling, maximumVoltage, minimumVoltage):
-        return ps6.ps6000aGetAnalogueOffset(handle, range, coupling, maximumVoltage, minimumVoltage)
+        return ps6.ps6000GetAnalogueOffset(handle, range, coupling, maximumVoltage, minimumVoltage)
 
     @staticmethod
     def _set_channel(handle, channel, enabled, type, range, analogOffset):
-        if enabled == 1:
-            return ps6.ps6000aSetChannelOn(handle, channel, type, range, analogOffset, 0)
-        else:
-            return ps6.ps6000aSetChannelOff(handle, channel)
+        return ps6.ps6000SetChannel(handle, channel, enabled, type, range, analogOffset, 0)
 
     @staticmethod
     def _maximum_value(handle, value, resolution=0):
-        min_value = ctypes.c_float(0)
-        return ps6.ps6000aGetAdcLimits(handle, resolution, min_value, value)
+        min_value = 0.01  # hardcoded
+        return min_value
 
     @staticmethod
     def _minimum_value(handle, value, resolution=0):
-        max_value = ctypes.c_float(0)
-        return ps6.ps6000aGetAdcLimits(handle, resolution, value, max_value)
+        max_value = 20  # hardcoded
+        return max_value
 
     @staticmethod
     def _set_simple_trigger(handle, enable, source, threshold, direction, delay, autoTrigger_ms):
-        return ps6.ps6000aSetSimpleTrigger(handle, enable, source, threshold, direction, delay, autoTrigger_ms)
+        return ps6.ps6000SetSimpleTrigger(handle, enable, source, threshold, direction, delay, autoTrigger_ms)
 
     @staticmethod
     def _is_trigger_or_pulse_width_qualifier_enabled(handle, triggerEnabled, pulseWidthQualifierEnabled):
-        return ps6.ps6000aQueryOutputEdgeDetect(handle, triggerEnabled)
+        return ps6.ps6000IsTriggerOrPulseWidthQualifierEnabled(handle, triggerEnabled, pulseWidthQualifierEnabled)
 
     @staticmethod
     def _memory_segments(handle, nSegments, nMaxSamples):
-        return ps6.ps6000aMemorySegments(handle, nSegments, nMaxSamples)
+        return ps6.ps6000MemorySegments(handle, nSegments, nMaxSamples)
 
     @staticmethod
-    def _get_timebase2(handle, timebase, noSamples, timeIntervalNanoseconds, oversample, totalSamples, segmentIndex, resolution=0):
-        time_interval_s = ctypes.c_float()
-        nearest_timebase = ctypes.c_int32()
-
-        result = ps6.ps6000aNearestSampleIntervalStateless(handle, 1, timebase, resolution, ctypes.byref(nearest_timebase), ctypes.byref(time_interval_s))
-        timeIntervalNanoseconds.value = time_interval_s.value / 1e-9
-
-        return result
+    def _get_timebase2(handle, timebase, noSamples, timeIntervalNanoseconds, oversample, totalSamples, segmentIndex):
+        return ps6.ps6000GetTimebase2(handle, timebase, noSamples, timeIntervalNanoseconds, oversample, totalSamples, segmentIndex)
 
     @staticmethod
     def _run_block(handle, noOfPreTriggerSamples, noOfPostTriggerSamples, timebase, oversample, timeIndisposedMs, segmentIndex, lpReady, pParameter):
-        return ps6.ps6000aRunBlock(handle, noOfPreTriggerSamples, noOfPostTriggerSamples, timebase, timeIndisposedMs, segmentIndex, lpReady, pParameter)
+        return ps6.ps6000RunBlock(handle, noOfPreTriggerSamples, noOfPostTriggerSamples, timebase, oversample, timeIndisposedMs, segmentIndex, lpReady, pParameter)
 
     @staticmethod
     def _set_data_buffers(handle, channelOrPort, bufferMax, bufferMin, bufferLth, segmentIndex, mode):
-        return ps6.ps6000aSetDataBuffers(handle, channelOrPort, bufferMax, bufferMin, bufferLth, ps6.PICO_DATA_TYPE["PICO_INT64_T"], segmentIndex, mode, ps6.PICO_ACTION["PICO_CLEAR_ALL"])
+        return ps6.ps6000SetDataBuffers(handle, channelOrPort, bufferMax, bufferMin, bufferLth, mode)
 
     @staticmethod
     def _is_ready(handle, ready):
-        return ps6.ps6000aIsReady(handle, ready)
+        return ps6.ps6000IsReady(handle, ready)
 
     @staticmethod
     def _get_values(handle, startIndex, noOfSamples, downSampleRatio, downSampleRatioMode, segmentIndex, overflow):
-        return ps6.ps6000aGetValues(handle, startIndex, noOfSamples, downSampleRatio, downSampleRatioMode, segmentIndex, overflow)
+        return ps6.ps6000GetValues(handle, startIndex, noOfSamples, downSampleRatio, downSampleRatioMode, segmentIndex, overflow)

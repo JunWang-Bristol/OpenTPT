@@ -3,20 +3,26 @@ import context  # noqa: F401
 from oscilloscope import Oscilloscope
 import random
 import matplotlib.pyplot as plt
+import os
+import json
 
 
-class PicoScope2408B(unittest.TestCase):
+class OscilloscopesTests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        with open(os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__))) + os.sep + "hardware_configuration.json") as f:
+            cls.configuration = json.load(f)
+            print(cls.configuration)
+
         #  out = Oscilloscope Under Test :)
-        cls.out = Oscilloscope.factory("PicoScope2408B", "COM5")
+        cls.out = Oscilloscope.factory(cls.configuration['oscilloscope'], cls.configuration['oscilloscope_port'])
         # cls.out.reset()
-        print("Starting tests for PicoScope2408B")
+        print(f"Starting tests for {cls.configuration['oscilloscope']}")
 
     @classmethod
     def tearDownClass(cls):
-        print("\nFinishing tests for PicoScope2408B")
+        print(f"\nFinishing tests for {cls.configuration['oscilloscope']}")
 
     def test_get_status(self):
         self.assertEqual("PICO_MULTIPLE_DEVICES_FOUND", self.out.get_status(326))
@@ -25,7 +31,14 @@ class PicoScope2408B(unittest.TestCase):
         self.assertEqual(4, self.out.get_number_channels())
 
     def test_get_channel_index(self):
-        self.assertEqual(3, self.out.get_channel_index('PS2000A_CHANNEL_D'))
+        if self.configuration['oscilloscope'] == "PicoScope2408B":
+            channel = 'PS2000A_CHANNEL_D'
+        if self.configuration['oscilloscope'] == "PicoScope3406D":
+            channel = 'PS3000A_CHANNEL_D'
+        if self.configuration['oscilloscope'] == "PicoScope6404D":
+            channel = 'PS6000_CHANNEL_D'
+
+        self.assertEqual(3, self.out.get_channel_index(channel))
 
     def test_get_input_voltage_ranges(self):
         self.assertEqual([0.02, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0, 20.0], self.out.get_input_voltage_ranges())

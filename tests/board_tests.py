@@ -3,19 +3,25 @@ import context  # noqa: F401
 from board import Board
 import random
 import time
+import os
+import json
 
 
-class NUCLEO_H503RB(unittest.TestCase):
+class BoardsTests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.but = Board.factory("NUCLEO-H503RB", "COM6")
+        with open(os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__))) + os.sep + "hardware_configuration.json") as f:
+            cls.configuration = json.load(f)
+            print(cls.configuration)
+
+        cls.but = Board.factory(cls.configuration['board'], cls.configuration["board_port"])
         cls.but.reset()
-        print("Starting tests for NUCLEO-H503RB")
+        print(f"Starting tests for {cls.configuration['board']}")
 
     @classmethod
     def tearDownClass(cls):
-        print("\nFinishing tests for NUCLEO-H503RB")
+        print(f"\nFinishing tests for {cls.configuration['board']}")
         cls.but.close()
 
     def test_identification(self):

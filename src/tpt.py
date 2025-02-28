@@ -2,6 +2,8 @@ from board import Board
 from power_supply import PowerSupply
 from oscilloscope import Oscilloscope
 import matplotlib.pyplot as plt
+import os
+import json
 
 
 class TPT():
@@ -20,7 +22,7 @@ class TPT():
             self.negative_voltage = negative_voltage
             self.pulses_periods = []
 
-    def __init__(self, power_supply, oscilloscope, board, power_supply_port="COM3", oscilloscope_port="COM5", board_port="COM6"):
+    def __init__(self, power_supply, oscilloscope, board, power_supply_port, oscilloscope_port, board_port):
         self.power_supply = self.setup_power_supply(power_supply, power_supply_port)
         self.oscilloscope = self.setup_oscilloscope(oscilloscope, oscilloscope_port)
         self.board = self.setup_board(board, board_port)
@@ -151,13 +153,13 @@ class TPT():
 
 
 if __name__ == "__main__":
+
+    with open(os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__))) + os.sep + "hardware_configuration.json") as f:
+        configuration = json.load(f)
+        print(configuration)
+
     tpt = TPT(
-        power_supply="BK9129B",
-        power_supply_port="COM3",
-        oscilloscope="PicoScope2408B",
-        oscilloscope_port="COM5",
-        board="NUCLEO-H503RB",
-        board_port="COM6"
+        **configuration
     )
 
     measure_parameters = TPT.MeasureParameters(

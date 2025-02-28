@@ -3,19 +3,25 @@ import context  # noqa: F401
 from power_supply import PowerSupply
 import random
 import time
+import os
+import json
 
 
-class BK9129B(unittest.TestCase):
+class BoardsTests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.psut = PowerSupply.factory("BK9129B", "COM3")
+        with open(os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__))) + os.sep + "hardware_configuration.json") as f:
+            cls.configuration = json.load(f)
+            print(cls.configuration)
+
+        cls.psut = PowerSupply.factory(cls.configuration['power_supply'], cls.configuration['power_supply_port'])
         cls.psut.reset()
-        print("Starting tests for BK9129B")
+        print(f"Starting tests for {cls.configuration['power_supply']}")
 
     @classmethod
     def tearDownClass(cls):
-        print("\nFinishing tests for BK9129B")
+        print(f"\nFinishing tests for {cls.configuration['power_supply']}")
 
     def test_version(self):
         self.assertEqual("1991.1", self.psut.get_version())

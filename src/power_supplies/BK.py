@@ -56,6 +56,32 @@ class BK(PowerSupply):
         self.visa_session.write('*WAI')
         return self.visa_session.query('OUTP:STAT?') == '1'
 
+    def is_series_mode_enabled(self):
+        return self.visa_session.query('OUTP:SER?') == '1'
+
+    def enable_series_mode(self):
+        self.visa_session.write('OUTP:SER 1')
+        self.visa_session.write('*WAI')
+        return self.visa_session.query('OUTP:SER?') == '1'
+
+    def disable_series_mode(self):
+        self.visa_session.write('OUTP:SER 0')
+        self.visa_session.write('*WAI')
+        return self.visa_session.query('OUTP:SER?') == '0'
+
+    def is_parallel_mode_enabled(self):
+        return self.visa_session.query('OUTP:PARA?') == '1'
+
+    def enable_parallel_mode(self):
+        self.visa_session.write('OUTP:PARA 1')
+        self.visa_session.write('*WAI')
+        return self.visa_session.query('OUTP:PARA?') == '1'
+
+    def disable_parallel_mode(self):
+        self.visa_session.write('OUTP:PARA 0')
+        self.visa_session.write('*WAI')
+        return self.visa_session.query('OUTP:PARA?') == '0'
+
     def disable_output(self, channel):
         self.check_channel(channel)
         self.visa_session.write(f'INST:NSEL {channel}')

@@ -218,6 +218,28 @@ class BK9129B(unittest.TestCase):
             for index in range(0, len(available_channels)):
                 self.assertAlmostEqual(voltages[index]**2 / resistance, read_powers[index], 1)
 
+    def test_series_mode(self):
+        print("test_series_mode")
+        result = self.psut.enable_series_mode()
+        self.assertTrue(result)
+        result = self.psut.is_series_mode_enabled()
+        self.assertTrue(result)
+        result = self.psut.disable_series_mode()
+        self.assertTrue(result)
+        result = self.psut.is_series_mode_enabled()
+        self.assertFalse(result)
+
+    def test_parallel_mode(self):
+        print("test_parallel_mode")
+        result = self.psut.enable_parallel_mode()
+        self.assertTrue(result)
+        result = self.psut.is_parallel_mode_enabled()
+        self.assertTrue(result)
+        result = self.psut.disable_parallel_mode()
+        self.assertTrue(result)
+        result = self.psut.is_parallel_mode_enabled()
+        self.assertFalse(result)
+
 
 if __name__ == '__main__':  # pragma: no cover
     unittest.main()

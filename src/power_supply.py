@@ -93,3 +93,21 @@ class PowerSupply():
         for channel in self.get_available_channels():
             self.set_current_limit(channel, self.get_maximum_source_current(channel))
             self.set_voltage_limit(channel, self.get_maximum_source_voltage(channel))
+
+    def is_series_mode_enabled(self):
+        raise NotImplementedError
+
+    def enable_series_mode(self):
+        raise NotImplementedError
+
+    def disable_series_mode(self):
+        raise NotImplementedError
+
+    def is_parallel_mode_enabled(self):
+        raise NotImplementedError
+
+    def enable_parallel_mode(self):
+        raise NotImplementedError
+
+    def disable_parallel_mode(self):
+        raise NotImplementedError

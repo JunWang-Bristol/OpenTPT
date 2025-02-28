@@ -75,6 +75,9 @@ class TPT():
         read_voltage = float(round(self.power_supply.get_source_voltage(channel=2), 6))
         assert float(round(parameters.negative_voltage, 6)) == read_voltage, f"Wrong voltage measured at PSU: {read_voltage}, expected {parameters.negative_voltage}"
 
+        result = self.power_supply.enable_series_mode()
+        assert result, "Power supply did not enter series mode"
+
         # POWER SUPPLY SETUP END
 
         # OSCILLOSCOPE SETUP START

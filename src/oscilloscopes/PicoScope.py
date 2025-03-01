@@ -1,11 +1,13 @@
-import re
+from scipy import interpolate
 import numpy
+import math
 import ctypes
 from picosdk.ps2000a import ps2000a as ps2
 from picosdk.ps3000a import ps3000a as ps3
 from picosdk.ps6000 import ps6000 as ps6
 from oscilloscope import Oscilloscope
 from picosdk.functions import assert_pico_ok
+from collections import deque
 
 
 class PicoScope(Oscilloscope):
@@ -50,12 +52,14 @@ class PicoScope(Oscilloscope):
         self.trigger_info = {}
         self.number_segments = 1
         self.number_samples = int(self.get_maximum_samples())
-        self.sampling_time = None
+        self.sampling_time = 4e-9
 
         self.channel_labels = {}
+        self.channel_skew = {}
         for channel in self._get_channels():
             channel_index = self.check_channel(channel)
             self.channel_labels[channel_index] = channel
+            self.channel_skew[channel_index] = 0
 
     def set_number_samples(self, number_samples):
         self.number_samples = number_samples
@@ -63,11 +67,21 @@ class PicoScope(Oscilloscope):
     def get_number_samples(self):
         return self.number_samples
 
-    def set_sampling_time(self, sampling_time):
-        self.sampling_time = sampling_time
+    def set_sampling_time(self, desired_sampling_time):
+        real_sampling_time = self.get_real_sampling_time(desired_sampling_time)
+        self.sampling_time = real_sampling_time
+        return real_sampling_time
 
     def get_sampling_time(self):
         return self.sampling_time
+
+    def set_channel_skew(self, channel, skew):
+        channel_index = self.check_channel(channel)
+        self.channel_skew[channel_index] = skew
+
+    def get_channel_skew(self, channel):
+        channel_index = self.check_channel(channel)
+        return self.channel_skew[channel_index]
 
     @staticmethod
     def _get_channels_max():
@@ -170,9 +184,9 @@ class PicoScope(Oscilloscope):
                 return key
 
     def get_channel_index(self, channel_name):
-        for key, value in self._get_channels().items():
-            if channel_name in key:
-                return value
+        for key, value in enumerate(self._get_channels()):
+            if channel_name in value:
+                return key
 
     def get_input_voltage_ranges(self):
         # First and last one is outside the device's range
@@ -192,6 +206,7 @@ class PicoScope(Oscilloscope):
 
     def set_channel_configuration(self, channel, input_voltage_range, coupling, analog_offset, enable=True):
         channel_index = self.check_channel(channel)
+        self.channel_labels[channel_index] = channel
 
         input_voltage_range = self.check_input_voltage_range(input_voltage_range)
 
@@ -352,7 +367,14 @@ class PicoScope(Oscilloscope):
     def convert_timebase_to_time(self, timebase):
         raise NotImplementedError
 
-    def get_real_sampling_time(self, desired_time, desired_number_samples):
+    def get_real_sampling_time(self, desired_time=None, desired_number_samples=None):
+        if desired_number_samples is None:
+            desired_number_samples = self.number_samples
+
+        if desired_time is None:
+            desired_time = self.sampling_time
+
+        desired_time = max(self.minimum_sampling_time, desired_time)
         timebase = self.convert_time_to_timebase(desired_time)
         time_interval_ns = ctypes.c_float()
         maximum_samples = ctypes.c_int32()
@@ -364,8 +386,9 @@ class PicoScope(Oscilloscope):
                                      0,
                                      ctypes.byref(maximum_samples),
                                      0)
+        real_sampling_time = time_interval_ns.value * 1e-9
         assert_pico_ok(status)
-        return time_interval_ns.value * 1e-9
+        return real_sampling_time
 
     def run_acquisition_block(self, sampling_time=None, number_samples=None):
         if number_samples is None:
@@ -428,14 +451,34 @@ class PicoScope(Oscilloscope):
                                   overflow)
         assert_pico_ok(status)
 
+        gcd_samplig_time_and_skew = self.sampling_time
+        for _, skew in self.channel_skew.items():
+            if skew == 0:
+                continue
+            skew_in_ps = int(math.fabs(skew) * 1e12)
+            gcd_samplig_time_and_skew_in_ps = int(math.fabs(gcd_samplig_time_and_skew) * 1e12)
+            gcd_samplig_time_and_skew_in_ps = math.gcd(skew_in_ps, gcd_samplig_time_and_skew_in_ps)
+            gcd_samplig_time_and_skew = float(gcd_samplig_time_and_skew_in_ps) / 1e12
+
         data = {}
-        data["time"] = numpy.linspace(0, (number_samples - 1) * self.sampling_time, number_samples)
+        sampled_time_array = numpy.linspace(0, (number_samples - 1) * self.sampling_time, number_samples)
         data["data"] = {}
+        data["time"] = numpy.linspace(0, (number_samples - 1) * self.sampling_time, int(number_samples * self.sampling_time / gcd_samplig_time_and_skew))
+
         for channel in channels:
             channel_index = self.check_channel(channel)
 
             data_in_adc_count = numpy.array(buffers[channel])
             data_in_volts = data_in_adc_count / self.get_maximum_ADC_count() * self.get_channel_configuration(channel_index).input_voltage_range
+            if gcd_samplig_time_and_skew != self.sampling_time:
+                f = interpolate.interp1d(sampled_time_array, data_in_volts)
+                data_in_volts = [f(x) for x in data["time"]]
+                positions_to_rotate = int(self.channel_skew[channel_index] / gcd_samplig_time_and_skew)
+                if positions_to_rotate != 0:
+                    aux = deque(data_in_volts)
+                    aux.rotate(positions_to_rotate)
+                    data_in_volts = list(aux)
+
             data["data"][self.channel_labels[channel_index]] = data_in_volts
         return data
 
@@ -446,6 +489,7 @@ class PicoScope2408B(PicoScope):
 
         ps2.make_symbol("_ApplyFix", "ps2000aApplyFix", ctypes.c_uint32, [ctypes.c_int32, ctypes.c_int16], "PICO_STATUS ps2000aApplyFix ( int32_t fixNo, int16_t value );")
         status["ApplyFix"] = ps2.ps2000aApplyFix(0x421ced9168, 0x1420011e6)
+        self.minimum_sampling_time = 4e-9  # for 3 or 4 channels
         super().__init__(port, strict)
 
     # 2408B specific
@@ -589,6 +633,7 @@ class PicoScope3406D(PicoScope):
 
         ps3.make_symbol("_ApplyFix", "ps3000aApplyFix", ctypes.c_uint32, [ctypes.c_int32, ctypes.c_int16], "PICO_STATUS ps3000aApplyFix ( int32_t fixNo, int16_t value );")
         status["ApplyFix"] = ps3.ps3000aApplyFix(0x421ced9168, 0x1420011e6)
+        self.minimum_sampling_time = 4e-9  # for 3 or 4 channels
         super().__init__(port, strict)
 
     # 3406D specific    
@@ -728,6 +773,7 @@ class PicoScope6404D(PicoScope):
 
         ps6.make_symbol("_ApplyFix", "ps6000ApplyFix", ctypes.c_uint32, [ctypes.c_int32, ctypes.c_int16], "PICO_STATUS ps6000ApplyFix ( int32_t fixNo, int16_t value );")
         status["ApplyFix"] = ps6.ps6000ApplyFix(0x421ced9168, 0x1420011e6)
+        self.minimum_sampling_time = 400e-9  # for 3 or 4 channels
         super().__init__(port, strict)
 
     # 6404D specific    

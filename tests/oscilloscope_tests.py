@@ -11,7 +11,7 @@ class OscilloscopesTests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        with open(os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__))) + os.sep + "hardware_configuration.json") as f:
+        with open(os.path.abspath(os.path.join(os.getcwd(), os.path.dirname(__file__), os.pardir, "hardware_configuration.json"))) as f:
             cls.configuration = json.load(f)
             print(cls.configuration)
 
@@ -145,8 +145,58 @@ class OscilloscopesTests(unittest.TestCase):
             real_sampling_time = self.out.get_real_sampling_time(desired_time, 12345)
             self.assertAlmostEqual(desired_time, real_sampling_time, None, "", desired_time * 0.1)
 
-    # @unittest.skip
     def test_read_data(self):
+        self.out.set_channel_configuration(
+            channel=0, 
+            input_voltage_range=5, 
+            coupling=0, 
+            analog_offset=0
+        )
+        self.out.set_channel_configuration(
+            channel="B", 
+            input_voltage_range=9, 
+            coupling=0, 
+            analog_offset=0
+        )
+        self.out.set_rising_trigger(0, 3)
+        self.out.disarm_trigger(0)
+
+        number_samples = int(self.out.get_maximum_samples() * 0.1)
+        desired_time = 1e-09
+        sampling_time = self.out.set_sampling_time(desired_time)
+
+        self.assertEqual(4e-9, sampling_time)
+        self.out.run_acquisition_block(sampling_time, number_samples)
+
+        data = self.out.read_data(
+            channels=[0, "B"],
+            number_samples=number_samples
+        )
+
+        self.assertEqual(number_samples, len(data["time"]))
+        self.assertEqual(number_samples, len(data["data"][0]))
+        self.assertEqual(number_samples, len(data["data"]["B"]))
+
+        self.out.run_acquisition_block(sampling_time, number_samples)
+
+        self.out.set_channel_skew(0, 2e-9)
+        self.out.set_channel_skew("B", -9e-9)
+
+        data = self.out.read_data(
+            channels=[0, "B"],
+            number_samples=number_samples
+        )
+
+        self.assertEqual(number_samples * 4, len(data["time"]))
+        self.assertEqual(number_samples * 4, len(data["data"][0]))
+        self.assertEqual(number_samples * 4, len(data["data"]["B"]))
+
+        # for key, datum in data["data"].items():
+            # plt.plot(data["time"], datum)
+        # plt.show()
+
+    @unittest.skip
+    def test_read_data_trigger(self):
         self.out.set_channel_configuration(
             channel=0, 
             input_voltage_range=5, 
@@ -171,6 +221,7 @@ class OscilloscopesTests(unittest.TestCase):
             number_samples=number_samples
         )
 
+        print(data)
         self.assertEqual(number_samples, len(data[0]["data"]))
         self.assertEqual(number_samples, len(data[0]["time"]))
         self.assertEqual(number_samples, len(data["B"]["data"]))

@@ -1,0 +1,8 @@
+{
+    "power_supply": "BK9129B",
+    "power_supply_port": "COM3",
+    "oscilloscope": "PicoScope2408B",
+    "oscilloscope_port": "COM5",
+    "board": "NUCLEO-H503RB",
+    "board_port": "COM6"
+}

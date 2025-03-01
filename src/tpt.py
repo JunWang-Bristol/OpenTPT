@@ -21,6 +21,7 @@ class TPT():
             self.positive_voltage = positive_voltage
             self.negative_voltage = negative_voltage
             self.pulses_periods = []
+            self.total_time = None
 
     def __init__(self, power_supply, oscilloscope, board, power_supply_port, oscilloscope_port, board_port):
         self.power_supply = self.setup_power_supply(power_supply, power_supply_port)
@@ -39,6 +40,7 @@ class TPT():
         parameters.pulses_periods = [dc_bias_period]
         parameters.pulses_periods.extend([steady_period, steady_period] * steady_repetitions)
         parameters.pulses_periods.append(demagnetization_period)
+        parameters.total_time = sum(parameters.pulses_periods)
         return parameters
 
     def setup_power_supply(self, power_supply, port):
@@ -86,13 +88,13 @@ class TPT():
 
         self.oscilloscope.set_channel_configuration(
             channel=0, 
-            input_voltage_range=20, 
+            input_voltage_range=parameters.positive_voltage, 
             coupling=0, 
             analog_offset=0
         )
         self.oscilloscope.set_channel_configuration(
             channel="B", 
-            input_voltage_range=20, 
+            input_voltage_range=parameters.positive_voltage, 
             coupling=0, 
             analog_offset=0
         )
@@ -102,11 +104,14 @@ class TPT():
             timeout=5000
         )
         self.oscilloscope.arm_trigger(
-            channel=0
+            # channel=0
         )
 
-        # self.oscilloscope.set_number_samples(int(self.oscilloscope.get_maximum_samples()))
-        self.oscilloscope.set_sampling_time(4e-09)
+        self.oscilloscope.set_number_samples(int(self.oscilloscope.get_maximum_samples()))
+        desired_sampling_time = parameters.total_time / self.oscilloscope.get_maximum_samples()
+        print(desired_sampling_time)
+        actual_sampling_time = self.oscilloscope.set_sampling_time(desired_sampling_time)
+        print(actual_sampling_time)
         self.oscilloscope.set_channel_label(
             channel=0,
             label="Input Voltage"
@@ -115,6 +120,9 @@ class TPT():
             channel=1,
             label="Output Voltage"
         )
+
+        self.oscilloscope.set_channel_skew(0, 2e-9)  # Totally made up skew
+        self.oscilloscope.set_channel_skew(1, -9e-9)  # Totally made up skew
 
         # OSCILLOSCOPE SETUP STOP
 
@@ -154,7 +162,7 @@ class TPT():
 
 if __name__ == "__main__":
 
-    with open(os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__))) + os.sep + "hardware_configuration.json") as f:
+    with open(os.path.abspath(os.path.join(os.getcwd(), os.path.dirname(__file__), os.pardir, "hardware_configuration.json"))) as f:
         configuration = json.load(f)
         print(configuration)
 

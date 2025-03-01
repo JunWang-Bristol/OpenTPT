@@ -11,7 +11,7 @@ class BoardsTests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        with open(os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__))) + os.sep + "hardware_configuration.json") as f:
+        with open(os.path.abspath(os.path.join(os.getcwd(), os.path.dirname(__file__), os.pardir, "hardware_configuration.json"))) as f:
             cls.configuration = json.load(f)
             print(cls.configuration)
 

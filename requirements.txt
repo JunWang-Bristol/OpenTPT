@@ -4,3 +4,4 @@ pyvisa-py
 pyusb
 picosdk
 matplotlib
+scipy

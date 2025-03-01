@@ -6,6 +6,8 @@ from board import Board
 class ST(Board):
     def __init__(self, port):
         rm = pyvisa.ResourceManager()
+        # print("rm.list_resources()")
+        # print(rm.list_resources())
         if 'COM' in port:
             port = port.split('COM')[1]
 

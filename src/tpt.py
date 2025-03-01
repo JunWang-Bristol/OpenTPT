@@ -104,7 +104,7 @@ class TPT():
             timeout=5000
         )
         self.oscilloscope.arm_trigger(
-            # channel=0
+            channel=0
         )
 
         self.oscilloscope.set_number_samples(int(self.oscilloscope.get_maximum_samples()))

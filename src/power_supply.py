@@ -1,9 +1,13 @@
 
 class PowerSupply():
     def factory(name, port):
+        if name == "dummy":
+            from power_supplies.dummy import Dummy
+            return Dummy(port)
         if name == "BK9129B":
             from power_supplies.BK import BK9129B
             return BK9129B(port)
+        raise Exception(f"Unknown power supply: {name}")
 
     def check_channel_index(self, channel_index):
         raise NotImplementedError

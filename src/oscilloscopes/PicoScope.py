@@ -1,5 +1,6 @@
 from scipy import interpolate
 import numpy
+import pandas
 import math
 import ctypes
 from picosdk.ps2000a import ps2000a as ps2
@@ -53,6 +54,9 @@ class PicoScope(Oscilloscope):
         self.number_segments = 1
         self.number_samples = int(self.get_maximum_samples())
         self.sampling_time = 4e-9
+        self.number_pre_trigger_samples = 0
+        self.upsampling_scale = 1
+        self.upsampled_sampling_time = self.sampling_time
 
         self.channel_labels = {}
         self.channel_skew = {}
@@ -61,11 +65,26 @@ class PicoScope(Oscilloscope):
             self.channel_labels[channel_index] = channel
             self.channel_skew[channel_index] = 0
 
+    def set_number_pre_trigger_samples(self, number_pre_trigger_samples):
+        self.number_pre_trigger_samples = number_pre_trigger_samples
+
+    def get_number_pre_trigger_samples(self):
+        return self.number_pre_trigger_samples
+
+    def get_number_upsampled_pre_trigger_samples(self):
+        return self.number_pre_trigger_samples * self.upsampling_scale
+
     def set_number_samples(self, number_samples):
         self.number_samples = number_samples
 
     def get_number_samples(self):
         return self.number_samples
+
+    def get_upsampling_scale(self):
+        return self.upsampling_scale
+
+    def get_upsampled_sampling_time(self):
+        return self.upsampled_sampling_time
 
     def set_sampling_time(self, desired_sampling_time):
         real_sampling_time = self.get_real_sampling_time(desired_sampling_time)
@@ -398,8 +417,8 @@ class PicoScope(Oscilloscope):
             sampling_time = self.sampling_time
 
         timebase = self.convert_time_to_timebase(sampling_time)
-        number_pre_trigger_samples = round(number_samples * 0.01)  # hardcoded
-        number_post_trigger_samples = round(number_samples - number_pre_trigger_samples)
+        number_pre_trigger_samples = self.number_pre_trigger_samples
+        number_post_trigger_samples = number_samples - self.number_pre_trigger_samples
         number_pre_trigger_samples = ctypes.c_int32(number_pre_trigger_samples)
         number_post_trigger_samples = ctypes.c_int32(number_post_trigger_samples)
 
@@ -415,9 +434,12 @@ class PicoScope(Oscilloscope):
         assert_pico_ok(status)
         return True
 
-    def read_data(self, channels, number_samples=None):
+    def read_data(self, channels=None, number_samples=None, data_format="dataframe"):
         if number_samples is None:
             number_samples = self.number_samples
+
+        if channels is None:
+            channels = self.channel_info.keys()
 
         buffers = {}
         for channel in channels:
@@ -461,9 +483,11 @@ class PicoScope(Oscilloscope):
             gcd_samplig_time_and_skew = float(gcd_samplig_time_and_skew_in_ps) / 1e12
 
         data = {}
+        self.upsampling_scale = int(self.sampling_time / gcd_samplig_time_and_skew)
+        self.upsampled_sampling_time = gcd_samplig_time_and_skew
         sampled_time_array = numpy.linspace(0, (number_samples - 1) * self.sampling_time, number_samples)
         data["data"] = {}
-        data["time"] = numpy.linspace(0, (number_samples - 1) * self.sampling_time, int(number_samples * self.sampling_time / gcd_samplig_time_and_skew))
+        data["time"] = numpy.linspace(0, (number_samples - 1) * self.sampling_time, int(number_samples * self.upsampling_scale))
 
         for channel in channels:
             channel_index = self.check_channel(channel)
@@ -480,6 +504,14 @@ class PicoScope(Oscilloscope):
                     data_in_volts = list(aux)
 
             data["data"][self.channel_labels[channel_index]] = data_in_volts
+
+        if data_format == "dataframe":
+            df = pandas.DataFrame()
+            df["time"] = data["time"]
+            for channel in channels:
+                channel_index = self.check_channel(channel)
+                df[self.channel_labels[channel_index]] = data["data"][self.channel_labels[channel_index]]
+            data = df
         return data
 
 

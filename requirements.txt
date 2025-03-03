@@ -5,3 +5,4 @@ pyusb
 picosdk
 matplotlib
 scipy
+pandas

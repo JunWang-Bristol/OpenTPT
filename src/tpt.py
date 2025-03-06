@@ -214,7 +214,7 @@ class TPT():
             )
 
             data = self.oscilloscope.read_data()
-
+            break
             if not math.isclose(data["Output Voltage"].max(), parameters.positive_voltage, rel_tol=self.maximum_voltage_error):
                 difference = data["Output Voltage"].max() - parameters.positive_voltage
                 aux_parameters = copy.deepcopy(parameters)

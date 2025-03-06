@@ -938,8 +938,8 @@ class PicoScope6404D(PicoScope):
 
     @staticmethod
     def _run_block(handle, noOfPreTriggerSamples, noOfPostTriggerSamples, timebase, oversample, timeIndisposedMs, segmentIndex, lpReady, pParameter):
-        noOfPreTriggerSamples = ctypes.c_uint32_t(noOfPreTriggerSamples.value)
-        noOfPostTriggerSamples = ctypes.c_uint32_t(noOfPostTriggerSamples.value)
+        noOfPreTriggerSamples = ctypes.c_uint32(noOfPreTriggerSamples.value)
+        noOfPostTriggerSamples = ctypes.c_uint32(noOfPostTriggerSamples.value)
         return ps6.ps6000RunBlock(handle, noOfPreTriggerSamples, noOfPostTriggerSamples, timebase, oversample, timeIndisposedMs, segmentIndex, lpReady, pParameter)
 
     @staticmethod

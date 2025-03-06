@@ -216,7 +216,7 @@ class PicoScope(Oscilloscope):
         min_offset = ctypes.c_float(0)
         status = self.get_status(self._get_analogue_offset(self.handle, self.get_input_voltage_index(input_voltage_range), coupling, ctypes.byref(max_offset), ctypes.byref(min_offset)))
         if status != 'PICO_OK':
-            raise Exception(f"Something went wrong with _get_analogue_offset method: {status}")
+            raise Exception(f"Something went wrong with _get_analogue_offset method: {status} with input_voltage_range: {input_voltage_range}")
 
         return [min_offset.value, max_offset.value]
 
@@ -938,6 +938,8 @@ class PicoScope6404D(PicoScope):
 
     @staticmethod
     def _run_block(handle, noOfPreTriggerSamples, noOfPostTriggerSamples, timebase, oversample, timeIndisposedMs, segmentIndex, lpReady, pParameter):
+        noOfPreTriggerSamples = ctypes.c_uint32_t(noOfPreTriggerSamples.value)
+        noOfPostTriggerSamples = ctypes.c_uint32_t(noOfPostTriggerSamples.value)
         return ps6.ps6000RunBlock(handle, noOfPreTriggerSamples, noOfPostTriggerSamples, timebase, oversample, timeIndisposedMs, segmentIndex, lpReady, pParameter)
 
     @staticmethod

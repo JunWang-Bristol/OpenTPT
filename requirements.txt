@@ -6,3 +6,4 @@ picosdk
 matplotlib
 scipy
 pandas
+dash

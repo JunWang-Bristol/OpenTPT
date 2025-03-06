@@ -208,8 +208,7 @@ class PicoScope(Oscilloscope):
                 return key
 
     def get_input_voltage_ranges(self):
-        # First and last one is outside the device's range
-        return list(self._voltage_ranges().values())[1:-1]
+        raise NotImplementedError
 
     def get_analog_offset_range(self, coupling, input_voltage_range):
         max_offset = ctypes.c_float(0)
@@ -566,6 +565,10 @@ class PicoScope2408B(PicoScope):
         else:
             raise Exception(f"{input_voltage_range_str_or_float} should be a float or string")
 
+    def get_input_voltage_ranges(self):
+        # First and last one is outside the device's range
+        return list(self._voltage_ranges().values())[1:-1]
+
     @staticmethod
     def _get_channels_max():
         return ps2.PS2000A_CHANNEL['PS2000A_MAX_CHANNELS']
@@ -705,6 +708,10 @@ class PicoScope3406D(PicoScope):
                 raise Exception(f"{input_voltage_range_str_or_float} not in {self.get_input_voltage_ranges}")
         else:
             raise Exception(f"{input_voltage_range_str_or_float} should be a float or string")
+
+    def get_input_voltage_ranges(self):
+        # First and last one is outside the device's range
+        return list(self._voltage_ranges().values())[1:-1]
 
     @staticmethod
     def _get_channels_max():
@@ -853,6 +860,10 @@ class PicoScope6404D(PicoScope):
                 raise Exception(f"{input_voltage_range_str_or_float} not in {self.get_input_voltage_ranges}")
         else:
             raise Exception(f"{input_voltage_range_str_or_float} should be a float or string")
+
+    def get_input_voltage_ranges(self):
+        # First and last one is outside the device's range
+        return list(self._voltage_ranges().values())[2:-1]
 
     @staticmethod
     def _get_channels_max():

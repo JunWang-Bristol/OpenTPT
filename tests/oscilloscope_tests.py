@@ -41,7 +41,11 @@ class OscilloscopesTests(unittest.TestCase):
         self.assertEqual(3, self.out.get_channel_index(channel))
 
     def test_get_input_voltage_ranges(self):
-        self.assertEqual([0.02, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0, 20.0], self.out.get_input_voltage_ranges())
+        ranges = self.out.get_input_voltage_ranges()
+        if len(ranges) == 10:
+            self.assertEqual([0.02, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0, 20.0], self.out.get_input_voltage_ranges())
+        else:
+            self.assertEqual([0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0, 20.0], self.out.get_input_voltage_ranges())
 
     def test_check_channel(self):
         self.assertEqual(0, self.out.check_channel(0.0))

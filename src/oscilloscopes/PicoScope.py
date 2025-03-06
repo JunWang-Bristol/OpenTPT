@@ -459,17 +459,15 @@ class PicoScope(Oscilloscope):
         assert_pico_ok(status)
 
         overflow = ctypes.c_int16(0)
-        overflow = ctypes.byref(overflow)
-        number_samples_ctype = ctypes.c_int32(number_samples)
-        number_samples_ctype = ctypes.byref(number_samples_ctype)
+        number_samples_ctype = ctypes.c_uint32(number_samples)
 
         status = self._get_values(self.handle,
                                   0,
-                                  number_samples_ctype,
+                                  ctypes.byref(number_samples_ctype),
                                   0,
                                   0,
                                   self._ratio_modes_none(),
-                                  overflow)
+                                  ctypes.byref(overflow))
         assert_pico_ok(status)
 
         gcd_samplig_time_and_skew = self.sampling_time
@@ -963,4 +961,4 @@ class PicoScope6404D(PicoScope):
 
     @staticmethod
     def _get_values(handle, startIndex, noOfSamples, downSampleRatio, downSampleRatioMode, segmentIndex, overflow):
-        return ps6.ps6000GetValues(handle, startIndex, noOfSamples, downSampleRatio, downSampleRatioMode, segmentIndex, overflow)
+        return ps6.ps6000GetValues(handle, 0, noOfSamples, 1, 0, 0, overflow)

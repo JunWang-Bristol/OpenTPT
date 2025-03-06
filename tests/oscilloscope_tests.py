@@ -165,7 +165,7 @@ class OscilloscopesTests(unittest.TestCase):
         self.out.set_rising_trigger(0, 3)
         self.out.disarm_trigger(0)
 
-        number_samples = int(self.out.get_maximum_samples() * 0.1)
+        number_samples = int(self.out.get_maximum_samples())
         desired_time = 1e-09
         sampling_time = self.out.set_sampling_time(desired_time)
 
@@ -178,8 +178,8 @@ class OscilloscopesTests(unittest.TestCase):
         )
 
         self.assertEqual(number_samples, len(data["time"]))
-        self.assertEqual(number_samples, len(data["data"][0]))
-        self.assertEqual(number_samples, len(data["data"]["B"]))
+        self.assertEqual(number_samples, len(data[0]))
+        self.assertEqual(number_samples, len(data["B"]))
 
         self.out.run_acquisition_block(sampling_time, number_samples)
 
@@ -192,11 +192,11 @@ class OscilloscopesTests(unittest.TestCase):
         )
 
         self.assertEqual(number_samples * 4, len(data["time"]))
-        self.assertEqual(number_samples * 4, len(data["data"][0]))
-        self.assertEqual(number_samples * 4, len(data["data"]["B"]))
+        self.assertEqual(number_samples * 4, len(data[0]))
+        self.assertEqual(number_samples * 4, len(data["B"]))
 
-        # for key, datum in data["data"].items():
-            # plt.plot(data["time"], datum)
+        # plt.plot(data["time"], data[0])
+        # plt.plot(data["time"], data["B"])
         # plt.show()
 
     @unittest.skip
@@ -226,14 +226,13 @@ class OscilloscopesTests(unittest.TestCase):
         )
 
         print(data)
-        self.assertEqual(number_samples, len(data[0]["data"]))
-        self.assertEqual(number_samples, len(data[0]["time"]))
-        self.assertEqual(number_samples, len(data["B"]["data"]))
-        self.assertEqual(number_samples, len(data["B"]["time"]))
+        self.assertEqual(number_samples, len(data["time"]))
+        self.assertEqual(number_samples, len(data[0]))
+        self.assertEqual(number_samples, len(data["B"]))
 
-        for key, datum in data["data"].items():
-            plt.plot(data["time"], datum)
-        plt.show()
+        # plt.plot(data["time"], data[0])
+        # plt.plot(data["time"], data["B"])
+        # plt.show()
 
 
 if __name__ == '__main__':  # pragma: no cover

@@ -20,10 +20,9 @@ class TPT():
             self.inductance = inductance
 
     class TestParameters():
-        def __init__(self, positive_voltage, negative_voltage, current_peak, pulses_periods):
-            self.positive_voltage = positive_voltage
-            self.negative_voltage = negative_voltage
-            self.current_peak = negative_voltage
+        def __init__(self, voltage_peak_to_peak, current_peak, pulses_periods):
+            self.voltage_peak_to_peak = voltage_peak_to_peak
+            self.current_peak = current_peak
             self.pulses_periods = pulses_periods
             self.total_time = sum(pulses_periods)
 
@@ -42,9 +41,8 @@ class TPT():
 
     def calculate_test_parameters(self, measure_parameters):
         steady_period = 1.0 / (2 * measure_parameters.frequency)
-        positive_voltage = measure_parameters.effective_area * measure_parameters.number_turns * measure_parameters.magnetic_flux_density_ac_peak_to_peak / 2 / steady_period
-        negative_voltage = positive_voltage
-        dc_bias_period = measure_parameters.effective_area * measure_parameters.number_turns * measure_parameters.magnetic_flux_density_dc_bias / positive_voltage
+        voltage_peak_to_peak = measure_parameters.effective_area * measure_parameters.number_turns * measure_parameters.magnetic_flux_density_ac_peak_to_peak / steady_period
+        dc_bias_period = measure_parameters.effective_area * measure_parameters.number_turns * measure_parameters.magnetic_flux_density_dc_bias / (voltage_peak_to_peak / 2)
         steady_repetitions = 5  # hardcoded
         demagnetization_period = dc_bias_period
         current_peak_to_peak = measure_parameters.magnetic_flux_density_ac_peak_to_peak * measure_parameters.number_turns / (measure_parameters.inductance * measure_parameters.effective_area)
@@ -54,7 +52,7 @@ class TPT():
         pulses_periods = [dc_bias_period]
         pulses_periods.extend([steady_period, steady_period] * steady_repetitions)
         pulses_periods.append(demagnetization_period)
-        parameters = self.TestParameters(positive_voltage, negative_voltage, current_peak, pulses_periods)
+        parameters = self.TestParameters(voltage_peak_to_peak, current_peak, pulses_periods)
         return parameters
 
     def instantiate_power_supply(self, power_supply, port):
@@ -79,34 +77,33 @@ class TPT():
             )
             self.power_supply.reset_limits()
 
+            result = self.power_supply.enable_series_mode()
+            assert result, "Power supply did not enter series mode"
+
         self.power_supply.set_source_voltage(
             channel=1,
-            voltage=parameters.positive_voltage
+            voltage=parameters.voltage_peak_to_peak
         )
         read_voltage = float(round(self.power_supply.get_source_voltage(channel=1), 6))
-        assert float(round(parameters.positive_voltage, 6)) == read_voltage, f"Wrong voltage measured at PSU: {read_voltage}, expected {parameters.positive_voltage}"
+        assert float(round(parameters.voltage_peak_to_peak, 6)) == read_voltage, f"Wrong voltage measured at PSU: {read_voltage}, expected {parameters.voltage_peak_to_peak}"
 
         self.power_supply.set_source_voltage(
             channel=2,
-            voltage=parameters.negative_voltage
+            voltage=parameters.voltage_peak_to_peak
         )
-        read_voltage = float(round(self.power_supply.get_source_voltage(channel=2), 6))
-        assert float(round(parameters.negative_voltage, 6)) == read_voltage, f"Wrong voltage measured at PSU: {read_voltage}, expected {parameters.negative_voltage}"
-
-        if startup:
-            result = self.power_supply.enable_series_mode()
-            assert result, "Power supply did not enter series mode"
+        # read_voltage = float(round(self.power_supply.get_source_voltage(channel=2), 6))
+        # assert float(round(parameters.voltage_peak_to_peak, 6)) == read_voltage, f"Wrong voltage measured at PSU: {read_voltage}, expected {parameters.negative_voltage}"
 
     def setup_oscilloscope(self, parameters):
         self.oscilloscope.set_channel_configuration(
             channel=0, 
-            input_voltage_range=parameters.positive_voltage,  # TODO: inckude probe scaling
+            input_voltage_range=parameters.voltage_peak_to_peak,  # TODO: inckude probe scaling
             coupling=0, 
             analog_offset=0
         )
         self.oscilloscope.set_channel_configuration(
             channel=1, 
-            input_voltage_range=parameters.positive_voltage,  # TODO: inckude probe scaling
+            input_voltage_range=parameters.voltage_peak_to_peak,  # TODO: inckude probe scaling
             coupling=0, 
             analog_offset=0
         )
@@ -118,7 +115,7 @@ class TPT():
         )
         self.oscilloscope.set_rising_trigger(
             channel=0,
-            threshold_voltage=0.1 * parameters.positive_voltage,  # Hardcoded TODO: inckude probe scaling
+            threshold_voltage=0.1 * parameters.voltage_peak_to_peak,  # Hardcoded TODO: inckude probe scaling
             timeout=self.timeout
         )
         self.oscilloscope.arm_trigger(
@@ -189,6 +186,7 @@ class TPT():
         return core_losses
 
     def run_test(self, measure_parameters):
+        plot = True
         parameters = self.calculate_test_parameters(measure_parameters)
 
         self.setup_power_supply(parameters)
@@ -205,6 +203,7 @@ class TPT():
         )
 
         data = None
+        aux_parameters = copy.deepcopy(parameters)
         while data is None:
 
             self.oscilloscope.run_acquisition_block()
@@ -214,20 +213,24 @@ class TPT():
             )
 
             data = self.oscilloscope.read_data()
-            break
-            if not math.isclose(data["Output Voltage"].max(), parameters.positive_voltage, rel_tol=self.maximum_voltage_error):
-                difference = data["Output Voltage"].max() - parameters.positive_voltage
-                aux_parameters = copy.deepcopy(parameters)
-                aux_parameters.positive_voltage += difference
+
+            if plot:
+                plt.plot(data["time"], data["Input Voltage"])
+                plt.plot(data["time"], data["Output Voltage"])
+                plt.show()
+
+            if not math.isclose(data["Output Voltage"].abs().mean(), parameters.voltage_peak_to_peak / 2, rel_tol=self.maximum_voltage_error):
+                difference = parameters.voltage_peak_to_peak / 2 - data["Output Voltage"].abs().mean()
+                aux_parameters.voltage_peak_to_peak += difference
                 self.setup_power_supply(aux_parameters)
+                print(f'data["Output Voltage"].max(): {data["Output Voltage"].max()}')
+                print(f'original parameters.voltage_peak_to_peak / 2: {parameters.voltage_peak_to_peak / 2}')
+                print(f'aux_parameters.voltage_peak_to_peak / 2: {aux_parameters.voltage_peak_to_peak / 2}')
+                print(f'difference: {difference}')
                 data = None
 
         core_losses = self.calculate_core_losses(parameters, data)
-        # for key, datum in data["data"].items():
-        #     plt.plot(data["time"], datum)
-        # plt.show()
 
-        # print(data)
         print(f"core_losses: {core_losses} W")
 
 

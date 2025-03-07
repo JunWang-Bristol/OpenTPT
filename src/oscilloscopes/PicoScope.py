@@ -309,13 +309,15 @@ class PicoScope(Oscilloscope):
 
     def get_maximum_ADC_count(self):
         maxADC = ctypes.c_int16(0)
-        self._maximum_value(self.handle, ctypes.byref(maxADC))
-        return maxADC.value
+        maxADC_pointer = ctypes.pointer(maxADC)
+        self._maximum_value(self.handle, maxADC_pointer)
+        return maxADC_pointer.contents.value
 
     def get_minimum_ADC_count(self):
         minADC = ctypes.c_int16(0)
-        self._minimum_value(self.handle, ctypes.byref(minADC))
-        return minADC.value
+        minADC_pointer = ctypes.pointer(minADC)
+        self._minimum_value(self.handle, minADC_pointer)
+        return minADC_pointer.contents.value
 
     def set_trigger(self, channel, threshold_voltage, direction, delayed_samples=0, timeout=0, enable=True):
         channel_index = self.check_channel(channel)
@@ -924,13 +926,15 @@ class PicoScope6404D(PicoScope):
     @staticmethod
     def _maximum_value(handle, value, resolution=0):
         maxADC = ctypes.c_int16(32512)
-        value._obj = maxADC
+        maxADC_pointer = ctypes.pointer(maxADC)
+        value.contents = maxADC_pointer.contents
         return "PICO_OK"
 
     @staticmethod
     def _minimum_value(handle, value, resolution=0):
         minADC = ctypes.c_int16(-32512)
-        value._obj = minADC
+        minADC_pointer = ctypes.pointer(minADC)
+        value.contents = minADC_pointer.contents
         return "PICO_OK"
 
     @staticmethod

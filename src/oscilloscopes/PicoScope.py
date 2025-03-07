@@ -923,12 +923,14 @@ class PicoScope6404D(PicoScope):
 
     @staticmethod
     def _maximum_value(handle, value, resolution=0):
-        value.value = 32512
+        maxADC = ctypes.c_int16(32512)
+        value._obj = maxADC
         return "PICO_OK"
 
     @staticmethod
     def _minimum_value(handle, value, resolution=0):
-        value.value = -32512
+        minADC = ctypes.c_int16(-32512)
+        value._obj = minADC
         return "PICO_OK"
 
     @staticmethod

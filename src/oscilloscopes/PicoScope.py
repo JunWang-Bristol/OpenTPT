@@ -404,6 +404,9 @@ class PicoScope(Oscilloscope):
                                      0,
                                      ctypes.byref(maximum_samples),
                                      0)
+        print(f"desired_time: {desired_time}")
+        print(f"timebase: {timebase}")
+        print(f"time_interval_ns.value: {time_interval_ns.value}")
         real_sampling_time = time_interval_ns.value * 1e-9
         assert_pico_ok(status)
         return real_sampling_time

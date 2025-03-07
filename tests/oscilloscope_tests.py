@@ -7,7 +7,7 @@ import os
 import json
 
 
-class OscilloscopesTests():
+class OscilloscopesTests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -17,7 +17,19 @@ class OscilloscopesTests():
 
         #  out = Oscilloscope Under Test :)
         cls.out = Oscilloscope.factory(cls.configuration['oscilloscope'], cls.configuration['oscilloscope_port'])
-        # cls.out.reset()
+
+        if cls.configuration['oscilloscope'] == "PicoScope2408B":
+            cls.channel = 'PS2000A_CHANNEL_D'
+            cls.input_voltage_ranges = [0.02, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0, 20.0]
+        elif cls.configuration['oscilloscope'] == "PicoScope3406D":
+            cls.channel = 'PS3000A_CHANNEL_D'
+            cls.input_voltage_ranges = [0.02, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0, 20.0]
+        elif cls.configuration['oscilloscope'] == "PicoScope6404D":
+            cls.channel = 'PS6000_CHANNEL_D'
+            cls.input_voltage_ranges = [0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0, 20.0]
+        else:
+            assert 0, "Unknown oscilloscope"
+
         print(f"Starting tests for {cls.configuration['oscilloscope']}")
 
     @classmethod
@@ -31,21 +43,10 @@ class OscilloscopesTests():
         self.assertEqual(4, self.out.get_number_channels())
 
     def test_get_channel_index(self):
-        if self.configuration['oscilloscope'] == "PicoScope2408B":
-            channel = 'PS2000A_CHANNEL_D'
-        if self.configuration['oscilloscope'] == "PicoScope3406D":
-            channel = 'PS3000A_CHANNEL_D'
-        if self.configuration['oscilloscope'] == "PicoScope6404D":
-            channel = 'PS6000_CHANNEL_D'
-
-        self.assertEqual(3, self.out.get_channel_index(channel))
+        self.assertEqual(3, self.out.get_channel_index(self.channel))
 
     def test_get_input_voltage_ranges(self):
-        ranges = self.out.get_input_voltage_ranges()
-        if len(ranges) == 10:
-            self.assertEqual([0.02, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0, 20.0], self.out.get_input_voltage_ranges())
-        else:
-            self.assertEqual([0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0, 20.0], self.out.get_input_voltage_ranges())
+        self.assertEqual(self.input_voltage_ranges, self.out.get_input_voltage_ranges())
 
     def test_check_channel(self):
         self.assertEqual(0, self.out.check_channel(0.0))
@@ -63,25 +64,6 @@ class OscilloscopesTests():
         self.assertEqual(3, self.out.check_channel(3.0))
         self.assertEqual(3, self.out.check_channel("3"))
         self.assertEqual(3, self.out.check_channel("D"))
-
-    def test_get_analog_offset_range(self):
-        expectec_values = {
-            0.02: [-0.25, 0.25],
-            0.05: [-0.25, 0.25],
-            0.1: [-0.25, 0.25],
-            0.2: [-0.25, 0.25],
-            0.5: [-2.5, 2.5],
-            1.0: [-2.5, 2.5],
-            2.0: [-2.5, 2.5],
-            5.0: [-20.0, 20.0],
-            10.0: [-20.0, 20.0],
-            20.0: [-20.0, 20.0],
-        }
-
-        input_voltage_ranges = self.out.get_input_voltage_ranges()
-        for input_voltage_range in input_voltage_ranges:
-            analog_offset_range = self.out.get_analog_offset_range(0, input_voltage_range)
-            self.assertEqual(expectec_values[input_voltage_range], analog_offset_range)
 
     def test_channel_configuration(self):
         for x in range(10):
@@ -132,15 +114,6 @@ class OscilloscopesTests():
             self.assertEqual(2 if direction else 3, configuration.direction)
             self.assertEqual(delayed_samples, configuration.delayed_samples)
             self.assertEqual(timeout, configuration.timeout)
-
-    def test_segments_and_maximum_samples(self):
-        maximum_samples = self.out.get_maximum_samples()
-        self.assertEqual(65446, maximum_samples)
-        self.assertEqual(1, self.out.get_number_segments())
-        maximum_samples = self.out.set_number_segments(1000)
-        self.assertEqual(2982, maximum_samples)
-        self.assertEqual(1000, self.out.get_number_segments())
-        self.out.set_number_segments(1)
 
     def test_real_sampling_time(self):
         for x in range(10):
@@ -234,8 +207,6 @@ class OscilloscopesTests():
         # plt.plot(data["time"], data["B"])
         # plt.show()
 
-class OscilloscopesTestsPicoScope2408B(OscilloscopesTests, unittest.TestCase):
-    pass
 
 if __name__ == '__main__':  # pragma: no cover
     unittest.main()

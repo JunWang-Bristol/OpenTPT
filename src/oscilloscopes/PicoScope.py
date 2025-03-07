@@ -860,8 +860,7 @@ class PicoScope6404D(PicoScope):
             raise Exception(f"{input_voltage_range_str_or_float} should be a float or string")
 
     def get_input_voltage_ranges(self):
-        # First and last one is outside the device's range
-        return list(self._voltage_ranges().values())[2:-1]
+        return list(self._voltage_ranges().values())
 
     @staticmethod
     def _get_channels_max():
@@ -921,13 +920,13 @@ class PicoScope6404D(PicoScope):
 
     @staticmethod
     def _maximum_value(handle, value, resolution=0):
-        min_value = 0.01  # hardcoded
-        return min_value
+        max_value = 32512
+        return max_value
 
     @staticmethod
     def _minimum_value(handle, value, resolution=0):
-        max_value = 20  # hardcoded
-        return max_value
+        min_value = -32512
+        return min_value
 
     @staticmethod
     def _set_simple_trigger(handle, enable, source, threshold, direction, delay, autoTrigger_ms):

@@ -7,7 +7,7 @@ import os
 import json
 
 
-class OscilloscopesTests(unittest.TestCase):
+class OscilloscopesTests():
 
     @classmethod
     def setUpClass(cls):
@@ -234,6 +234,8 @@ class OscilloscopesTests(unittest.TestCase):
         # plt.plot(data["time"], data["B"])
         # plt.show()
 
+class OscilloscopesTestsPicoScope2408B(OscilloscopesTests, unittest.TestCase):
+    pass
 
 if __name__ == '__main__':  # pragma: no cover
     unittest.main()

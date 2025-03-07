@@ -157,13 +157,11 @@ class TPT():
             yield (start, x)
             start += step
 
-    def calculate_core_losses(self, parameters, data):
+    def get_pulses(self, parameters, data):
         number_upsampled_pre_trigger_samples = self.oscilloscope.get_number_upsampled_pre_trigger_samples()
         upsampled_sampling_time = self.oscilloscope.get_upsampled_sampling_time()
 
         dc_bias_number_samples = int(parameters.pulses_periods[0] / upsampled_sampling_time)
-        # dc_bias_data = data.iloc[number_upsampled_pre_trigger_samples: number_upsampled_pre_trigger_samples + dc_bias_number_samples]
-        # plt.plot(dc_bias_data["time"], dc_bias_data["Output Voltage"])
         pulses_data = []
         previous_pulses_number_samples = number_upsampled_pre_trigger_samples + dc_bias_number_samples
         for pulse_pair_index in range(1, len(parameters.pulses_periods) - 1, 2):
@@ -171,22 +169,23 @@ class TPT():
             pulses_datum = data.iloc[previous_pulses_number_samples: previous_pulses_number_samples + pulse_pair_number_samples]
             previous_pulses_number_samples += pulse_pair_number_samples
             pulses_data.append(pulses_datum)
-            # plt.plot(pulses_datum["time"], pulses_datum["Output Voltage"])
-            # print(pulse_pair_index)
-            # plt.show()
+
+        return pulses_data
+
+    def get_average_peak_output_voltage_pulses(self, parameters, data):
+        pulses_data = self.get_pulses(parameters, data)
+        return pulses_data[-1].abs().mean()["Output Voltage"]
+
+    def calculate_core_losses(self, parameters, data):
+        upsampled_sampling_time = self.oscilloscope.get_upsampled_sampling_time()
+        pulses_data = self.get_pulses(parameters, data)
 
         energy = pulses_data[-1]["Output Voltage"] * pulses_data[-1]["Current"]
         core_losses = energy.sum() * upsampled_sampling_time
-        # print(energy)
-        # print(core_losses)
-        # demagnetization_data = data.iloc[previous_pulses_number_samples: int(parameters.pulses_periods[-1] / upsampled_sampling_time)]
-        # assert 0
-        # plt.plot(demagnetization_data["time"], demagnetization_data["Output Voltage"])
-        # plt.show()
         return core_losses
 
     def run_test(self, measure_parameters):
-        plot = True
+        plot = False
         parameters = self.calculate_test_parameters(measure_parameters)
 
         self.setup_power_supply(parameters)
@@ -219,11 +218,15 @@ class TPT():
                 plt.plot(data["time"], data["Output Voltage"])
                 plt.show()
 
-            if not math.isclose(data["Output Voltage"].abs().mean(), parameters.voltage_peak_to_peak / 2, rel_tol=self.maximum_voltage_error):
-                difference = parameters.voltage_peak_to_peak / 2 - data["Output Voltage"].abs().mean()
+            average_peak_pulses = self.get_average_peak_output_voltage_pulses(parameters, data)
+            print(average_peak_pulses)
+            print(average_peak_pulses)
+
+            if not math.isclose(average_peak_pulses, parameters.voltage_peak_to_peak / 2, rel_tol=self.maximum_voltage_error):
+                difference = parameters.voltage_peak_to_peak / 2 - average_peak_pulses
                 aux_parameters.voltage_peak_to_peak += difference
                 self.setup_power_supply(aux_parameters)
-                print(f'data["Output Voltage"].max(): {data["Output Voltage"].max()}')
+                print(f'average_peak_pulses: {average_peak_pulses}')
                 print(f'original parameters.voltage_peak_to_peak / 2: {parameters.voltage_peak_to_peak / 2}')
                 print(f'aux_parameters.voltage_peak_to_peak / 2: {aux_parameters.voltage_peak_to_peak / 2}')
                 print(f'difference: {difference}')

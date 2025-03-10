@@ -815,7 +815,7 @@ class PicoScope6404D(PicoScope):
 
         ps6.make_symbol("_ApplyFix", "ps6000ApplyFix", ctypes.c_uint32, [ctypes.c_int32, ctypes.c_int16], "PICO_STATUS ps6000ApplyFix ( int32_t fixNo, int16_t value );")
         status["ApplyFix"] = ps6.ps6000ApplyFix(0x421ced9168, 0x1420011e6)
-        self.minimum_sampling_time = 400e-9  # for 3 or 4 channels
+        self.minimum_sampling_time = 400e-12  # for 3 or 4 channels
         super().__init__(port, strict)
 
     # 6404D specific    

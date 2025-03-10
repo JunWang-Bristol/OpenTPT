@@ -87,35 +87,35 @@ class TPT():
         read_voltage = float(round(self.power_supply.get_source_voltage(channel=1), 6))
         assert float(round(parameters.voltage_peak_to_peak, 6)) == read_voltage, f"Wrong voltage measured at PSU: {read_voltage}, expected {parameters.voltage_peak_to_peak}"
 
-        self.power_supply.set_source_voltage(
-            channel=2,
-            voltage=parameters.voltage_peak_to_peak
-        )
+        # self.power_supply.set_source_voltage(
+        #     channel=2,
+        #     voltage=parameters.voltage_peak_to_peak
+        # )
         # read_voltage = float(round(self.power_supply.get_source_voltage(channel=2), 6))
         # assert float(round(parameters.voltage_peak_to_peak, 6)) == read_voltage, f"Wrong voltage measured at PSU: {read_voltage}, expected {parameters.negative_voltage}"
 
     def setup_oscilloscope(self, parameters):
         self.oscilloscope.set_channel_configuration(
             channel=0, 
-            input_voltage_range=parameters.voltage_peak_to_peak,  # TODO: inckude probe scaling
+            input_voltage_range=parameters.voltage_peak_to_peak,  # TODO: include probe scaling
             coupling=0, 
             analog_offset=0
         )
         self.oscilloscope.set_channel_configuration(
             channel=1, 
-            input_voltage_range=parameters.voltage_peak_to_peak,  # TODO: inckude probe scaling
+            input_voltage_range=parameters.voltage_peak_to_peak,  # TODO: include probe scaling
             coupling=0, 
             analog_offset=0
         )
         self.oscilloscope.set_channel_configuration(
             channel=2, 
-            input_voltage_range=parameters.current_peak,  # TODO: inckude probe scaling
+            input_voltage_range=parameters.current_peak,  # TODO: include probe scaling
             coupling=0, 
             analog_offset=0
         )
         self.oscilloscope.set_rising_trigger(
             channel=0,
-            threshold_voltage=0.1 * parameters.voltage_peak_to_peak,  # Hardcoded TODO: inckude probe scaling
+            threshold_voltage=0.1 * parameters.voltage_peak_to_peak,  # Hardcoded TODO: include probe scaling
             timeout=self.timeout
         )
         self.oscilloscope.arm_trigger(
@@ -141,7 +141,7 @@ class TPT():
         )
 
         self.oscilloscope.set_channel_skew(0, 2e-9)  # TODO: Totally made up skew
-        self.oscilloscope.set_channel_skew(1, -9e-9)  # TODO: Totally made up skew
+        self.oscilloscope.set_channel_skew(1, 0)
         self.oscilloscope.set_channel_skew(2, 5e-9)  # TODO: Totally made up skew
 
     def setup_board(self, parameters):
@@ -186,6 +186,7 @@ class TPT():
 
     def run_test(self, measure_parameters):
         plot = False
+        adjust_voltage = False
         parameters = self.calculate_test_parameters(measure_parameters)
 
         self.setup_power_supply(parameters)
@@ -222,7 +223,7 @@ class TPT():
             print(average_peak_pulses)
             print(average_peak_pulses)
 
-            if not math.isclose(average_peak_pulses, parameters.voltage_peak_to_peak / 2, rel_tol=self.maximum_voltage_error):
+            if not math.isclose(average_peak_pulses, parameters.voltage_peak_to_peak / 2, rel_tol=self.maximum_voltage_error) and adjust_voltage:
                 difference = parameters.voltage_peak_to_peak / 2 - average_peak_pulses
                 aux_parameters.voltage_peak_to_peak += difference
                 self.setup_power_supply(aux_parameters)
@@ -235,6 +236,8 @@ class TPT():
         core_losses = self.calculate_core_losses(parameters, data)
 
         print(f"core_losses: {core_losses} W")
+
+        return core_losses, data
 
 
 if __name__ == "__main__":

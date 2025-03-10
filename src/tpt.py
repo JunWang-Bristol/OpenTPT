@@ -49,6 +49,10 @@ class TPT():
         current_dc_bias = measure_parameters.magnetic_flux_density_dc_bias * measure_parameters.number_turns / (measure_parameters.inductance * measure_parameters.effective_area)
         current_peak = current_dc_bias * current_peak_to_peak / 2
 
+        print(f"measure_parameters.effective_area: {measure_parameters.effective_area}")
+        print(f"dc_bias_period: {dc_bias_period}")
+        print(f"steady_period: {steady_period}")
+        print(f"voltage_peak_to_peak: {voltage_peak_to_peak}")
         pulses_periods = [dc_bias_period]
         pulses_periods.extend([steady_period, steady_period] * steady_repetitions)
         pulses_periods.append(demagnetization_period)
@@ -257,7 +261,7 @@ if __name__ == "__main__":
         number_turns=5,
         magnetic_flux_density_ac_peak_to_peak=0.2,
         magnetic_flux_density_dc_bias=0.2,
-        frequency=100000,
+        frequency=50000,
         inductance=1e3,
     )
     tpt.run_test(measure_parameters)

@@ -396,7 +396,7 @@ static void MX_GPIO_Init(void)
   LL_GPIO_Init(LED2_GPIO_Port, &GPIO_InitStruct);
 
   /**/
-  GPIO_InitStruct.Pin = PWM7_Pin|PWM4_Pin;
+  GPIO_InitStruct.Pin = PWM7_Pin;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
   GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;

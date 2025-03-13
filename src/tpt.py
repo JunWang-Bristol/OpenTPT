@@ -26,9 +26,12 @@ class TPT():
             self.pulses_periods = pulses_periods
             self.total_time = sum(pulses_periods)
 
-    def __init__(self, power_supply, oscilloscope, board, power_supply_port, oscilloscope_port, board_port):
+    def __init__(self, power_supply, oscilloscope, board, power_supply_port, oscilloscope_port, board_port, input_voltage_probe_scale=1, output_voltage_probe_scale=1, current_probe_scale=1):
         self.power_supply = self.instantiate_power_supply(power_supply, power_supply_port)
         self.oscilloscope = self.instantiate_oscilloscope(oscilloscope, oscilloscope_port)
+        self.input_voltage_probe_scale = input_voltage_probe_scale
+        self.output_voltage_probe_scale = output_voltage_probe_scale
+        self.current_probe_scale = current_probe_scale
         self.board = self.instantiate_board(board, board_port)
         self.timeout = 5000
         self.maximum_voltage_error = 0.05
@@ -143,6 +146,10 @@ class TPT():
             channel=2,
             label="Current"
         )
+
+        self.oscilloscope.set_probe_scale(0, self.input_voltage_probe_scale)
+        self.oscilloscope.set_probe_scale(1, self.output_voltage_probe_scale)
+        self.oscilloscope.set_probe_scale(2, self.current_probe_scale)
 
         self.oscilloscope.set_channel_skew(0, 2e-9)  # TODO: Totally made up skew
         self.oscilloscope.set_channel_skew(1, 0)

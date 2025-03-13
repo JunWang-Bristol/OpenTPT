@@ -4,5 +4,8 @@
     "oscilloscope": "PicoScope2408B",
     "oscilloscope_port": "COM5",
     "board": "NUCLEO-H503RB",
-    "board_port": "COM6"
+    "board_port": "COM6",
+    "input_voltage_probe_scale": 10,
+    "output_voltage_probe_scale": 10,
+    "current_probe_scale": 0.1
 }

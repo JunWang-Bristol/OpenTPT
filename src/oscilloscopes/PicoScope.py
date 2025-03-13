@@ -58,6 +58,8 @@ class PicoScope(Oscilloscope):
         self.upsampling_scale = 1
         self.upsampled_sampling_time = self.sampling_time
 
+        self.probe_scaling = {}
+
         self.channel_labels = {}
         self.channel_skew = {}
         for channel in self._get_channels():
@@ -307,6 +309,14 @@ class PicoScope(Oscilloscope):
         channel_index = self.check_channel(channel)
         self.channel_labels[channel_index] = label
 
+    def get_probe_scale(self, channel):
+        channel_index = self.check_channel(channel)
+        return self.probe_scaling[channel_index]
+
+    def set_probe_scale(self, channel, probe_scale):
+        channel_index = self.check_channel(channel)
+        self.probe_scale[channel_index] = probe_scale
+
     def get_maximum_ADC_count(self):
         maxADC = ctypes.c_int16(0)
         maxADC_pointer = ctypes.pointer(maxADC)
@@ -496,6 +506,8 @@ class PicoScope(Oscilloscope):
 
             data_in_adc_count = numpy.array(buffers[channel])
             data_in_volts = data_in_adc_count / self.get_maximum_ADC_count() * self.get_channel_configuration(channel_index).input_voltage_range
+            if channel_index in self.probe_scale:
+                data_in_volts *= self.probe_scale[channel_index]
             if gcd_samplig_time_and_skew != self.sampling_time:
                 f = interpolate.interp1d(sampled_time_array, data_in_volts)
                 data_in_volts = [f(x) for x in data["time"]]

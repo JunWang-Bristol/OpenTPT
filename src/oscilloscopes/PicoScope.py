@@ -58,7 +58,7 @@ class PicoScope(Oscilloscope):
         self.upsampling_scale = 1
         self.upsampled_sampling_time = self.sampling_time
 
-        self.probe_scaling = {}
+        self.probe_scale = {}
 
         self.channel_labels = {}
         self.channel_skew = {}
@@ -311,7 +311,7 @@ class PicoScope(Oscilloscope):
 
     def get_probe_scale(self, channel):
         channel_index = self.check_channel(channel)
-        return self.probe_scaling[channel_index]
+        return self.probe_scale[channel_index]
 
     def set_probe_scale(self, channel, probe_scale):
         channel_index = self.check_channel(channel)

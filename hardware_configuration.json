@@ -1,0 +1,11 @@
+{
+    "power_supply": "BK9129B",
+    "power_supply_port": "COM3",
+    "oscilloscope": "PicoScope6404D",
+    "oscilloscope_port": "COM5",
+    "board": "NUCLEO-H503RB",
+    "board_port": "COM7",
+    "input_voltage_probe_scale": 10,
+    "output_voltage_probe_scale": 10,
+    "current_probe_scale": 0.1
+}

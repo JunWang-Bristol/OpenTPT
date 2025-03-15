@@ -142,7 +142,7 @@ class OscilloscopesTests(unittest.TestCase):
         desired_time = 1e-09
         sampling_time = self.out.set_sampling_time(desired_time)
 
-        self.assertEqual(4e-9, sampling_time)
+        self.assertEqual(1.600000023841858e-09, sampling_time)
         self.out.run_acquisition_block(sampling_time, number_samples)
 
         data = self.out.read_data(

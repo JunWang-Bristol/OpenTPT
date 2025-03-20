@@ -28,7 +28,7 @@ app.layout = html.Div([
                 dcc.Input(
                     id='input-effective_area',
                     type='number',
-                    value=35,
+                    value=65.4,
                     style={'width': '30%', 'display': 'inline-block', 'font-size': '18px'}
                 ),
                 html.H6(" mm²", style={'width': '10%', 'display': 'inline-block', 'margin-left': '1%'}),
@@ -38,7 +38,7 @@ app.layout = html.Div([
                 dcc.Input(
                     id='input-number_turns',
                     type='number',
-                    value=5,
+                    value=10,
                     style={'width': '30%', 'display': 'inline-block', 'font-size': '18px'}
                 ),
             ]),
@@ -57,7 +57,7 @@ app.layout = html.Div([
                 dcc.Input(
                     id='input-magnetic_flux_density_dc_bias',
                     type='number',
-                    value=200,
+                    value=100,
                     style={'width': '30%', 'display': 'inline-block', 'font-size': '18px'}
                 ),
                 html.H6(" mT", style={'width': '10%', 'display': 'inline-block', 'margin-left': '1%'}),
@@ -67,7 +67,7 @@ app.layout = html.Div([
                 dcc.Input(
                     id='input-frequency',
                     type='number',
-                    value=100,
+                    value=50,
                     style={'width': '30%', 'display': 'inline-block', 'font-size': '18px'}
                 ),
                 html.H6(" kHz", style={'width': '10%', 'display': 'inline-block', 'margin-left': '1%'}),
@@ -77,7 +77,7 @@ app.layout = html.Div([
                 dcc.Input(
                     id='input-inductance',
                     type='number',
-                    value=1000,
+                    value=9,
                     style={'width': '30%', 'display': 'inline-block', 'font-size': '18px'}
                 ),
                 html.H6(" μH", style={'width': '10%', 'display': 'inline-block', 'margin-left': '1%'}),

@@ -6,6 +6,7 @@ import os
 import json
 import math
 import copy
+import time
 
 
 class TPT():
@@ -104,13 +105,13 @@ class TPT():
     def setup_oscilloscope(self, parameters):
         self.oscilloscope.set_channel_configuration(
             channel=0, 
-            input_voltage_range=parameters.voltage_peak_to_peak,  # TODO: include probe scaling
+            input_voltage_range=parameters.voltage_peak_to_peak / self.input_voltage_probe_scale,  # TODO: include probe scaling
             coupling=0, 
             analog_offset=0
         )
         self.oscilloscope.set_channel_configuration(
             channel=1, 
-            input_voltage_range=parameters.voltage_peak_to_peak,  # TODO: include probe scaling
+            input_voltage_range=parameters.voltage_peak_to_peak / self.output_voltage_probe_scale,  # TODO: include probe scaling
             coupling=0, 
             analog_offset=0
         )
@@ -122,15 +123,18 @@ class TPT():
         )
         self.oscilloscope.set_rising_trigger(
             channel=0,
-            threshold_voltage=0.1 * parameters.voltage_peak_to_peak,  # Hardcoded TODO: include probe scaling
-            timeout=self.timeout
+            threshold_voltage=parameters.voltage_peak_to_peak / self.output_voltage_probe_scale * 0.1,
+            # timeout=self.timeout
+            timeout=5000
         )
         self.oscilloscope.arm_trigger(
             channel=0
         )
 
         self.oscilloscope.set_number_samples(int(self.oscilloscope.get_maximum_samples()))
+        # self.oscilloscope.set_number_samples(10000)
         desired_sampling_time = parameters.total_time / self.oscilloscope.get_maximum_samples()
+        # desired_sampling_time = parameters.total_time / 10000
         print(desired_sampling_time)
         actual_sampling_time = self.oscilloscope.set_sampling_time(desired_sampling_time)
         print(actual_sampling_time)
@@ -151,9 +155,9 @@ class TPT():
         self.oscilloscope.set_probe_scale(1, self.output_voltage_probe_scale)
         self.oscilloscope.set_probe_scale(2, self.current_probe_scale)
 
-        self.oscilloscope.set_channel_skew(0, 2e-9)  # TODO: Totally made up skew
-        self.oscilloscope.set_channel_skew(1, 0)
-        self.oscilloscope.set_channel_skew(2, 5e-9)  # TODO: Totally made up skew
+        # self.oscilloscope.set_channel_skew(0, 2e-9)  # TODO: Totally made up skew
+        # self.oscilloscope.set_channel_skew(1, 0)
+        # self.oscilloscope.set_channel_skew(2, 5e-9)  # TODO: Totally made up skew
 
     def setup_board(self, parameters):
         self.board.reset()
@@ -217,13 +221,18 @@ class TPT():
         aux_parameters = copy.deepcopy(parameters)
         while data is None:
 
+            print("Running block acquisition")
             self.oscilloscope.run_acquisition_block()
 
+            time.sleep(1)
+            print("Running pulses")
             self.board.run_pulses(
                 number_repetitions=1
             )
 
+            print("Reading data")
             data = self.oscilloscope.read_data()
+            print("Trigger!!")
 
             if plot:
                 plt.plot(data["time"], data["Input Voltage"])
@@ -231,7 +240,7 @@ class TPT():
                 plt.show()
 
             average_peak_pulses = self.get_average_peak_output_voltage_pulses(parameters, data)
-            print(average_peak_pulses)
+            print("average_peak_pulses")
             print(average_peak_pulses)
 
             if not math.isclose(average_peak_pulses, parameters.voltage_peak_to_peak / 2, rel_tol=self.maximum_voltage_error) and adjust_voltage:
@@ -264,11 +273,17 @@ if __name__ == "__main__":
     tpt.set_maximum_voltage_error(0.1)
 
     measure_parameters = TPT.MeasureParameters(
-        effective_area=0.0000350,
-        number_turns=5,
-        magnetic_flux_density_ac_peak_to_peak=0.2,
-        magnetic_flux_density_dc_bias=0.2,
-        frequency=50000,
-        inductance=1e3,
+        effective_area=0.0000650,
+        number_turns=10,
+        magnetic_flux_density_ac_peak_to_peak=0.1,
+        magnetic_flux_density_dc_bias=0.05,
+        frequency=100000,
+        inductance=9e6,
+        # effective_area=0.0000350,
+        # number_turns=5,
+        # magnetic_flux_density_ac_peak_to_peak=0.2,
+        # magnetic_flux_density_dc_bias=0.2,
+        # frequency=50000,
+        # inductance=1e3,
     )
     tpt.run_test(measure_parameters)

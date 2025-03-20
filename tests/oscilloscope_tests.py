@@ -172,7 +172,6 @@ class OscilloscopesTests(unittest.TestCase):
         # plt.plot(data["time"], data["B"])
         # plt.show()
 
-    @unittest.skip
     def test_read_data_trigger(self):
         self.out.set_channel_configuration(
             channel=0, 
@@ -186,7 +185,7 @@ class OscilloscopesTests(unittest.TestCase):
             coupling=0, 
             analog_offset=0
         )
-        self.out.set_rising_trigger(0, 3)
+        self.out.set_rising_trigger(0, 0.3, 5000)
         self.out.arm_trigger(0)
 
         number_samples = int(self.out.get_maximum_samples() * 0.1)

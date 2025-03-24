@@ -1,2 +1,2 @@
-# tpt
-Code for the Teensy / Computer application for core losses measurement following the TPT method.
+# TPT
+Open Source measurement system for core losses.

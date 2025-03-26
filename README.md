@@ -18,6 +18,7 @@ Paper: [Triple Pulse Test (TPT) for Characterizing Magnetic Components](https://
 - Neglectable heat generated - constant temperature
 
 ## Testing circuit - half bridge
+Degree of freedom to compensate for asymmetric rectangular voltage amplitude
 <img src="https://github.com/user-attachments/assets/98e0528d-d1ae-4c81-9cbd-6fb57e1a7119" width="700">
 
 # Open TPT

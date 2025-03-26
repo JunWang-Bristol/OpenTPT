@@ -25,6 +25,7 @@ Degree of freedom to compensate for asymmetric rectangular voltage amplitude
 Project under construction, please stay tuned.
 
 Expected release time - Summer 2025
+
 <img src="https://github.com/user-attachments/assets/c0c6bbed-de37-4ced-bac2-5fd5047c79f3" width="400">
 
 ## Installation instructions

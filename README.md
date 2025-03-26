@@ -18,7 +18,7 @@ Paper: [Triple Pulse Test (TPT) for Characterizing Magnetic Components](https://
 - Neglectable heat generated
 
 ## Testing circuit - half bridge
-<img src="image](https://github.com/user-attachments/assets/0cd944f8-6f45-4325-86f4-5ee223e89eff" width="600">
+<img src="https://github.com/user-attachments/assets/0cd944f8-6f45-4325-86f4-5ee223e89eff" width="600">
 
 # Open TPT
 

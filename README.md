@@ -5,9 +5,12 @@ Paper: [Triple Pulse Test (TPT) for Characterizing Magnetic Components](https://
 
 ## Discontinuous procedure
 **First pulse** – establish dc-bias – no additional dc bias source needed!
+
 **Second pulse(s)** – stabilizing
+
 **Third pulse** – target cycle (steady state)
-<img src="https://github.com/user-attachments/assets/79b16b9c-3685-4744-a00b-602cb5cbe33c" width="200">
+
+<img src="https://github.com/user-attachments/assets/79b16b9c-3685-4744-a00b-602cb5cbe33c" width="500">
 
 ## Features
 - Short transition (100 ~ 500 µs)

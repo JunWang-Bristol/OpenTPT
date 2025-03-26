@@ -12,10 +12,10 @@ Paper: [Triple Pulse Test (TPT) for Characterizing Magnetic Components](https://
 <img src="https://github.com/user-attachments/assets/a5aeb696-d521-4b35-ae21-d3f0c416b4ee" width="400">
 
 ## Features
-- Short transition (100 ~ 500 µs)
-- Bidirectional current flow
-- Reduced setup requirement
-- Neglectable heat generated
+- Short transition (100 ~ 500 µs) - good for rapid testing, e.g. end-of-line, 100% testing
+- Bidirectional current flow - emulate practical BH loop in PWM converters
+- Reduced setup requirement - low-cost
+- Neglectable heat generated - constant temperature
 
 ## Testing circuit - half bridge
 <img src="https://github.com/user-attachments/assets/0cd944f8-6f45-4325-86f4-5ee223e89eff" width="600">

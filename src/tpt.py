@@ -21,8 +21,9 @@ class TPT():
             self.inductance = inductance
 
     class TestParameters():
-        def __init__(self, voltage_peak_to_peak, current_peak, pulses_periods):
-            self.voltage_peak_to_peak = voltage_peak_to_peak
+        def __init__(self, positive_voltage_peak, negative_voltage_peak, current_peak, pulses_periods):
+            self.positive_voltage_peak = positive_voltage_peak
+            self.negative_voltage_peak = negative_voltage_peak
             self.current_peak = current_peak
             self.pulses_periods = pulses_periods
             self.total_time = sum(pulses_periods)
@@ -60,7 +61,7 @@ class TPT():
         pulses_periods = [dc_bias_period]
         pulses_periods.extend([steady_period, steady_period] * steady_repetitions)
         pulses_periods.append(demagnetization_period)
-        parameters = self.TestParameters(voltage_peak_to_peak, current_peak, pulses_periods)
+        parameters = self.TestParameters(voltage_peak_to_peak / 2, voltage_peak_to_peak / 2, current_peak, pulses_periods)
         return parameters
 
     def instantiate_power_supply(self, power_supply, port):
@@ -85,33 +86,33 @@ class TPT():
             )
             self.power_supply.reset_limits()
 
-            result = self.power_supply.enable_series_mode()
-            assert result, "Power supply did not enter series mode"
+            # result = self.power_supply.enable_series_mode()
+            # assert result, "Power supply did not enter series mode"
 
         self.power_supply.set_source_voltage(
             channel=1,
-            voltage=parameters.voltage_peak_to_peak
+            voltage=parameters.positive_voltage_peak
         )
         read_voltage = float(round(self.power_supply.get_source_voltage(channel=1), 6))
-        assert float(round(parameters.voltage_peak_to_peak, 6)) == read_voltage, f"Wrong voltage measured at PSU: {read_voltage}, expected {parameters.voltage_peak_to_peak}"
+        assert float(round(parameters.positive_voltage_peak, 6)) == read_voltage, f"Wrong voltage measured at PSU: {read_voltage}, expected {parameters.positive_voltage_peak}"
 
-        # self.power_supply.set_source_voltage(
-        #     channel=2,
-        #     voltage=parameters.voltage_peak_to_peak
-        # )
-        # read_voltage = float(round(self.power_supply.get_source_voltage(channel=2), 6))
-        # assert float(round(parameters.voltage_peak_to_peak, 6)) == read_voltage, f"Wrong voltage measured at PSU: {read_voltage}, expected {parameters.negative_voltage}"
+        self.power_supply.set_source_voltage(
+            channel=2,
+            voltage=parameters.negative_voltage_peak
+        )
+        read_voltage = float(round(self.power_supply.get_source_voltage(channel=2), 6))
+        assert float(round(parameters.negative_voltage_peak, 6)) == read_voltage, f"Wrong voltage measured at PSU: {read_voltage}, expected {parameters.negative_voltage_peak}"
 
     def setup_oscilloscope(self, parameters):
         self.oscilloscope.set_channel_configuration(
             channel=0, 
-            input_voltage_range=parameters.voltage_peak_to_peak / self.input_voltage_probe_scale,  # TODO: include probe scaling
+            input_voltage_range=parameters.positive_voltage_peak / self.input_voltage_probe_scale,
             coupling=0, 
             analog_offset=0
         )
         self.oscilloscope.set_channel_configuration(
             channel=1, 
-            input_voltage_range=parameters.voltage_peak_to_peak / self.output_voltage_probe_scale,  # TODO: include probe scaling
+            input_voltage_range=parameters.negative_voltage_peak / self.output_voltage_probe_scale,
             coupling=0, 
             analog_offset=0
         )
@@ -123,9 +124,8 @@ class TPT():
         )
         self.oscilloscope.set_rising_trigger(
             channel=0,
-            threshold_voltage=parameters.voltage_peak_to_peak / self.output_voltage_probe_scale * 0.1,
-            # timeout=self.timeout
-            timeout=5000
+            threshold_voltage=parameters.positive_voltage_peak / self.output_voltage_probe_scale * 0.1,
+            timeout=self.timeout
         )
         self.oscilloscope.arm_trigger(
             channel=0
@@ -189,7 +189,10 @@ class TPT():
 
     def get_average_peak_output_voltage_pulses(self, parameters, data):
         pulses_data = self.get_pulses(parameters, data)
-        return pulses_data[-1].abs().mean()["Output Voltage"]
+        last_pulse_data = pulses_data[-1]
+        positive_data = last_pulse_data[last_pulse_data["Output Voltage"] > 0]
+        negative_data = last_pulse_data[last_pulse_data["Output Voltage"] < 0].abs()
+        return positive_data.mean()["Output Voltage"], negative_data.mean()["Output Voltage"]
 
     def calculate_core_losses(self, parameters, data):
         upsampled_sampling_time = self.oscilloscope.get_upsampled_sampling_time()
@@ -218,7 +221,7 @@ class TPT():
         )
 
         data = None
-        aux_parameters = copy.deepcopy(parameters)
+        adjusted_parameters = copy.deepcopy(parameters)
         while data is None:
 
             print("Running block acquisition")
@@ -239,19 +242,31 @@ class TPT():
                 plt.plot(data["time"], data["Output Voltage"])
                 plt.show()
 
-            average_peak_pulses = self.get_average_peak_output_voltage_pulses(parameters, data)
-            print("average_peak_pulses")
-            print(average_peak_pulses)
+            average_peak_positive_pulses, average_peak_negative_pulses = self.get_average_peak_output_voltage_pulses(parameters, data)
 
-            if not math.isclose(average_peak_pulses, parameters.voltage_peak_to_peak / 2, rel_tol=self.maximum_voltage_error) and adjust_voltage:
-                difference = parameters.voltage_peak_to_peak / 2 - average_peak_pulses
-                aux_parameters.voltage_peak_to_peak += difference
-                self.setup_power_supply(aux_parameters)
-                print(f'average_peak_pulses: {average_peak_pulses}')
-                print(f'original parameters.voltage_peak_to_peak / 2: {parameters.voltage_peak_to_peak / 2}')
-                print(f'aux_parameters.voltage_peak_to_peak / 2: {aux_parameters.voltage_peak_to_peak / 2}')
-                print(f'difference: {difference}')
-                data = None
+            if adjust_voltage:
+                needs_adjusting = False
+                if not math.isclose(average_peak_positive_pulses, parameters.positive_voltage_peak, rel_tol=self.maximum_voltage_error):
+                    needs_adjusting = True
+                    difference = parameters.positive_voltage_peak - average_peak_positive_pulses
+                    adjusted_parameters.positive_voltage_peak += difference
+                    print(f'average_peak_positive_pulses: {average_peak_positive_pulses}')
+                    print(f'original parameters.positive_voltage_peak: {parameters.positive_voltage_peak}')
+                    print(f'adjusted_parameters.positive_voltage_peak: {adjusted_parameters.positive_voltage_peak}')
+                    print(f'difference: {difference}')
+
+                if not math.isclose(average_peak_negative_pulses, parameters.negative_voltage_peak, rel_tol=self.maximum_voltage_error):
+                    needs_adjusting = True
+                    difference = parameters.negative_voltage_peak - average_peak_negative_pulses
+                    adjusted_parameters.negative_voltage_peak += difference
+                    print(f'average_peak_negative_pulses: {average_peak_negative_pulses}')
+                    print(f'original parameters.negative_voltage_peak: {parameters.negative_voltage_peak}')
+                    print(f'adjusted_parameters.negative_voltage_peak: {adjusted_parameters.negative_voltage_peak}')
+                    print(f'difference: {difference}')
+
+                if needs_adjusting:
+                    self.setup_power_supply(adjusted_parameters)
+                    data = None
 
         core_losses = self.calculate_core_losses(parameters, data)
 

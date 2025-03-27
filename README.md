@@ -29,7 +29,7 @@ Expected release time - Summer 2025
 Contributors:
 - George Slama (PSMA/Wurth Elektronik)
 - Alfonso Martinez (PSMA/Wurth Elektronik)
-- Matt Wilowski (PSMA/Wurth Elektronik)
+- Matt Wilkowski (PSMA/Wurth Elektronik)
 - Jun Wang (Uni of Bristol)
 - Binyu Cui (Uni of Bristol)
 - Jingrong Yang (Uni of Bristol)

@@ -26,6 +26,14 @@ Project under construction, please stay tuned.
 
 Expected release time - Summer 2025
 
+Contributors:
+- George Slama (PSMA/Wurth Elektronik)
+- Alfonso Martinez (PSMA/Wurth Elektronik)
+- Matt Wilowski (PSMA/Wurth Elektronik)
+- Jun Wang (Uni of Bristol)
+- Binyu Cui (Uni of Bristol)
+- Jingrong Yang (Uni of Bristol)
+
 <img src="https://github.com/user-attachments/assets/c0c6bbed-de37-4ced-bac2-5fd5047c79f3" width="400">
 
 ## Installation instructions

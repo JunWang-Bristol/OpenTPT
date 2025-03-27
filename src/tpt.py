@@ -272,6 +272,13 @@ class TPT():
 
         print(f"core_losses: {core_losses} W")
 
+        self.power_supply.disable_output(
+            channel=1
+        )
+        self.power_supply.disable_output(
+            channel=2
+        )
+
         return core_losses, data
 
 

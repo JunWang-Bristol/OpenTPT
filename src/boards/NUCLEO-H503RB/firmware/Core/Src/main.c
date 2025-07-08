@@ -143,7 +143,7 @@ int main(void)
   printf("TPT 2402 r1 SCPI interface\r\n");
 
   /* USER CODE END 2 */
-
+  reset_pins();
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
@@ -368,7 +368,7 @@ static void MX_GPIO_Init(void)
   LL_GPIO_ResetOutputPin(LED2_GPIO_Port, LED2_Pin);
 
   /**/
-  LL_GPIO_ResetOutputPin(GPIOB, PWM7_Pin|PWM4_Pin);
+  LL_GPIO_ResetOutputPin(GPIOB, PositivePulse_Pin|NegativePulse_Pin);
 
   /**/
   LL_EXTI_SetEXTISource(LL_EXTI_EXTI_PORTC, LL_EXTI_EXTI_LINE13);
@@ -396,7 +396,7 @@ static void MX_GPIO_Init(void)
   LL_GPIO_Init(LED2_GPIO_Port, &GPIO_InitStruct);
 
   /**/
-  GPIO_InitStruct.Pin = PWM7_Pin;
+  GPIO_InitStruct.Pin = PositivePulse_Pin|NegativePulse_Pin;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
   GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;

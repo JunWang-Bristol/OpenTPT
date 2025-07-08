@@ -75,10 +75,10 @@ void Error_Callback(void);
 #define USER_BUTTON_EXTI_IRQn EXTI13_IRQn
 #define LED2_Pin LL_GPIO_PIN_5
 #define LED2_GPIO_Port GPIOA
-#define PWM7_Pin LL_GPIO_PIN_10
-#define PWM7_GPIO_Port GPIOB
-#define PWM4_Pin LL_GPIO_PIN_3
-#define PWM4_GPIO_Port GPIOB
+#define PositivePulse_Pin LL_GPIO_PIN_10
+#define PositivePulse_GPIO_Port GPIOB
+#define NegativePulse_Pin LL_GPIO_PIN_4
+#define NegativePulse_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

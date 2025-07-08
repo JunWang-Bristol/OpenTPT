@@ -300,7 +300,7 @@ if __name__ == "__main__":
         magnetic_flux_density_ac_peak_to_peak=0.1,
         magnetic_flux_density_dc_bias=0.05,
         frequency=100000,
-        inductance=9e6,
+        inductance=9e-6,
         # effective_area=0.0000350,
         # number_turns=5,
         # magnetic_flux_density_ac_peak_to_peak=0.2,

@@ -83,8 +83,15 @@ scpi_result_t SCPI_Control(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_reg_val
     return SCPI_RES_OK;
 }
 
+void reset_pins() {
+	uint32_t tmp = GPIOB->ODR;
+	GPIOB->BSRR = 0x0010;
+
+}
+
 scpi_result_t SCPI_Reset(scpi_t * context) {
     (void) context;
+
 
     current_number_pulses = 0;
     run_trains = 0;
@@ -159,7 +166,8 @@ scpi_result_t TPT_RunPulses(scpi_t * context) {
         	__disable_irq();
             for (size_t pulse_index=0; pulse_index<current_number_pulses; pulse_index++) {
         		uint32_t tmp = GPIOB->ODR;
-        		GPIOB->BSRR = (tmp << 16) | (~tmp & 0xFFFF);
+        		GPIOB->BSRR = 0xFFFF0000;
+        		GPIOB->BSRR = (tmp << 16) | (tmp ^ 0x0410);
         		delay_half_us(pulse_periods[pulse_index]);
             }
         	__enable_irq();

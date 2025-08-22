@@ -7,6 +7,7 @@ import json
 import math
 import copy
 import time
+import post_processor
 
 
 class TPT():
@@ -37,6 +38,10 @@ class TPT():
         self.board = self.instantiate_board(board, board_port)
         self.timeout = 5000
         self.maximum_voltage_error = 0.05
+        self.voltage_positive_proportion = 0.5
+        self.measured_inductance = None
+        self.desired_current_dc_bias = 0
+        self.post_processor = post_processor.PostProcessor()
 
     def set_timeout_in_ms(self, timeout):
         self.timeout = timeout
@@ -47,21 +52,27 @@ class TPT():
     def calculate_test_parameters(self, measure_parameters):
         steady_period = 1.0 / (2 * measure_parameters.frequency)
         voltage_peak_to_peak = measure_parameters.effective_area * measure_parameters.number_turns * measure_parameters.magnetic_flux_density_ac_peak_to_peak / steady_period
-        dc_bias_period = measure_parameters.effective_area * measure_parameters.number_turns * measure_parameters.magnetic_flux_density_dc_bias / (voltage_peak_to_peak / 2)
-        steady_repetitions = 5  # hardcoded
-        demagnetization_period = dc_bias_period
-        current_peak_to_peak = measure_parameters.magnetic_flux_density_ac_peak_to_peak * measure_parameters.number_turns / (measure_parameters.inductance * measure_parameters.effective_area)
-        current_dc_bias = measure_parameters.magnetic_flux_density_dc_bias * measure_parameters.number_turns / (measure_parameters.inductance * measure_parameters.effective_area)
-        current_peak = current_dc_bias * current_peak_to_peak / 2
+        steady_repetitions = 7  # hardcoded
 
+        current_peak_to_peak = measure_parameters.magnetic_flux_density_ac_peak_to_peak * measure_parameters.number_turns * measure_parameters.effective_area / measure_parameters.inductance
+        current_dc_bias = measure_parameters.magnetic_flux_density_dc_bias * measure_parameters.number_turns * measure_parameters.effective_area / measure_parameters.inductance
+        current_peak = current_dc_bias * current_peak_to_peak / 2
+        self.desired_current_dc_bias = current_dc_bias
+
+        print(f"current_peak: {current_peak}")
         print(f"measure_parameters.effective_area: {measure_parameters.effective_area}")
-        print(f"dc_bias_period: {dc_bias_period}")
+
         print(f"steady_period: {steady_period}")
         print(f"voltage_peak_to_peak: {voltage_peak_to_peak}")
-        pulses_periods = [dc_bias_period]
+        print(f"current_dc_bias: {current_dc_bias}")
+        print(f"current_peak: {current_peak}")
+        print(f"current_peak_to_peak: {current_peak_to_peak}")
+
+        pulses_periods = []
         pulses_periods.extend([steady_period, steady_period] * steady_repetitions)
-        pulses_periods.append(demagnetization_period)
-        parameters = self.TestParameters(voltage_peak_to_peak / 2, voltage_peak_to_peak / 2, current_peak, pulses_periods)
+
+        parameters = self.TestParameters(voltage_peak_to_peak * self.voltage_positive_proportion, voltage_peak_to_peak * (1 - self.voltage_positive_proportion), current_peak, pulses_periods)
+        #parameters = self.TestParameters(voltage_peak_to_peak / 2 , voltage_peak_to_peak / 2, current_peak, pulses_periods)
         return parameters
 
     def instantiate_power_supply(self, power_supply, port):
@@ -118,7 +129,8 @@ class TPT():
         )
         self.oscilloscope.set_channel_configuration(
             channel=2, 
-            input_voltage_range=parameters.current_peak,  # TODO: include probe scaling
+            input_voltage_range=parameters.current_peak / self.current_probe_scale,
+            # input_voltage_range=1, 
             coupling=0, 
             analog_offset=0
         )
@@ -203,8 +215,8 @@ class TPT():
         return core_losses
 
     def run_test(self, measure_parameters):
-        plot = False
-        adjust_voltage = False
+        plot = True
+        adjust_voltage_proportion = True
         parameters = self.calculate_test_parameters(measure_parameters)
 
         self.setup_power_supply(parameters)
@@ -235,40 +247,29 @@ class TPT():
 
             print("Reading data")
             data = self.oscilloscope.read_data()
+            data.to_csv("test_data_gas.csv")
             print("Trigger!!")
 
             if plot:
                 plt.plot(data["time"], data["Input Voltage"])
                 plt.plot(data["time"], data["Output Voltage"])
+                plt.plot(data["time"], data["Current"])
                 plt.show()
 
-            average_peak_positive_pulses, average_peak_negative_pulses = self.get_average_peak_output_voltage_pulses(parameters, data)
+            error, best_loop = self.post_processor.analyze_loops(data)
+            if adjust_voltage_proportion and error > 0.05:
+                print("Adjunsting voltage")
+                # self.voltage_positive_proportion = self.post_processor.calculate_new_voltage_proportion(best_loop, self.desired_current_dc_bias, self.voltage_positive_proportion)
+                self.voltage_positive_proportion = self.post_processor.calculate_new_voltage_proportion(best_loop, self.desired_current_dc_bias)
+                adjusted_parameters = self.calculate_test_parameters(measure_parameters)
+                self.setup_power_supply(adjusted_parameters)
+                self.setup_oscilloscope(adjusted_parameters)
+                self.setup_board(adjusted_parameters)
 
-            if adjust_voltage:
-                needs_adjusting = False
-                if not math.isclose(average_peak_positive_pulses, parameters.positive_voltage_peak, rel_tol=self.maximum_voltage_error):
-                    needs_adjusting = True
-                    difference = parameters.positive_voltage_peak - average_peak_positive_pulses
-                    adjusted_parameters.positive_voltage_peak += difference
-                    print(f'average_peak_positive_pulses: {average_peak_positive_pulses}')
-                    print(f'original parameters.positive_voltage_peak: {parameters.positive_voltage_peak}')
-                    print(f'adjusted_parameters.positive_voltage_peak: {adjusted_parameters.positive_voltage_peak}')
-                    print(f'difference: {difference}')
+            else:
+                data = None
 
-                if not math.isclose(average_peak_negative_pulses, parameters.negative_voltage_peak, rel_tol=self.maximum_voltage_error):
-                    needs_adjusting = True
-                    difference = parameters.negative_voltage_peak - average_peak_negative_pulses
-                    adjusted_parameters.negative_voltage_peak += difference
-                    print(f'average_peak_negative_pulses: {average_peak_negative_pulses}')
-                    print(f'original parameters.negative_voltage_peak: {parameters.negative_voltage_peak}')
-                    print(f'adjusted_parameters.negative_voltage_peak: {adjusted_parameters.negative_voltage_peak}')
-                    print(f'difference: {difference}')
-
-                if needs_adjusting:
-                    self.setup_power_supply(adjusted_parameters)
-                    data = None
-
-        core_losses = self.calculate_core_losses(parameters, data)
+        core_losses = self.calculate_core_losses(adjusted_parameters, data)
 
         print(f"core_losses: {core_losses} W")
 
@@ -297,10 +298,10 @@ if __name__ == "__main__":
     measure_parameters = TPT.MeasureParameters(
         effective_area=0.0000650,
         number_turns=10,
-        magnetic_flux_density_ac_peak_to_peak=0.1,
-        magnetic_flux_density_dc_bias=0.05,
-        frequency=100000,
-        inductance=9e6,
+        magnetic_flux_density_ac_peak_to_peak=0.05,
+        magnetic_flux_density_dc_bias=0.15,
+        frequency=50000,
+        inductance=9e-6,
         # effective_area=0.0000350,
         # number_turns=5,
         # magnetic_flux_density_ac_peak_to_peak=0.2,
@@ -309,3 +310,4 @@ if __name__ == "__main__":
         # inductance=1e3,
     )
     tpt.run_test(measure_parameters)
+

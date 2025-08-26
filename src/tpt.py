@@ -38,7 +38,7 @@ class TPT():
         self.board = self.instantiate_board(board, board_port)
         self.timeout = 5000
         self.maximum_voltage_error = 0.05
-        self.voltage_positive_proportion = 0.5
+        self.voltage_correction = 0
         self.measured_inductance = None
         self.desired_current_dc_bias = 0
         self.post_processor = post_processor.PostProcessor()
@@ -54,6 +54,7 @@ class TPT():
         voltage_peak_to_peak = measure_parameters.effective_area * measure_parameters.number_turns * measure_parameters.magnetic_flux_density_ac_peak_to_peak / steady_period
         steady_repetitions = 7  # hardcoded
 
+        dc_bias_period = measure_parameters.effective_area * measure_parameters.number_turns * measure_parameters.magnetic_flux_density_dc_bias / (voltage_peak_to_peak / 2)
         current_peak_to_peak = measure_parameters.magnetic_flux_density_ac_peak_to_peak * measure_parameters.number_turns * measure_parameters.effective_area / measure_parameters.inductance
         current_dc_bias = measure_parameters.magnetic_flux_density_dc_bias * measure_parameters.number_turns * measure_parameters.effective_area / measure_parameters.inductance
         current_peak = current_dc_bias * current_peak_to_peak / 2
@@ -67,12 +68,13 @@ class TPT():
         print(f"current_dc_bias: {current_dc_bias}")
         print(f"current_peak: {current_peak}")
         print(f"current_peak_to_peak: {current_peak_to_peak}")
+        print(f"self.voltage_correction: {self.voltage_correction}")
 
-        pulses_periods = []
+        pulses_periods = [dc_bias_period]
         pulses_periods.extend([steady_period, steady_period] * steady_repetitions)
 
-        parameters = self.TestParameters(voltage_peak_to_peak * self.voltage_positive_proportion, voltage_peak_to_peak * (1 - self.voltage_positive_proportion), current_peak, pulses_periods)
-        #parameters = self.TestParameters(voltage_peak_to_peak / 2 , voltage_peak_to_peak / 2, current_peak, pulses_periods)
+        parameters = self.TestParameters(voltage_peak_to_peak + self.voltage_correction, voltage_peak_to_peak - self.voltage_correction, current_peak, pulses_periods)
+
         return parameters
 
     def instantiate_power_supply(self, power_supply, port):
@@ -100,19 +102,21 @@ class TPT():
             # result = self.power_supply.enable_series_mode()
             # assert result, "Power supply did not enter series mode"
 
+        print(f"parameters.positive_voltage_peak: {parameters.positive_voltage_peak}")
+        print(f"parameters.negative_voltage_peak: {parameters.negative_voltage_peak}")
         self.power_supply.set_source_voltage(
             channel=1,
             voltage=parameters.positive_voltage_peak
         )
         read_voltage = float(round(self.power_supply.get_source_voltage(channel=1), 6))
-        assert float(round(parameters.positive_voltage_peak, 6)) == read_voltage, f"Wrong voltage measured at PSU: {read_voltage}, expected {parameters.positive_voltage_peak}"
+        assert float(round(parameters.positive_voltage_peak, 6)) == read_voltage, f"Wrong voltage measured at PSU: {read_voltage}, expected {float(round(parameters.positive_voltage_peak, 6))}"
 
         self.power_supply.set_source_voltage(
             channel=2,
             voltage=parameters.negative_voltage_peak
         )
         read_voltage = float(round(self.power_supply.get_source_voltage(channel=2), 6))
-        assert float(round(parameters.negative_voltage_peak, 6)) == read_voltage, f"Wrong voltage measured at PSU: {read_voltage}, expected {parameters.negative_voltage_peak}"
+        assert float(round(parameters.negative_voltage_peak, 6)) == read_voltage, f"Wrong voltage measured at PSU: {read_voltage}, expected {float(round(parameters.negative_voltage_peak, 6))}"
 
     def setup_oscilloscope(self, parameters):
         self.oscilloscope.set_channel_configuration(
@@ -136,7 +140,7 @@ class TPT():
         )
         self.oscilloscope.set_rising_trigger(
             channel=0,
-            threshold_voltage=parameters.positive_voltage_peak / self.output_voltage_probe_scale * 0.1,
+            threshold_voltage=parameters.positive_voltage_peak / self.current_probe_scale * 0.5,
             timeout=self.timeout
         )
         self.oscilloscope.arm_trigger(
@@ -223,18 +227,17 @@ class TPT():
         self.setup_oscilloscope(parameters)
         self.setup_board(parameters)
 
-        # Test start
-
-        self.power_supply.enable_output(
-            channel=1
-        )
-        self.power_supply.enable_output(
-            channel=2
-        )
-
         data = None
         adjusted_parameters = copy.deepcopy(parameters)
+        iteration = 0
         while data is None:
+
+            self.power_supply.enable_output(
+                channel=1
+            )
+            self.power_supply.enable_output(
+                channel=2
+            )
 
             print("Running block acquisition")
             self.oscilloscope.run_acquisition_block()
@@ -247,8 +250,15 @@ class TPT():
 
             print("Reading data")
             data = self.oscilloscope.read_data()
-            data.to_csv("test_data_gas.csv")
+            data.to_csv(f"test_data_gas_{iteration}.csv")
             print("Trigger!!")
+
+            self.power_supply.disable_output(
+                channel=1
+            )
+            self.power_supply.disable_output(
+                channel=2
+            )
 
             if plot:
                 plt.plot(data["time"], data["Input Voltage"])
@@ -257,17 +267,18 @@ class TPT():
                 plt.show()
 
             error, best_loop = self.post_processor.analyze_loops(data)
-            if adjust_voltage_proportion and error > 0.05:
-                print("Adjunsting voltage")
-                # self.voltage_positive_proportion = self.post_processor.calculate_new_voltage_proportion(best_loop, self.desired_current_dc_bias, self.voltage_positive_proportion)
-                self.voltage_positive_proportion = self.post_processor.calculate_new_voltage_proportion(best_loop, self.desired_current_dc_bias)
+            if adjust_voltage_proportion:
+                print("Adjusting voltage")
+                cleaned_data = self.post_processor.analyze_loops(data)
+                self.voltage_correction = -(cleaned_data["Output Voltage Clean"].max() + cleaned_data["Output Voltage Clean"].min()) / 2
+
+                if abs(self.voltage_correction) / adjusted_parameters.positive_voltage_peak < 0.05:
+                    break
+
                 adjusted_parameters = self.calculate_test_parameters(measure_parameters)
                 self.setup_power_supply(adjusted_parameters)
-                self.setup_oscilloscope(adjusted_parameters)
-                self.setup_board(adjusted_parameters)
-
-            else:
                 data = None
+                iteration += 1
 
         core_losses = self.calculate_core_losses(adjusted_parameters, data)
 

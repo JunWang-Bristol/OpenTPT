@@ -92,6 +92,7 @@ class PostProcessor():
 
         data["Current Clean"] = self.post_process_current(data, "Current", external_change_indexes_and_values=(change_indexes, change_values))
         data["Input Voltage Clean"] = PostProcessor().post_process_voltage(data, "Input Voltage", external_change_indexes=change_indexes)
+        data["Output Voltage Clean"] = PostProcessor().post_process_voltage(data, "Output Voltage", external_change_indexes=change_indexes)
         # plt.plot(data["Current"])
         # plt.plot(data["Current Clean"])
         # plt.plot(data["Input Voltage Clean"])
@@ -101,7 +102,7 @@ class PostProcessor():
 
         for chunk_index in range(0, len(change_indexes) - 2, 1):
             loop_data = data.loc[change_indexes[chunk_index]: change_indexes[chunk_index + 2]]
-            plt.plot(loop_data["Current Clean"])
+            # plt.plot(loop_data["Current Clean"])
             initial_value = loop_data["Current Clean"].iloc[0]
             final_value = loop_data["Current Clean"].iloc[-1]
             max_value = loop_data["Current Clean"].max()
@@ -148,9 +149,10 @@ if __name__ == "__main__":
     # data["Output Voltage Clean"] = PostProcessor().post_process_voltage(data, "Output Voltage", external_change_indexes=change_indexes)
     # data["Current Clean"] = PostProcessor().post_process_current(data, "Current", external_change_indexes_and_values=(change_indexes, change_values))
 
-    # plt.plot(data["Input Voltage"])
-    # plt.plot(data["Output Voltage"])
-    # # plt.show()
+    plt.plot(data["Input Voltage"])
+    plt.plot(data["Output Voltage"])
+    plt.plot(data["Current"])
+    plt.show()
     # plt.plot(data["Input Voltage Clean"])
     # plt.plot(data["Output Voltage Clean"])
     # plt.plot(data["Current Clean"])

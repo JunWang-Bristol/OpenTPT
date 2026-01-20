@@ -3,7 +3,6 @@
 #include <string.h>
 #include "scpi/scpi.h"
 #include "tpt-scpi.h"
-#include "pmbus_host.h"
 
 scpi_command_t scpi_commands[] = {
 	/* IEEE Mandated Commands (SCPI std V1999.0 4.1.1) */
@@ -26,7 +25,7 @@ scpi_command_t scpi_commands[] = {
 	{.pattern = "SYSTem:ERRor:COUNt?", .callback = SCPI_SystemErrorCountQ,},
 	{.pattern = "SYSTem:VERSion?", .callback = SCPI_SystemVersionQ,},
 
-	/* TPT Pulse Generator Commands */
+
     {.pattern = "CONFigure:PULses:ADD", .callback = TPT_AddPulse,},
     {.pattern = "CONFigure:PULses:CLEAR", .callback = TPT_ClearPulses,},
     {.pattern = "CONFigure:PULses?", .callback = TPT_ReadPulses,},
@@ -34,53 +33,6 @@ scpi_command_t scpi_commands[] = {
     {.pattern = "CONFigure:PULses:MAXimum?", .callback = TPT_GetMaximumPulse,},
     {.pattern = "APPlication:PULses:RUN", .callback = TPT_RunPulses,},
     {.pattern = "APPlication:PULses:COUNT?", .callback = TPT_GetCountPulses,},
-
-    /* ============ PMBus Commands for CoolX600 Power Supply ============ */
-
-    /* PMBus Initialization and Configuration */
-    {.pattern = "PMBus:INITialize", .callback = SCPI_PMBus_Init,},
-    {.pattern = "PMBus:ADDRess", .callback = SCPI_PMBus_SetAddress,},
-    {.pattern = "PMBus:ADDRess?", .callback = SCPI_PMBus_GetAddressQ,},
-    {.pattern = "PMBus:PAGE", .callback = SCPI_PMBus_SetPage,},
-    {.pattern = "PMBus:PAGE?", .callback = SCPI_PMBus_GetPageQ,},
-
-    /* Output Control (Standard SCPI-like syntax) */
-    {.pattern = "OUTPut[:STATe] ON", .callback = SCPI_PMBus_PowerOn,},
-    {.pattern = "OUTPut[:STATe] OFF", .callback = SCPI_PMBus_PowerOff,},
-    {.pattern = "OUTPut:PROTection:CLEar", .callback = SCPI_PMBus_ClearFaults,},
-
-    /* PMBus Operation Control */
-    {.pattern = "PMBus:OPERation", .callback = SCPI_PMBus_SetOperation,},
-    {.pattern = "PMBus:OPERation?", .callback = SCPI_PMBus_GetOperationQ,},
-    {.pattern = "PMBus:CLEar", .callback = SCPI_PMBus_ClearFaults,},
-
-    /* Voltage Control (Standard SCPI-like syntax) */
-    {.pattern = "SOURce:VOLTage[:LEVel][:IMMediate][:AMPLitude]", .callback = SCPI_PMBus_SetVoltage,},
-    {.pattern = "SOURce:VOLTage[:LEVel][:IMMediate][:AMPLitude]?", .callback = SCPI_PMBus_GetVoltageQ,},
-    {.pattern = "[SOURce:]VOLTage", .callback = SCPI_PMBus_SetVoltage,},
-    {.pattern = "[SOURce:]VOLTage?", .callback = SCPI_PMBus_GetVoltageQ,},
-
-    /* Measurements (Standard SCPI-like syntax) */
-    {.pattern = "MEASure[:SCALar]:VOLTage[:DC]?", .callback = SCPI_PMBus_MeasureVoltageQ,},
-    {.pattern = "MEASure[:SCALar]:CURRent[:DC]?", .callback = SCPI_PMBus_MeasureCurrentQ,},
-    {.pattern = "MEASure[:SCALar]:POWer[:DC]?", .callback = SCPI_PMBus_MeasurePowerQ,},
-    {.pattern = "MEASure[:SCALar]:TEMPerature?", .callback = SCPI_PMBus_MeasureTemperatureQ,},
-    {.pattern = "MEASure[:SCALar]:VOLTage:INPut?", .callback = SCPI_PMBus_MeasureVinQ,},
-    {.pattern = "MEASure[:SCALar]:CURRent:INPut?", .callback = SCPI_PMBus_MeasureIinQ,},
-
-    /* Status Queries */
-    {.pattern = "STATus:BYTE?", .callback = SCPI_PMBus_GetStatusByteQ,},
-    {.pattern = "STATus:WORD?", .callback = SCPI_PMBus_GetStatusWordQ,},
-
-    /* Manufacturer Information */
-    {.pattern = "SYSTem:MFR:ID?", .callback = SCPI_PMBus_GetMfrIdQ,},
-    {.pattern = "SYSTem:MFR:MODel?", .callback = SCPI_PMBus_GetMfrModelQ,},
-    {.pattern = "SYSTem:MFR:SERial?", .callback = SCPI_PMBus_GetMfrSerialQ,},
-
-    /* Raw PMBus Register Access */
-    {.pattern = "PMBus:REGister", .callback = SCPI_PMBus_WriteReg,},
-    {.pattern = "PMBus:REGister?", .callback = SCPI_PMBus_ReadRegQ,},
-
 	SCPI_CMD_LIST_END
 };
 

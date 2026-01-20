@@ -24,7 +24,7 @@ Degree of freedom to compensate for asymmetric rectangular voltage amplitude
 # Open TPT
 Project under construction, please stay tuned.
 
-Expected release time - Spring 2026
+Expected release time - Summer 2025
 
 Contributors:
 - George Slama (PSMA/Wurth Elektronik)

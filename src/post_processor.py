@@ -49,6 +49,19 @@ class PostProcessor():
 
         change_indexes.append(data.index[-1])
         change_average_values.append(data[label].iloc[-1])
+
+        for i in range(len(change_indexes) - 1):
+            index = change_indexes[i]
+            next_index = change_indexes[i + 1]
+
+            if index > next_index:
+                change_indexes[i] = next_index
+                change_indexes[i + 1] = index
+                average_value = change_average_values[i]
+                next_average_value = change_average_values[i + 1]
+                change_average_values[i + 1] = average_value
+                change_average_values[i] = next_average_value
+
         return change_indexes, change_average_values
 
     def post_process_voltage(self, data, label, maximum_change_window=100, external_change_indexes=None):
@@ -81,14 +94,30 @@ class PostProcessor():
             start = change_values[chunk_index]
             stop = change_values[chunk_index + 1]
             number_points = change_indexes[chunk_index + 1] - change_indexes[chunk_index]
+            
+            # Skip if no points to interpolate or duplicate indexes
+            if number_points <= 0:
+                continue
+                
             step = (stop - start) / (number_points + 1)
-            values = numpy.arange(start, stop, step)
+            
+            # Handle case where step is zero (start == stop)
+            if step == 0:
+                values = numpy.full(number_points + 1, start)
+            else:
+                values = numpy.arange(start, stop, step)
+            
+            print("chunk_index")
+            print(chunk_index)
+            print(change_indexes[chunk_index])
+            print(change_indexes[chunk_index + 1])
             data.loc[change_indexes[chunk_index]: change_indexes[chunk_index + 1], "clean"] = values[0: len(data.loc[change_indexes[chunk_index]: change_indexes[chunk_index + 1]].index)]
 
         return data["clean"]
 
     def analyze_loops(self, data):
         change_indexes, change_values = self.get_current_change_indexes(data, "Current")
+        print(change_indexes)
 
         data["Current Clean"] = self.post_process_current(data, "Current", external_change_indexes_and_values=(change_indexes, change_values))
         data["Input Voltage Clean"] = PostProcessor().post_process_voltage(data, "Input Voltage", external_change_indexes=change_indexes)

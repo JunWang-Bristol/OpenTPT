@@ -52,7 +52,7 @@ class PicoScope(Oscilloscope):
         self.channel_info = {}
         self.trigger_info = {}
         self.number_segments = 1
-        self.number_samples = int(self.get_maximum_samples())
+        self.number_samples = 10000  # Reasonable default, not maximum
         self.sampling_time = 4e-9
         self.number_pre_trigger_samples = 0
         self.upsampling_scale = 1
@@ -311,7 +311,7 @@ class PicoScope(Oscilloscope):
 
     def get_probe_scale(self, channel):
         channel_index = self.check_channel(channel)
-        return self.probe_scale[channel_index]
+        return self.probe_scale.get(channel_index, 1.0)  # Default to 1.0 if not set
 
     def set_probe_scale(self, channel, probe_scale):
         channel_index = self.check_channel(channel)
@@ -376,7 +376,7 @@ class PicoScope(Oscilloscope):
         return trigger_enabled.value != 0
 
     def set_number_segments(self, number_segments):
-        maximum_samples = ctypes.c_uint16(0)
+        maximum_samples = ctypes.c_int32(0)
         status = self._memory_segments(self.handle, number_segments, ctypes.byref(maximum_samples))
         assert_pico_ok(status)
         self.number_segments = number_segments
@@ -386,7 +386,7 @@ class PicoScope(Oscilloscope):
         return self.number_segments
 
     def get_maximum_samples(self):
-        maximum_samples = ctypes.c_uint16(0)
+        maximum_samples = ctypes.c_int32(0)
         status = self._memory_segments(self.handle, self.number_segments, ctypes.byref(maximum_samples))
         assert_pico_ok(status)
         return maximum_samples.value
@@ -416,9 +416,6 @@ class PicoScope(Oscilloscope):
                                      0,
                                      ctypes.byref(maximum_samples),
                                      0)
-        print(f"desired_time: {desired_time}")
-        print(f"timebase: {timebase}")
-        print(f"time_interval_ns.value: {time_interval_ns.value}")
         real_sampling_time = time_interval_ns.value * 1e-9
         assert_pico_ok(status)
         return real_sampling_time
@@ -467,6 +464,7 @@ class PicoScope(Oscilloscope):
                                             number_samples,
                                             0,
                                             self._ratio_modes_none())
+            assert_pico_ok(status)
 
         ready = ctypes.c_int16(0)
         while ready.value == 0:
@@ -480,10 +478,18 @@ class PicoScope(Oscilloscope):
                                   0,
                                   ctypes.byref(number_samples_ctype),
                                   0,
-                                  0,
                                   self._ratio_modes_none(),
+                                  0,
                                   ctypes.byref(overflow))
         assert_pico_ok(status)
+        
+        # Check for ADC overflow/clipping on any channel
+        if overflow.value != 0:
+            clipped_channels = []
+            for i, ch in enumerate(['A', 'B', 'C', 'D']):
+                if overflow.value & (1 << i):
+                    clipped_channels.append(ch)
+            print(f"WARNING: ADC clipping detected on channel(s): {', '.join(clipped_channels)}")
 
         gcd_samplig_time_and_skew = self.sampling_time
         for _, skew in self.channel_skew.items():
@@ -539,6 +545,9 @@ class PicoScope2408B(PicoScope):
         super().__init__(port, strict)
 
     # 2408B specific
+    # Timebase formula from PicoScope 2000 Series A API guide:
+    # For n <= 2: sample_time = 2^n ns (1ns, 2ns, 4ns)
+    # For n > 2: sample_time = (n - 2) / 125MHz = (n - 2) * 8ns
     def convert_time_to_timebase(self, time):
         if time > 34.35973836:
             raise Exception(f"Too much time: {time} seconds. Maximum supported: 34.35973836 seconds")
@@ -549,7 +558,9 @@ class PicoScope2408B(PicoScope):
         elif time <= 4e-9:
             return 2
         else:
-            return int(time * 125000000 + 2)
+            # For timebase > 2: time = (timebase - 2) / 125MHz
+            # So: timebase = time * 125MHz + 2
+            return round(time * 125000000 + 2)
 
     # 2408B specific
     def convert_timebase_to_time(self, timebase):

@@ -1,4 +1,4 @@
-# 🧲 Triple Pulse Test (TPT)
+# 🧲 Open Triple Pulse Test (OpenTPT)
 
 [![License](https://img.shields.io/badge/License-BSD%204--Clause-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.8%2B-green.svg)](https://www.python.org/)
@@ -260,7 +260,7 @@ Copyright © 2023, University of Bristol
 If you use this project in your research, please cite:
 
 ```bibtex
-@inproceedings{tpt-bristol,
+@inproceedings{OpenTPT,
   title={Triple Pulse Test (TPT) for characterizing power loss in magnetic components in analogous to Double Pulse Test (DPT) for power electronics devices},
   author={Wang, Jun and others},
   booktitle={IEEE Proc. Annual Conference of the IEEE Industrial Electronics Society (IECON)},

@@ -57,6 +57,12 @@ The **Triple Pulse Test (TPT)** is a discontinuous excitation method for charact
 | **Current Probe** | 100 mV/A (recommended) | Measures inductor current, > 20 MHz |
 | **Voltage Probes** | 10:1 passive probes | Input/output voltage measurement |
 
+> 💡 **Use Your Existing Equipment!**
+>
+> TPT is designed to work with lab equipment you likely already have. The modular architecture uses a **`hardware_configuration.json`** file to specify your power supply, oscilloscope, and control board. Simply configure the JSON with your device names and COM ports—no need to purchase specific models listed above.
+>
+> Adding support for new hardware is straightforward: implement the interfaces in `power_supply.py`, `oscilloscope.py`, or `board.py`.
+
 ---
 
 ## 🚀 Quick Start
@@ -108,6 +114,19 @@ The **Triple Pulse Test (TPT)** is a discontinuous excitation method for charact
        "output_voltage_probe_scale": 10,
        "current_probe_scale": 0.1
    }
+   ```
+
+5. **Verify your setup** – Run tests to ensure everything is configured correctly:
+   ```bash
+   cd tests
+   python -m pytest .
+   ```
+   
+   Or run individual hardware tests:
+   ```bash
+   python board_tests.py
+   python oscilloscope_tests.py
+   python power_supply_tests.py
    ```
 
 ### Running Your First Measurement
@@ -203,32 +222,6 @@ TPT-Bristol/
 | 10 mV/A | `0.01` |
 
 **Common mistake:** For a 100 mV/A probe, use `scale=0.1` (not 10). The probe outputs 100 mV when 1 A flows, so you multiply by 0.1 to get amperes.
-
-### Measurement Accuracy
-
-- **Reference:** Bode100 shows ~3.6 mH for RM10/N87/26T ungapped
-- **TPT measurements:** Typically show ~2.5–3 mH at 100 kHz
-- **Possible discrepancy sources:**
-  - Frequency-dependent permeability (μr decreases with frequency)
-  - Winding resistance effects at high frequency
-  - Probe calibration accuracy
-  - Core temperature during measurement
-
----
-
-## 🧪 Running Tests
-
-```bash
-cd tests
-python -m pytest .
-```
-
-Individual test files:
-```bash
-python board_tests.py
-python oscilloscope_tests.py
-python power_supply_tests.py
-```
 
 ---
 

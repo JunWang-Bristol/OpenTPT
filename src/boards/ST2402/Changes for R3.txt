@@ -1,0 +1,9 @@
+ST2402 rev 2 needed board fixes
+
+1) 12v power trace between U1 & U7 is missing
+2) U1 & U7 footprint is off for Vin+ - pin 2
+3) ideally a little more space between U1 & U7 for hand soldering - is tight
+4) J13, J19 footprint is off or holes too small
+5) standoffs too close to ST micro board
+6) swap standoff and diff probe connector locations so can access current loop on top
+7) 

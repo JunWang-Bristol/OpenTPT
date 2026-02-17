@@ -298,6 +298,8 @@ scpi_result_t SCPI_Reset(scpi_t *context) {
 
   current_number_pulses = 0;
   run_trains = 0;
+    running = false;
+    reset_pins();
   // fprintf(stderr, "**Reset\r\n");
   return SCPI_RES_OK;
 }
@@ -360,10 +362,11 @@ scpi_result_t SCPI_CoreWai(scpi_t *context) {
 
 scpi_result_t TPT_RunPulses(scpi_t *context) {
   size_t number_repetitions;
-  running = true;
   if (!SCPI_ParamUInt32(context, &number_repetitions, TRUE)) {
+        running = false;
     return SCPI_RES_ERR;
   } else {
+        running = true;
     number_repetitions += run_trains;
     for (run_trains; run_trains < number_repetitions; run_trains++) {
       __disable_irq();
@@ -378,6 +381,7 @@ scpi_result_t TPT_RunPulses(scpi_t *context) {
     }
   }
   running = false;
+    reset_pins();
   return SCPI_RES_OK;
 }
 

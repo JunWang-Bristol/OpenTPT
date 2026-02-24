@@ -128,8 +128,8 @@ scpi_command_t scpi_commands[] = {
         .callback = SCPI_PMBus_GetPageQ,
     },
     {
-        .pattern = "PMBus:SCAN?",
-        .callback = SCPI_PMBus_ScanQ,
+        //.pattern = "PMBus:SCAN?",
+        //.callback = SCPI_PMBus_ScanQ,
     },
 
     /* Output Control (Standard SCPI-like syntax) */
@@ -290,7 +290,7 @@ scpi_result_t SCPI_Control(scpi_t *context, scpi_ctrl_name_t ctrl,
 }
 
 void reset_pins() {
-    LL_GPIO_ResetOutputPin(GPIOB, PositivePulse_Pin | NegativePulse_Pin);
+    GPIOB->BSRR = ((uint32_t)(PositivePulse_Pin | NegativePulse_Pin) << 16U);
 }
 
 scpi_result_t SCPI_Reset(scpi_t *context) {
@@ -298,6 +298,8 @@ scpi_result_t SCPI_Reset(scpi_t *context) {
 
   current_number_pulses = 0;
   run_trains = 0;
+    running = false;
+    reset_pins();
   // fprintf(stderr, "**Reset\r\n");
   return SCPI_RES_OK;
 }
@@ -360,12 +362,14 @@ scpi_result_t SCPI_CoreWai(scpi_t *context) {
 
 scpi_result_t TPT_RunPulses(scpi_t *context) {
   size_t number_repetitions;
-  running = true;
   if (!SCPI_ParamUInt32(context, &number_repetitions, TRUE)) {
     return SCPI_RES_ERR;
   } else {
+        reset_pins();
+        running = true;
     number_repetitions += run_trains;
-    for (run_trains; run_trains < number_repetitions; run_trains++) {
+        for (; run_trains < number_repetitions; run_trains++) {
+            reset_pins();
       __disable_irq();
       for (size_t pulse_index = 0; pulse_index < current_number_pulses;
            pulse_index++) {
@@ -375,9 +379,11 @@ scpi_result_t TPT_RunPulses(scpi_t *context) {
         delay_half_us(pulse_periods[pulse_index]);
       }
       __enable_irq();
+            reset_pins();
     }
   }
   running = false;
+    reset_pins();
   return SCPI_RES_OK;
 }
 

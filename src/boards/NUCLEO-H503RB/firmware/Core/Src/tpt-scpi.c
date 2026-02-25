@@ -261,7 +261,7 @@ double minimum_period = 5e-7;
 double maximum_period = 0.05;
 static bool deadtime_timer_initialized = false;
 
-#define TPT_DEADTIME_NS 200U
+#define TPT_DEADTIME_NS 500U
 
 size_t SCPI_Write(scpi_t *context, const char *data, size_t len) {
   (void)context;

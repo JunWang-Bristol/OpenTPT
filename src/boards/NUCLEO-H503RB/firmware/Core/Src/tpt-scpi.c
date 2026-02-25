@@ -1,6 +1,7 @@
 #include "tpt-scpi.h"
 #include "pmbus_host.h"
 #include "scpi/scpi.h"
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -258,6 +259,9 @@ bool running = false;
 size_t run_trains = 0;
 double minimum_period = 5e-7;
 double maximum_period = 0.05;
+static bool deadtime_timer_initialized = false;
+
+#define TPT_DEADTIME_NS 200U
 
 size_t SCPI_Write(scpi_t *context, const char *data, size_t len) {
   (void)context;
@@ -291,6 +295,40 @@ scpi_result_t SCPI_Control(scpi_t *context, scpi_ctrl_name_t ctrl,
 
 void reset_pins() {
     GPIOB->BSRR = ((uint32_t)(PositivePulse_Pin | NegativePulse_Pin) << 16U);
+}
+
+static void init_deadtime_timer(void) {
+    if (deadtime_timer_initialized) {
+        return;
+    }
+
+    CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+    DWT->CYCCNT = 0;
+    DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+    deadtime_timer_initialized = true;
+}
+
+static void delay_ns(uint32_t delay_ns_value) {
+    uint64_t cycles = ((uint64_t)SystemCoreClock * delay_ns_value) / 1000000000ULL;
+    uint32_t start_cycle = DWT->CYCCNT;
+
+    if (cycles == 0U) {
+        cycles = 1U;
+    }
+
+    while ((uint32_t)(DWT->CYCCNT - start_cycle) < (uint32_t)cycles) {
+    }
+}
+
+static void set_complementary_outputs_with_deadtime(bool positive_on) {
+    reset_pins();
+    delay_ns(TPT_DEADTIME_NS);
+
+    if (positive_on) {
+        GPIOB->BSRR = PositivePulse_Pin;
+    } else {
+        GPIOB->BSRR = NegativePulse_Pin;
+    }
 }
 
 scpi_result_t SCPI_Reset(scpi_t *context) {
@@ -365,18 +403,24 @@ scpi_result_t TPT_RunPulses(scpi_t *context) {
   if (!SCPI_ParamUInt32(context, &number_repetitions, TRUE)) {
     return SCPI_RES_ERR;
   } else {
-        reset_pins();
-        running = true;
+                reset_pins();
+                init_deadtime_timer();
+                running = true;
     number_repetitions += run_trains;
         for (; run_trains < number_repetitions; run_trains++) {
             reset_pins();
+            bool positive_on = false;
       __disable_irq();
       for (size_t pulse_index = 0; pulse_index < current_number_pulses;
            pulse_index++) {
-        uint32_t tmp = GPIOB->ODR;
-        GPIOB->BSRR = 0xFFFF0000;
-        GPIOB->BSRR = (tmp << 16) | (tmp ^ 0x0410);
-        delay_half_us(pulse_periods[pulse_index]);
+                uint64_t pulse_width_ns = (uint64_t)pulse_periods[pulse_index] * 500ULL;
+
+                positive_on = !positive_on;
+                set_complementary_outputs_with_deadtime(positive_on);
+
+                if (pulse_width_ns > TPT_DEADTIME_NS) {
+                    delay_ns((uint32_t)(pulse_width_ns - TPT_DEADTIME_NS));
+                }
       }
       __enable_irq();
             reset_pins();

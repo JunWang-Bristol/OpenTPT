@@ -26,7 +26,6 @@
 /* USER CODE BEGIN Includes */
 #include "scpi/scpi.h"
 #include "tpt-scpi.h"
-#include "pmbus_host.h"
 #include "stdio.h"
 /* USER CODE END Includes */
 
@@ -142,14 +141,6 @@ int main(void)
           scpi_error_queue_data, SCPI_ERROR_QUEUE_SIZE);
 
   printf("TPT 2402 r1 SCPI interface\r\n");
-
-  /* Initialize PMBus host interface */
-  if (PMBus_Host_Init() == HAL_OK) {
-    printf("PMBus interface initialized (I2C2)\r\n");
-    printf("Default address: 0x%02X\r\n", PMBus_GetAddress());
-  } else {
-    printf("PMBus initialization failed!\r\n");
-  }
 
   /* USER CODE END 2 */
   reset_pins();

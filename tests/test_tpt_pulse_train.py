@@ -30,13 +30,13 @@ import sys
 import os
 import time
 
-import context  # noqa: F401 — adds src/ to sys.path
+import context  # noqa: F401 — adds src/ to sys.path212
 
 from boards.ST import NUCLEO_H503RB
 
 
 # ============ CONFIGURATION ============
-SERIAL_PORT = "COM4"  # Update to match your port (e.g. "COM3" on Windows)
+SERIAL_PORT = "COM3"  # Update to match your port (e.g. "COM3" on Windows)
 # =======================================
 
 

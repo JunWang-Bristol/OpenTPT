@@ -10,6 +10,9 @@ class Oscilloscope():
         if name == "PicoScope6404D":
             from oscilloscopes.PicoScope import PicoScope6404D
             return PicoScope6404D(port)
+        if name == "RTB2004Scope":
+            from oscilloscopes.RohdeSchwarzScope import RTB2004Scope
+            return RTB2004Scope(port)
         raise Exception(f"Unknown oscillocope: {name}")
 
     def check_channel_index(self, channel_index):

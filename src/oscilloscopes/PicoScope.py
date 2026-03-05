@@ -445,6 +445,27 @@ class PicoScope(Oscilloscope):
         assert_pico_ok(status)
         return True
 
+    def set_acquisition_time(self, acq_time_s):
+        """Set total acquisition window [s]. PicoScope: derives sampling_time from acq_time / n_samples."""
+        if self.number_samples > 0:
+            self.sampling_time = acq_time_s / self.number_samples
+
+    def start_single_acquisition(self):
+        """Start a single-shot acquisition. PicoScope: blocking run_acquisition_block."""
+        self.run_acquisition_block()
+
+    def get_acquisition_state(self):
+        """Return acquisition state. Always 'COMP': start_single_acquisition() blocks until done."""
+        return "COMP"
+
+    def set_read_timeout(self, timeout_ms):
+        """No-op for PicoScope — SDK-based, no VISA read timeout."""
+        pass
+
+    def reset_read_timeout(self):
+        """No-op for PicoScope — SDK-based, no VISA read timeout."""
+        pass
+
     def read_data(self, channels=None, number_samples=None, data_format="dataframe"):
         if number_samples is None:
             number_samples = self.number_samples

@@ -7,6 +7,9 @@ class PowerSupply():
         if name == "BK9129B":
             from power_supplies.BK import BK9129B
             return BK9129B(port)
+        if name == "GPP4323":
+            from power_supplies.GWINSTEK import GPP4323
+            return GPP4323(port)
         raise Exception(f"Unknown power supply: {name}")
 
     def check_channel_index(self, channel_index):

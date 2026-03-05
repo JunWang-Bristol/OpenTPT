@@ -134,8 +134,8 @@ class Measurement:
 
     # RTB2004 channel indices (0-based integers accepted by the driver)
     CH_VOLTAGE   = 0   # CH1 — primary / input voltage  (50:1 probe)
-    CH_CURRENT   = 2   # CH3 — inductor current         (100 mV/A probe)
     CH_SECONDARY = 1   # CH2 — secondary winding        (10:1 probe, core loss)
+    CH_CURRENT   = 2   # CH3 — inductor current         (100 mV/A probe)
 
     # GPP-4323 output channels — CH1 positive rail, CH2 negative rail
     PSU_CHANNEL     = 1
@@ -230,7 +230,7 @@ class InductanceMeasurement(Measurement):
         # Note: set_channel_configuration() overwrites channel_labels with the raw channel
         # integer argument.  Call set_channel_label() AFTER it to set the correct names.
         scope.set_channel_configuration(self.CH_VOLTAGE, V_scale, "DC", 0.0)
-        scope.set_channel_configuration(self.CH_CURRENT, I_scale, "DC", 0.0)
+        scope.set_channel_configuration(self.CH_CURRENT, I_scale, "AC", 0.0)
         scope.set_channel_label(self.CH_VOLTAGE, "Voltage")
         scope.set_channel_label(self.CH_CURRENT, "Current")
 
@@ -807,57 +807,43 @@ class CoreLossMeasurement(Measurement):
             f"  burst={T_total*1e6:.1f} us  pulses={len(pulses)}"
         )
 
-        flux_iters = flux_max_iter if target_B_peak_T is not None else 1
         df     = None
         result = None
 
         self._configure_psu(voltage)
         try:
-            for flux_iter in range(flux_iters):
-                self._configure_scope(voltage, N1, N2, T_total, L_henry)
+            # ── Phase 1: Flux targeting ───────────────────────────────────────────
+            # Iterate voltage to hit the requested B_peak.  Balance is not applied
+            # here — we only need a B_peak estimate, which is valid even from a
+            # slightly unbalanced waveform.
+            if target_B_peak_T is not None:
+                print(f"  Phase 1 — Targeting B_peak = {target_B_peak_T*1e3:.1f} mT...")
+                for flux_iter in range(flux_max_iter):
+                    self._configure_scope(voltage, N1, N2, T_total, L_henry)
 
-                if balance and L_henry is not None:
-                    print("  Balancing volt-seconds (adjusting CH2 negative rail)...")
-                    self._balance_voltages(
-                        pulses, T_half, voltage, T_total, L_henry,
-                        tol=balance_tol, max_iter=balance_max_iter,
+                    I_scale = 0.1
+                    for _ in range(5):
+                        df = self._fire_and_capture(pulses)
+                        if df is None:
+                            return None
+                        if not _is_clipped(df["Current"].to_numpy()):
+                            break
+                        I_scale *= 2.0
+                        print(f"  WARNING: Current clipped — retrying at {I_scale*1e3:.0f} mA/div")
+                        self.scope.set_channel_configuration(self.CH_CURRENT, I_scale, "DC", 0.0)
+                        self.scope.set_channel_label(self.CH_CURRENT, "Current")
+                    else:
+                        print("  WARNING: Current still clipped after 5 attempts.")
+
+                    flux_result = self._extract_core_loss(
+                        df["time"].to_numpy(), df["V_pri"].to_numpy(),
+                        df["V_sec"].to_numpy(), df["Current"].to_numpy(),
+                        N1, N2, Ae, le, T_half, voltage, T_total,
                     )
-                elif balance and L_henry is None:
-                    print("  [balance] Skipped — L_henry required for correction step.")
-
-                I_scale = 0.1   # A/div — doubled on each clipping retry
-                for _ in range(5):
-                    df = self._fire_and_capture(pulses)
-                    if df is None:
+                    if flux_result is None:
                         return None
-                    if not _is_clipped(df["Current"].to_numpy()):
-                        break
-                    I_scale *= 2.0
-                    print(f"  WARNING: Current clipped — retrying at {I_scale*1e3:.0f} mA/div")
-                    self.scope.set_channel_configuration(self.CH_CURRENT, I_scale, "DC", 0.0)
-                    self.scope.set_channel_label(self.CH_CURRENT, "Current")
-                else:
-                    print("  WARNING: Current still clipped after 5 attempts — results may be wrong.")
 
-                t     = df["time"].to_numpy()
-                V_pri = df["V_pri"].to_numpy()
-                V_sec = df["V_sec"].to_numpy()
-                I     = df["Current"].to_numpy()
-
-                print(
-                    f"  V_pri: [{V_pri.min():.3f}, {V_pri.max():.3f}] V"
-                    f"  V_sec: [{V_sec.min():.4f}, {V_sec.max():.4f}] V"
-                    f"  I: [{I.min():.3f}, {I.max():.3f}] A"
-                )
-
-                result = self._extract_core_loss(
-                    t, V_pri, V_sec, I, N1, N2, Ae, le, T_half, voltage, T_total
-                )
-                if result is None:
-                    return None
-
-                if target_B_peak_T is not None:
-                    Bp  = result["B_peak"]
+                    Bp  = flux_result["B_peak"]
                     err = abs(Bp - target_B_peak_T) / target_B_peak_T
                     print(
                         f"  [flux] iter {flux_iter + 1}: V={voltage:.3f} V"
@@ -866,15 +852,61 @@ class CoreLossMeasurement(Measurement):
                     if err < flux_tol:
                         print(f"  [flux] converged in {flux_iter + 1} iteration(s).")
                         break
-                    if flux_iter < flux_iters - 1:
+                    if flux_iter < flux_max_iter - 1:
                         voltage = min(30.0, voltage * target_B_peak_T / Bp)
                         self.psu.set_source_voltage(self.PSU_CHANNEL,     voltage)
                         self.psu.set_source_voltage(self.PSU_CHANNEL_NEG, voltage)
 
+            # ── Phase 2: Volt-second balance ──────────────────────────────────────
+            # Now that the voltage is set for the correct flux level, symmetrise the
+            # positive and negative half-cycles by adjusting the CH2 (negative) rail.
+            self._configure_scope(voltage, N1, N2, T_total, L_henry)
+            if balance and L_henry is not None:
+                print("  Phase 2 — Balancing volt-seconds (adjusting CH2 negative rail)...")
+                self._balance_voltages(
+                    pulses, T_half, voltage, T_total, L_henry,
+                    tol=balance_tol, max_iter=balance_max_iter,
+                )
+            elif balance and L_henry is None:
+                print("  [balance] Skipped — L_henry required for correction step.")
+
+            # ── Phase 3: Final measurement capture ────────────────────────────────
+            print("  Phase 3 — Final measurement capture...")
+            I_scale = 0.1
+            for _ in range(5):
+                df = self._fire_and_capture(pulses)
+                if df is None:
+                    return None
+                if not _is_clipped(df["Current"].to_numpy()):
+                    break
+                I_scale *= 2.0
+                print(f"  WARNING: Current clipped — retrying at {I_scale*1e3:.0f} mA/div")
+                self.scope.set_channel_configuration(self.CH_CURRENT, I_scale, "DC", 0.0)
+                self.scope.set_channel_label(self.CH_CURRENT, "Current")
+            else:
+                print("  WARNING: Current still clipped after 5 attempts — results may be wrong.")
+
+            t     = df["time"].to_numpy()
+            V_pri = df["V_pri"].to_numpy()
+            V_sec = df["V_sec"].to_numpy()
+            I     = df["Current"].to_numpy()
+
+            print(
+                f"  V_pri: [{V_pri.min():.3f}, {V_pri.max():.3f}] V"
+                f"  V_sec: [{V_sec.min():.4f}, {V_sec.max():.4f}] V"
+                f"  I: [{I.min():.3f}, {I.max():.3f}] A"
+            )
+
+            result = self._extract_core_loss(
+                t, V_pri, V_sec, I, N1, N2, Ae, le, T_half, voltage, T_total
+            )
+            if result is None:
+                return None
+
             Q  = result["Q"]
             Bp = result["B_peak"]
             Hp = result["H_peak"]
-            P  = Q * frequency   # average core loss power [W]
+            P  = Q * frequency
 
             print(f"  Q_cycle  = {Q * 1e6:.2f} uJ")
             print(f"  B_peak   = {Bp * 1e3:.1f} mT   H_peak = {Hp:.0f} A/m")

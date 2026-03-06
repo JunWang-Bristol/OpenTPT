@@ -31,8 +31,7 @@ class ST(Board):
         return self.visa_session.query('SYST:VERS?')
 
     def add_pulse(self, pulse_period):
-        if not self.get_minimum_period() <= pulse_period <= self.get_maximum_period():
-            raise Exception(f"Pulse period {pulse_period} must be between minimum {self.get_minimum_period()} and maximum {self.get_maximum_period()}")
+        # Validation should be done by the caller to avoid excessive SCPI queries
         self.visa_session.write(f'CONF:PUL:ADD {pulse_period}')
 
     def clear_pulses(self):
@@ -62,6 +61,19 @@ class ST(Board):
 
     def get_maximum_period(self):
         return float(self.visa_session.query('CONF:PUL:MAX?').rstrip('\r'))
+
+    def flush_buffer(self):
+        """Read and discard any data in the read buffer."""
+        try:
+            # Set a short timeout for flushing
+            old_timeout = self.visa_session.timeout
+            self.visa_session.timeout = 100
+            while True:
+                self.visa_session.read_raw()
+        except pyvisa.errors.VisaIOError:
+            pass  # Timeout expected when buffer is empty
+        finally:
+            self.visa_session.timeout = old_timeout
 
     def close(self):
         self.visa_session.close()

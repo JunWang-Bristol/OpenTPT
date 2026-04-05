@@ -263,11 +263,13 @@ class InductanceMeasurement(Measurement):
         acq_time = scope.number_samples * scope.sampling_time
         scope.set_acquisition_time(acq_time)
         scope.start_single_acquisition()
-        # 2 s delay: scope must fully arm before pulses arrive.  1 s was found to
-        # be insufficient — the scope occasionally missed the trigger.
-        time.sleep(2)
-
-        board.run_pulses(1)
+        # Fire pulses repeatedly — scope trigger may need several attempts to
+        # catch the burst, especially with PicoScope and direct (non-attenuated)
+        # probe connections where DC bias can be near the trigger level.
+        time.sleep(1)
+        for _ in range(10):
+            board.run_pulses(1)
+            time.sleep(0.2)
 
         deadline = time.monotonic() + timeout_s
         while True:

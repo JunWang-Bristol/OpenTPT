@@ -228,6 +228,10 @@ class PicoScope(Oscilloscope):
         channel_index = self.check_channel(channel)
         self.channel_labels[channel_index] = channel
 
+        # Accept string coupling ("DC"/"AC") for compatibility with tpt.py
+        if isinstance(coupling, str):
+            coupling = 1 if coupling.upper() == "DC" else 0
+
         input_voltage_range = self.check_input_voltage_range(input_voltage_range)
 
         [minimum_analog_offset_range, maximum_analog_offset_range] = self.get_analog_offset_range(coupling, input_voltage_range)
@@ -316,6 +320,10 @@ class PicoScope(Oscilloscope):
     def set_probe_scale(self, channel, probe_scale):
         channel_index = self.check_channel(channel)
         self.probe_scale[channel_index] = probe_scale
+
+    def set_probe_units(self, channel, units):
+        """No-op for PicoScope — units are implicit in probe_scale."""
+        pass
 
     def get_maximum_ADC_count(self):
         maxADC = ctypes.c_int16(0)

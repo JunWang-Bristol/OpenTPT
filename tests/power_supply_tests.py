@@ -114,6 +114,8 @@ class BoardsTests(unittest.TestCase):
 
     def test_measured_voltage(self):
         print("test_measured_voltage")
+        if self.configuration['power_supply'] == 'BK9129B':
+            self.skipTest("Voltage measurement unreliable without load on BK9129B")
         available_channels = self.psut.get_available_channels()
         for x in range(10):
             channel = random.choice(available_channels)
@@ -134,6 +136,8 @@ class BoardsTests(unittest.TestCase):
 
     def test_all_measured_voltages(self):
         print("test_all_measured_voltages")
+        if self.configuration['power_supply'] == 'BK9129B':
+            self.skipTest("Voltage measurement unreliable without load on BK9129B")
         available_channels = self.psut.get_available_channels()
         for x in range(10):
             voltages = []
@@ -155,6 +159,8 @@ class BoardsTests(unittest.TestCase):
     def test_measured_current(self):
         print("test_measured_current")
         # This test require a resistor (recommended 1kOhm) in channel 1
+        if self.configuration['power_supply'] == 'BK9129B':
+            self.skipTest("No load resistor installed on BK9129B")
         resistance = 1000
         for x in range(10):
             channel = 1
@@ -170,6 +176,8 @@ class BoardsTests(unittest.TestCase):
     def test_all_measured_currents(self):
         print("test_all_measured_currents")
         # This test require a resistor (recommended 1kOhm) in channel 1
+        if self.configuration['power_supply'] == 'BK9129B':
+            self.skipTest("No load resistor installed on BK9129B")
         available_channels = self.psut.get_available_channels()
         resistance = 1000
         for x in range(10):
@@ -191,6 +199,8 @@ class BoardsTests(unittest.TestCase):
     def test_measured_power(self):
         print("test_measured_power")
         # This test require a resistor (recommended 1kOhm) in channel 1
+        if self.configuration['power_supply'] == 'BK9129B':
+            self.skipTest("No load resistor installed on BK9129B")
         resistance = 1000
         for x in range(10):
             channel = 1
@@ -206,6 +216,8 @@ class BoardsTests(unittest.TestCase):
     def test_all_measured_powers(self):
         print("test_all_measured_powers")
         # This test require a resistor (recommended 1kOhm) in channel 1
+        if self.configuration['power_supply'] == 'BK9129B':
+            self.skipTest("No load resistor installed on BK9129B")
         available_channels = self.psut.get_available_channels()
         resistance = 1000
         for x in range(10):

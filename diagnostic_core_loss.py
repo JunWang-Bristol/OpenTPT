@@ -92,22 +92,26 @@ time.sleep(2)
 board.run_pulses(1)
 
 # Poll for completion
+print("    Waiting for trigger (10s max)...")
 deadline = time.monotonic() + 10.0
+timed_out = False
 while True:
     time.sleep(0.1)
     state = scope.get_acquisition_state()
     if state == "COMP":
+        print("    Acquisition complete!")
         break
     if time.monotonic() > deadline:
+        timed_out = True
         print("    ERROR: Scope timeout — trigger not detected")
         print("    Check:")
         print("      - Voltage probe connected to Ch1")
         print("      - Probe ground connected to board ground")
         print("      - Pulse output connected to inductor")
+        print("      - Inductor DC resistance is not too high")
         break
-else:
-    print("    Acquisition complete!")
-    
+
+if not timed_out:
     # Read data
     df = scope.read_data([0, 2])
     V = df["Voltage"].to_numpy()
@@ -120,7 +124,7 @@ else:
     if np.ptp(V) < 0.1:
         print("    WARNING: No voltage pulse detected")
     else:
-        print("    OK: Pulse detected")
+        print("    OK: Pulse detected on scope")
 
 # ── Cleanup ──────────────────────────────────────────────────────────────────
 print("\n[4] Cleanup...")

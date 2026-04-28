@@ -15,7 +15,7 @@
 #include <string.h>
 
 /* ── Millisecond tick ── */
-volatile uint32_t uwTick = 0;
+extern volatile uint32_t uwTick;
 
 /* ── UART double-buffer for single-byte reception ── */
 #define RX_BUFFER_SIZE  1

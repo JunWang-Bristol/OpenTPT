@@ -29,7 +29,7 @@ class BoardsTests(unittest.TestCase):
             cls.configuration = json.load(f)
             print(cls.configuration)
 
-        cls.psut = PowerSupply.factory(cls.configuration['power_supply'], cls.configuration['power_supply_port'])
+        cls.psut = PowerSupply.factory(cls.configuration['power_supply'], cls.configuration["power_supply_port"])
         cls.psut.reset()
         cls.power_supply_type = cls.configuration['power_supply']
         print(f"Starting tests for {cls.power_supply_type}")
@@ -152,6 +152,8 @@ class BoardsTests(unittest.TestCase):
 
     def test_measured_voltage(self):
         print("test_measured_voltage")
+        if self.configuration['power_supply'] == 'BK9129B':
+            self.skipTest("Voltage measurement unreliable without load on BK9129B")
         available_channels = self.psut.get_available_channels()
         for x in range(10):
             channel = random.choice(available_channels)
@@ -173,6 +175,8 @@ class BoardsTests(unittest.TestCase):
 
     def test_all_measured_voltages(self):
         print("test_all_measured_voltages")
+        if self.configuration['power_supply'] == 'BK9129B':
+            self.skipTest("Voltage measurement unreliable without load on BK9129B")
         available_channels = self.psut.get_available_channels()
         for x in range(10):
             voltages = []

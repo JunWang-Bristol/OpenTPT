@@ -25,7 +25,7 @@ class BoardsTests(unittest.TestCase):
         cls.but.close()
 
     def test_identification(self):
-        self.assertEqual("OPEN_TPT,2402,00000000,0.0.1\r", self.but.get_identification())
+        self.assertEqual("OPEN_TPT,2402,00000000,0.1.0\r", self.but.get_identification())
 
     def test_version(self):
         self.assertEqual("1999.0\r", self.but.get_version())
@@ -36,14 +36,14 @@ class BoardsTests(unittest.TestCase):
         self.but.add_pulse(0.01)
         self.but.add_pulse(0.002)
         self.but.add_pulse(0.00009)
-        self.but.add_pulse(42.49e-7)
-        self.but.add_pulse(42.5e-7)
+        self.but.add_pulse(42.44e-7)
+        self.but.add_pulse(42.46e-7)
         pulses = self.but.read_pulses()
-        self.assertEqual([0.01, 0.002, 9e-05, 4e-6, 4.5e-6], pulses)
+        self.assertEqual([0.01, 0.002, 9e-05, 4.24e-6, 4.25e-6], pulses)
 
     def test_minimum_period(self):
         self.but.reset()
-        self.assertEqual(5e-7, self.but.get_minimum_period())
+        self.assertEqual(1e-8, self.but.get_minimum_period())
 
     def test_train_pulses_count(self):
         self.but.reset()

@@ -187,7 +187,10 @@ class BK(PowerSupply):
 
     def get_all_measured_voltages(self):
         voltages_str = self.visa_session.query('MEAS:ALL?')
-        voltages = [float(x) for x in voltages_str.split(',')]
+        values = [float(x) for x in voltages_str.split(',')]
+        # MEAS:ALL? returns V1,I1,V2,I2,V3,I3 for 3-channel PSU
+        # Extract only voltage values (every other starting from index 0)
+        voltages = values[0::2]
         return voltages
 
     def get_measured_current(self, channel):

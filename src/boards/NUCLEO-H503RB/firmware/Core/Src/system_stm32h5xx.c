@@ -205,21 +205,6 @@ void SystemInit(void)
    SCB->CPACR |= ((3UL << 20U)|(3UL << 22U));  /* set CP10 and CP11 Full Access */
   #endif
 
-  /* ── Drive PB10 (PositivePulse) and PB4 (NegativePulse) LOW immediately ──
-   * These pins default to analog/floating after reset, which can produce
-   * spurious voltage on the H-bridge test points.  Configure them as
-   * push-pull outputs with pull-down before anything else runs.           */
-  RCC->AHB2ENR |= RCC_AHB2ENR_GPIOBEN;          /* enable GPIOB clock */
-  __DSB();                                         /* wait for clock    */
-  /* MODER: 01 = output for PB4 (bits 9:8) and PB10 (bits 21:20) */
-  GPIOB->MODER = (GPIOB->MODER & ~((3UL << 8) | (3UL << 20)))
-                                 |  ((1UL << 8) | (1UL << 20));
-  /* PUPDR: 10 = pull-down */
-  GPIOB->PUPDR = (GPIOB->PUPDR & ~((3UL << 8) | (3UL << 20)))
-                                 |  ((2UL << 8) | (2UL << 20));
-  /* Drive LOW via BSRR reset bits */
-  GPIOB->BSRR = ((1UL << 4) | (1UL << 10)) << 16;
-
   /* Reset the RCC clock configuration to the default reset state ------------*/
   /* Set HSION bit */
   RCC->CR = RCC_CR_HSION;

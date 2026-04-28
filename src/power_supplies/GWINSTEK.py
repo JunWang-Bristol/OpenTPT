@@ -1,5 +1,6 @@
 import warnings
 import pyvisa
+import time
 
 from power_supply import PowerSupply
 
@@ -24,41 +25,41 @@ class GPP4323(PowerSupply):
 
     def __init__(self, port):
         rm = pyvisa.ResourceManager()
-        # Allow being passed "COM3" or just "3" etc., like BK
+        
+        # Determine the resource string based on the port format
         if "COM" in port.upper():
-            # split on "COM" and take the numeric part
-            port = port.upper().split("COM")[1]
+            # Serial/USB connection - convert COM4 to ASRL4::INSTR format
+            port_num = port.upper().split("COM")[1]
+            resource_string = f'ASRL{port_num}::INSTR'
+        elif "TCPIP" in port.upper() or "SOCKET" in port.upper():
+            # LAN connection - use the port string as-is
+            resource_string = port
+        else:
+            # Assume it's already a valid VISA resource string
+            resource_string = port
 
         try:
-            self.visa_session = rm.open_resource(port)
-            self.visa_session.timeout = 1000
+            self.visa_session = rm.open_resource(resource_string)
+            self.visa_session.timeout = 5000
             self.visa_session.read_termination = '\n'
             self.visa_session.write_termination = '\n'
+            
+            # Serial port specific settings (USB CDC uses 115200 baud per manual)
+            if "ASRL" in resource_string:
+                self.visa_session.baud_rate = 115200
+                self.visa_session.data_bits = 8
+                self.visa_session.stop_bits = pyvisa.constants.StopBits.one
+                self.visa_session.parity = pyvisa.constants.Parity.none
+                self.visa_session.flow_control = pyvisa.constants.VI_ASRL_FLOW_NONE
+            
             # try sending query
             idn = self.visa_session.query('*IDN?')
             print(f'Connected to {idn.strip()}')
-        except Exception as e:
-            print('Warning: power supply offline.', e)
-            # messagebox to indicate error
-            #messagebox.showerror('Error', 'The GPP4323 is offline. Check power and connections. Then close and restart.')
-        else:
-            print('GPP4323 online')
-            self.visa_session.timeout = 5000
             self.visa_session.write('*CLS')
-
-        # Use the same ASRL scheme as the BK supply (RS-232)
-        #self.visa_session = rm.open_resource(port)
-
-        #self.visa_session.timeout = 10000  # milliseconds
-        #self.visa_session.read_termination = "\n"
-
-        # Put device into remote control mode
-        # (:SYSTem:REMote is the documented remote-mode command)
-        #self.visa_session.write(":SYSTem:REMote")
-        #self.visa_session.write("*WAI")
+        except Exception as e:
+            raise ConnectionError(f'GPP4323 power supply offline: {e}')
 
         # Basic sanity check that we really have a GPP-4323
-        idn = self.visa_session.query("*IDN?").strip()
         assert "GPP-4323" in idn, f"Unexpected IDN string for GPP-4323: {idn}"
 
         self.voltages = None
@@ -74,6 +75,9 @@ class GPP4323(PowerSupply):
     # ------------------------------------------------------------------
     def reset(self):
         self.visa_session.write("*RST")
+        # Wait for reset to complete - GPP-4323 needs extra time after reset
+        self.visa_session.query("*OPC?")
+        time.sleep(2)  # Additional delay for power supply to stabilize after reset
 
     def get_version(self):
         # GPP series uses :SYSTem:VERSion?
@@ -99,6 +103,8 @@ class GPP4323(PowerSupply):
         self.visa_session.write(f":OUTPut{int(channel)}:STATe ON")
         #self.visa_session.write("*WAI")
         _ = self.visa_session.query("*OPC?").strip()
+        # Add small delay for output to settle
+        time.sleep(0.2)
         state = self.visa_session.query(f":OUTPut{int(channel)}:STATe?").strip().upper()
         return state in ("1", "ON")
 
@@ -112,6 +118,8 @@ class GPP4323(PowerSupply):
         self.visa_session.write("ALLOUTON")
         #self.visa_session.write("*WAI")
         _ = self.visa_session.query("*OPC?").strip()
+        # Add delay for all outputs to settle (longer for multiple channels)
+        time.sleep(0.5)
         # Verify at least CH1 is on
         state = self.visa_session.query(":OUTPut1:STATe?").strip().upper()
         return state in ("1", "ON")
@@ -175,7 +183,8 @@ class GPP4323(PowerSupply):
     # ------------------------------------------------------------------
     def set_all_source_voltages(self, voltages):
         assert len(voltages) >= len(self.channels), "Not enough voltage values"
-        self.voltages = list(voltages)
+        # GPP-4323 has 3 decimal place precision for voltage
+        self.voltages = [round(v, 3) for v in voltages]
 
         # GPP does not have a single "APP:VOLT" style command.
         # Set each channel individually, then wait for completion.
@@ -189,6 +198,8 @@ class GPP4323(PowerSupply):
         self.check_channel(channel)
         if self.voltages is None:
             self.voltages = [0.0] * len(self.channels)
+        # GPP-4323 has 3 decimal place precision for voltage
+        voltage = round(voltage, 3)
         self.voltages[int(channel) - 1] = voltage
         self.visa_session.write(f":SOURce{int(channel)}:VOLTage {voltage}")
         #self.visa_session.write("*WAI")
@@ -197,7 +208,8 @@ class GPP4323(PowerSupply):
     def get_all_source_voltages(self):
         # Query all channel set voltages at once
         voltages_str = self.visa_session.query(":SOURce:VOLTage:ALL?")
-        voltages = [float(x) for x in voltages_str.split(",")]
+        # Round to 3 decimal places to match device precision
+        voltages = [round(float(x), 3) for x in voltages_str.split(",")]
         return voltages
 
     def get_source_voltage(self, channel):
@@ -207,6 +219,8 @@ class GPP4323(PowerSupply):
 
     def set_current_limit(self, channel, limit):
         self.check_channel(channel)
+        # GPP-4323 has 4 decimal place precision for current
+        limit = round(limit, 4)
         self.visa_session.write(f":SOURce{int(channel)}:CURRent {limit}")
         #self.visa_session.write("*WAI")
         return self.visa_session.query("*OPC?").strip() == "1"
@@ -236,8 +250,11 @@ class GPP4323(PowerSupply):
 
     def set_voltage_limit(self, channel, limit):
         # Map "voltage limit" to OVP threshold for this channel.
+        # GPP-4323 OVP has minimum of 0.5V and 1 decimal place precision
         self.check_channel(channel)
         ch = int(channel)
+        # Clamp to minimum OVP value (0.5V for all channels per manual)
+        limit = max(0.5, round(limit, 1))
         self.visa_session.write(f":OUTPut{ch}:OVP {limit}")
         #self.visa_session.write("*WAI")
         return self.visa_session.query("*OPC?").strip() == "1"

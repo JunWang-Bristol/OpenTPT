@@ -149,6 +149,17 @@ class PicoScope(Oscilloscope):
         raise NotImplementedError
 
     @staticmethod
+    def _close_unit_sdk(handle):
+        raise NotImplementedError
+
+    def close(self):
+        """Close the PicoScope and release the USB handle."""
+        try:
+            self._close_unit_sdk(self.handle)
+        except Exception:
+            pass
+
+    @staticmethod
     def _get_analogue_offset(handle, range, coupling, maximumVoltage, minimumVoltage):
         raise NotImplementedError
 
@@ -224,14 +235,26 @@ class PicoScope(Oscilloscope):
     def get_input_voltage_index(self, input_voltage_range_str_or_float):
         raise NotImplementedError
 
+    def _normalize_coupling(self, coupling):
+        """Convert string coupling ('AC', 'DC') to the integer enum for the SDK.
+
+        PicoScope 2000A/3000A: AC=0, DC=1
+        Override in subclasses with different enums (e.g. 6000 series).
+        """
+        if isinstance(coupling, int):
+            return coupling
+        c = str(coupling).upper()
+        if c.startswith("AC"):
+            return 0
+        if c.startswith("DC"):
+            return 1
+        raise ValueError(f"Unknown coupling mode: {coupling!r}")
+
     def set_channel_configuration(self, channel, input_voltage_range, coupling, analog_offset, enable=True):
         channel_index = self.check_channel(channel)
         self.channel_labels[channel_index] = channel
 
-        # Accept string coupling ("DC"/"AC") for compatibility with tpt.py
-        if isinstance(coupling, str):
-            coupling = 1 if coupling.upper() == "DC" else 0
-
+        coupling = self._normalize_coupling(coupling)
         input_voltage_range = self.check_input_voltage_range(input_voltage_range)
 
         [minimum_analog_offset_range, maximum_analog_offset_range] = self.get_analog_offset_range(coupling, input_voltage_range)
@@ -459,12 +482,29 @@ class PicoScope(Oscilloscope):
             self.sampling_time = acq_time_s / self.number_samples
 
     def start_single_acquisition(self):
-        """Start a single-shot acquisition. PicoScope: blocking run_acquisition_block."""
-        self.run_acquisition_block()
+        """Arm a single-shot acquisition (non-blocking).
+
+        Calls RunBlock without blocking so that the board can fire pulses
+        while the scope waits for a trigger.  Poll get_acquisition_state()
+        to check when the acquisition is complete.
+        """
+        timebase = self.convert_time_to_timebase(self.sampling_time)
+        n_pre  = ctypes.c_int32(self.number_pre_trigger_samples)
+        n_post = ctypes.c_int32(self.number_samples - self.number_pre_trigger_samples)
+
+        status = self._run_block(self.handle, n_pre, n_post, timebase,
+                                 0, None, 0, None, None)
+        assert_pico_ok(status)
 
     def get_acquisition_state(self):
-        """Return acquisition state. Always 'COMP': start_single_acquisition() blocks until done."""
-        return "COMP"
+        """Poll whether the acquisition is complete.
+
+        Returns 'COMP' when data is ready, 'RUN' otherwise.
+        """
+        ready = ctypes.c_int16(0)
+        status = self._is_ready(self.handle, ctypes.byref(ready))
+        assert_pico_ok(status)
+        return "COMP" if ready.value else "RUN"
 
     def set_read_timeout(self, timeout_ms):
         """No-op for PicoScope — SDK-based, no VISA read timeout."""
@@ -669,6 +709,10 @@ class PicoScope2408B(PicoScope):
         return ps2.ps2000aOpenUnit(status, serial)
 
     @staticmethod
+    def _close_unit_sdk(handle):
+        return ps2.ps2000aCloseUnit(handle)
+
+    @staticmethod
     def _get_analogue_offset(handle, range, coupling, maximumVoltage, minimumVoltage):
         return ps2.ps2000aGetAnalogueOffset(handle, range, coupling, maximumVoltage, minimumVoltage)
 
@@ -813,6 +857,10 @@ class PicoScope3406D(PicoScope):
         return ps3.ps3000aOpenUnit(status, serial)
 
     @staticmethod
+    def _close_unit_sdk(handle):
+        return ps3.ps3000aCloseUnit(handle)
+
+    @staticmethod
     def _get_analogue_offset(handle, range, coupling, maximumVoltage, minimumVoltage):
         return ps3.ps3000aGetAnalogueOffset(handle, range, coupling, maximumVoltage, minimumVoltage)
 
@@ -870,7 +918,20 @@ class PicoScope6404D(PicoScope):
         self.minimum_sampling_time = 400e-12  # for 3 or 4 channels
         super().__init__(port, strict)
 
-    # 6404D specific    
+    def _normalize_coupling(self, coupling):
+        """PS6000 coupling: AC=0, DC_1M=1, DC_50R=2."""
+        if isinstance(coupling, int):
+            return coupling
+        c = str(coupling).upper()
+        if c.startswith("AC"):
+            return 0   # PS6000_AC
+        if c == "DC_50R" or c == "DC50R":
+            return 2   # PS6000_DC_50R
+        if c.startswith("DC"):
+            return 1   # PS6000_DC_1M
+        raise ValueError(f"Unknown coupling mode: {coupling!r}")
+
+    # 6404D specific
     def convert_time_to_timebase(self, time):
         if time > 27.4877906624:
             raise Exception(f"Too much time: {time} seconds. Maximum supported: 27.4877906624 seconds")
@@ -966,6 +1027,10 @@ class PicoScope6404D(PicoScope):
     @staticmethod
     def _open_unit(status, serial):
         return ps6.ps6000OpenUnit(status, serial)
+
+    @staticmethod
+    def _close_unit_sdk(handle):
+        return ps6.ps6000CloseUnit(handle)
 
     @staticmethod
     def _get_analogue_offset(handle, range, coupling, maximumVoltage, minimumVoltage):

@@ -31,6 +31,7 @@ from board import Board
 # ─── Core / material databases ───────────────────────────────────────────────
 
 CORE_DATABASE = {
+    "T18": {"Ae": 10.8e-6,  "le": 26.7e-3,  "name": "T-18 (Micrometals)"},
     "T26": {"Ae": 52.3e-6,  "le": 63.5e-3,  "name": "TX26/15/10"},
     "E32": {"Ae": 83.0e-6,  "le": 121.0e-3, "name": "E32/6/20"},
     "E42": {"Ae": 178.0e-6, "le": 97.0e-3,  "name": "E42/21/20"},
@@ -163,7 +164,8 @@ class Measurement:
 
         self.scope.set_probe_scale(self.CH_VOLTAGE, self.input_voltage_probe_scale)
         self.scope.set_probe_scale(self.CH_CURRENT, self.current_probe_scale)
-        self.scope.set_probe_units(self.CH_CURRENT, 'A')
+        if hasattr(self.scope, 'set_probe_units'):
+            self.scope.set_probe_units(self.CH_CURRENT, 'A')
 
 
     def _configure_psu(self, voltage):
@@ -177,6 +179,24 @@ class Measurement:
         """Turn off both PSU output channels."""
         for ch in (self.PSU_CHANNEL, self.PSU_CHANNEL_NEG):
             self.psu.disable_output(ch)
+
+    def close(self):
+        """Release hardware connections so another Measurement can use them."""
+        if hasattr(self.psu, 'visa_session'):
+            try:
+                self.psu.visa_session.close()
+            except Exception:
+                pass
+        if hasattr(self.scope, 'close'):
+            try:
+                self.scope.close()
+            except Exception:
+                pass
+        if hasattr(self.board, 'close'):
+            try:
+                self.board.close()
+            except Exception:
+                pass
 
     @classmethod
     def from_config(cls, config_path="hardware_configuration.json"):
@@ -217,24 +237,35 @@ class InductanceMeasurement(Measurement):
         # Voltage scale: fit the supply voltage in ~4 divs with headroom for ringing
         V_scale = max(0.5, voltage / 4.0)
 
-        # Current scale: expected peak-to-peak swing ΔI = V·T_half/L; fit in 3 divs
+        # Current scale: expected peak swing ΔI = V·T_half/L; add 50% headroom
         if L_estimate is not None and L_estimate > 0:
             delta_I = voltage * T_half / L_estimate
-            I_scale = max(0.05, delta_I / 3.0)
+            I_scale = max(0.05, delta_I * 0.75)
         else:
             I_scale = 0.5   # conservative fallback when L is unknown
-
-        # Trigger: 30% of supply voltage, rising edge on voltage channel
-        trigger_level = voltage * 0.3
 
         # Note: set_channel_configuration() overwrites channel_labels with the raw channel
         # integer argument.  Call set_channel_label() AFTER it to set the correct names.
         scope.set_channel_configuration(self.CH_VOLTAGE, V_scale, "DC", 0.0)
         scope.set_channel_configuration(self.CH_CURRENT, I_scale, "AC", 0.0)
+
+        # Trigger: 30% of supply voltage, clamped to 3% of actual scope range
+        # (PicoScope BNC-level signal is small with high-attenuation differential probes)
+        actual_range = scope.get_channel_configuration(self.CH_VOLTAGE).input_voltage_range
+        probe_scale = scope.probe_scale.get(self.CH_VOLTAGE, 1.0)
+        trigger_level = min(voltage * 0.3, actual_range * probe_scale * 0.03)
         scope.set_channel_label(self.CH_VOLTAGE, "Voltage")
         scope.set_channel_label(self.CH_CURRENT, "Current")
 
-        scope.set_rising_trigger(self.CH_VOLTAGE, trigger_level)
+        # Trigger on current channel — more reliable with high-attenuation voltage probes
+        cur_probe_scale = scope.probe_scale.get(self.CH_CURRENT, 1.0)
+        if L_estimate is not None and L_estimate > 0:
+            I_peak_bnc = (voltage * T_half / L_estimate) / cur_probe_scale
+            cur_trigger = max(0.02, I_peak_bnc * 0.3)
+        else:
+            cur_range = scope.get_channel_configuration(self.CH_CURRENT).input_voltage_range
+            cur_trigger = cur_range * 0.10
+        scope.set_rising_trigger(self.CH_CURRENT, cur_trigger)
 
         # Timing: 50 samples per half-period is plenty for OLS regression.
         # 1.5x total time gives post-trigger headroom.
@@ -308,18 +339,17 @@ class InductanceMeasurement(Measurement):
         -------
         float | None — inductance in henries, or None on failure.
         """
-        v_max = np.max(V)
-        if v_max < voltage * 0.3:
+        v_pkpk = np.max(V) - np.min(V)
+        if v_pkpk < 0.05:
             print(
-                f"ERROR: Peak voltage {v_max:.3f} V is too low (expected ~{voltage} V) — "
-                "scope may not have triggered or probe scale is wrong."
+                f"ERROR: Voltage pk-pk {v_pkpk:.3f} V is too small — "
+                "scope may not have triggered or probe is disconnected."
             )
             return None
 
-        # Use 50% of the known supply voltage as the edge threshold.
-        # Ringing can overshoot to 2× the supply, so using v_max*0.4 would set
-        # the threshold above the flat-pulse level and land in the ringing region.
-        v_thresh = voltage * 0.5
+        # Use 20% of the peak voltage as the edge threshold.
+        # (lower threshold avoids missing short pulses with attenuating probes)
+        v_thresh = np.max(V) * 0.2
         above    = np.where(V > v_thresh)[0]
         if len(above) == 0:
             print("ERROR: No rising edge detected in voltage waveform.")
@@ -333,7 +363,7 @@ class InductanceMeasurement(Measurement):
         fall_idx = rise_idx + after_rise[0]
 
         pulse_len = fall_idx - rise_idx
-        if pulse_len < 20:
+        if pulse_len < 5:
             print(f"ERROR: First positive pulse only {pulse_len} samples — too short for regression.")
             return None
 
@@ -396,16 +426,17 @@ class InductanceMeasurement(Measurement):
         try:
             self._configure_scope(voltage, T_half, num_pulses, L_estimate)
 
-            I_scale = 0.1   # A/div — doubled on each clipping retry
-            for _ in range(5):
+            for attempt in range(5):
                 df = self._fire_and_capture(T_half, num_pulses)
                 if df is None:
                     return None
                 if not _is_clipped(df["Current"].to_numpy()):
                     break
-                I_scale *= 2.0
-                print(f"  WARNING: Current clipped — retrying at {I_scale*1e3:.0f} mA/div")
-                self.scope.set_channel_configuration(self.CH_CURRENT, I_scale, "DC", 0.0)
+                # Double the current channel range
+                cur_range = self.scope.get_channel_configuration(self.CH_CURRENT).input_voltage_range
+                new_range = cur_range * 2.0
+                print(f"  WARNING: Current clipped — retrying at {new_range:.3f} V range")
+                self.scope.set_channel_configuration(self.CH_CURRENT, new_range, "DC", 0.0)
                 self.scope.set_channel_label(self.CH_CURRENT, "Current")
             else:
                 print("  WARNING: Current still clipped after 5 attempts — results may be wrong.")
@@ -509,18 +540,30 @@ class CoreLossMeasurement(Measurement):
         else:
             I_scale = 0.1   # conservative fallback
 
-        # Trigger: 30% of supply voltage, rising edge on V_pri
-        trigger_level = voltage * 0.3
-
         # Note: set_channel_configuration() resets channel labels; set them after.
         scope.set_channel_configuration(self.CH_VOLTAGE,   V_pri_scale, "DC", 0.0)
         scope.set_channel_configuration(self.CH_SECONDARY, V_sec_scale, "DC", 0.0)
         scope.set_channel_configuration(self.CH_CURRENT,   I_scale,     "DC", 0.0)
+
+        # Trigger: 30% of supply voltage, clamped to 3% of actual scope range
+        # (PicoScope BNC-level signal is small with high-attenuation differential probes)
+        actual_range = scope.get_channel_configuration(self.CH_VOLTAGE).input_voltage_range
+        probe_scale = scope.probe_scale.get(self.CH_VOLTAGE, 1.0)
+        trigger_level = min(voltage * 0.3, actual_range * probe_scale * 0.03)
         scope.set_channel_label(self.CH_VOLTAGE,   "V_pri")
         scope.set_channel_label(self.CH_SECONDARY, "V_sec")
         scope.set_channel_label(self.CH_CURRENT,   "Current")
 
-        scope.set_rising_trigger(self.CH_VOLTAGE, trigger_level)
+        # Trigger on current channel — more reliable with high-attenuation voltage probes
+        # Use 30% of expected peak current (in BNC volts) as trigger level
+        cur_probe_scale = scope.probe_scale.get(self.CH_CURRENT, 1.0)
+        if L_henry is not None and L_henry > 0:
+            I_peak_bnc = (voltage * T_half_est / L_henry) / cur_probe_scale
+            cur_trigger = max(0.02, I_peak_bnc * 0.3)
+        else:
+            cur_range = scope.get_channel_configuration(self.CH_CURRENT).input_voltage_range
+            cur_trigger = cur_range * 0.10
+        scope.set_rising_trigger(self.CH_CURRENT, cur_trigger)
 
         # 100 samples per half-period, 1.5× total burst for headroom
         T_half_est = T_total / 8.0
@@ -531,7 +574,7 @@ class CoreLossMeasurement(Measurement):
 
         print(
             f"Scope config — V_pri: {V_pri_scale:.3f} V/div  V_sec: {V_sec_scale:.3f} V/div"
-            f"  trigger: {trigger_level:.2f} V"
+            f"  I_trig: {cur_trigger:.3f} V (CH_CURRENT)"
             f"  acqTime: {T_total * 1.5 * 1e6:.0f} us  samples: {n_samples}"
         )
 
@@ -586,9 +629,11 @@ class CoreLossMeasurement(Measurement):
         # above the threshold and produce false edges beyond T_total.
         n_burst  = int(np.searchsorted(t, T_total))
 
-        # Use 50% of the known supply voltage — ringing can overshoot to 2× supply,
-        # so v_max*0.4 would be above the flat-pulse level and detect only ringing spikes.
-        v_thresh = voltage * 0.5
+        # Use 30% of the robust peak (90th percentile) for edge detection.
+        # This avoids false thresholds from ringing spikes.
+        v_burst = V_pri[:n_burst]
+        v_peak = np.percentile(v_burst[v_burst > 0], 90) if np.sum(v_burst > 0) > 10 else np.max(v_burst)
+        v_thresh = v_peak * 0.3
         above    = V_pri[:n_burst] > v_thresh
 
         # Rising edges (False→True) and falling edges (True→False)
@@ -680,7 +725,7 @@ class CoreLossMeasurement(Measurement):
             rel = abs(delta_I) / I_peak
             print(
                 f"  [balance] iter {iteration + 1}: V_neg={V_neg:.3f} V  "
-                f"δI={delta_I * 1e3:.2f} mA  ({rel * 100:.1f}%)"
+                f"dI={delta_I * 1e3:.2f} mA  ({rel * 100:.1f}%)"
             )
 
             if rel < tol:
@@ -823,16 +868,16 @@ class CoreLossMeasurement(Measurement):
                 for flux_iter in range(flux_max_iter):
                     self._configure_scope(voltage, N1, N2, T_total, L_henry)
 
-                    I_scale = 0.1
-                    for _ in range(5):
+                    for attempt in range(5):
                         df = self._fire_and_capture(pulses)
                         if df is None:
                             return None
                         if not _is_clipped(df["Current"].to_numpy()):
                             break
-                        I_scale *= 2.0
-                        print(f"  WARNING: Current clipped — retrying at {I_scale*1e3:.0f} mA/div")
-                        self.scope.set_channel_configuration(self.CH_CURRENT, I_scale, "DC", 0.0)
+                        cur_range = self.scope.get_channel_configuration(self.CH_CURRENT).input_voltage_range
+                        new_range = cur_range * 2.0
+                        print(f"  WARNING: Current clipped — retrying at {new_range:.3f} V range")
+                        self.scope.set_channel_configuration(self.CH_CURRENT, new_range, "DC", 0.0)
                         self.scope.set_channel_label(self.CH_CURRENT, "Current")
                     else:
                         print("  WARNING: Current still clipped after 5 attempts.")
@@ -874,16 +919,16 @@ class CoreLossMeasurement(Measurement):
 
             # ── Phase 3: Final measurement capture ────────────────────────────────
             print("  Phase 3 — Final measurement capture...")
-            I_scale = 0.1
-            for _ in range(5):
+            for attempt in range(5):
                 df = self._fire_and_capture(pulses)
                 if df is None:
                     return None
                 if not _is_clipped(df["Current"].to_numpy()):
                     break
-                I_scale *= 2.0
-                print(f"  WARNING: Current clipped — retrying at {I_scale*1e3:.0f} mA/div")
-                self.scope.set_channel_configuration(self.CH_CURRENT, I_scale, "DC", 0.0)
+                cur_range = self.scope.get_channel_configuration(self.CH_CURRENT).input_voltage_range
+                new_range = cur_range * 2.0
+                print(f"  WARNING: Current clipped — retrying at {new_range:.3f} V range")
+                self.scope.set_channel_configuration(self.CH_CURRENT, new_range, "DC", 0.0)
                 self.scope.set_channel_label(self.CH_CURRENT, "Current")
             else:
                 print("  WARNING: Current still clipped after 5 attempts — results may be wrong.")
@@ -1048,17 +1093,20 @@ if __name__ == "__main__":
         print(f"\nWARNING: B_peak ({B_peak_mT:.0f} mT) >= B_sat ({B_sat*1e3:.0f} mT) for {MATERIAL}.")
         print("         Core will saturate.  Proceed with caution.")
 
-    # ── Measure inductance at low flux (5 V / 50 kHz) ────────────────────────
-    VOLTAGE_L = 5.0
-    FREQ_L    = 50e3
+    # ── Measure inductance at low flux (10 V / 5 kHz) ───────────────────────
+    VOLTAGE_L = 10.0
+    FREQ_L    = 5e3
 
     meas = InductanceMeasurement.from_config("hardware_configuration.json")
-    L = meas.measure_inductance(VOLTAGE_L, FREQ_L, num_pulses=8, plot=True,
+    L = meas.measure_inductance(VOLTAGE_L, FREQ_L, num_pulses=8, plot=False,
                                 L_estimate=L_theory)
 
     if L is not None:
         error_pct = (L - L_theory) / L_theory * 100
         print(f"Measured  L = {L * 1e6:.1f} uH  ({error_pct:+.1f}% vs theory)")
+
+    # Release hardware before opening new connections
+    meas.close()
 
     # ── Core loss measurement at user-specified flux and frequency ────────────
     loss_meas = CoreLossMeasurement.from_config("hardware_configuration.json")
@@ -1070,7 +1118,7 @@ if __name__ == "__main__":
         core_name       = CORE,
         L_henry         = L,
         dc_bias_A       = 0.0,
-        plot            = True,
+        plot            = False,
         save_csv        = "../core_loss_waveform.csv",
         target_B_peak_T = B_peak_T,   # iteratively adjust voltage to hit the requested flux
     )

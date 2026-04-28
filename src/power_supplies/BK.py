@@ -12,8 +12,10 @@ class BK(PowerSupply):
 
         self.visa_session = rm.open_resource(f'ASRL{port}::INSTR')
 
-        self.visa_session.timeout = 10000  # milliseconds
+        self.visa_session.timeout = 60000  # milliseconds (increased for self-test)
         self.visa_session.read_termination = '\n'
+        self.visa_session.write_termination = '\n'
+        self.visa_session.baud_rate = 9600
 
         # Put device into remote control mode
         self.visa_session.write('SYST:REM')
@@ -42,6 +44,9 @@ class BK(PowerSupply):
         self.visa_session.write(f'INST:NSEL {channel}')
         self.visa_session.write('*WAI')
         self.visa_session.write('CHAN:OUTP:STAT 1')
+        self.visa_session.write('*WAI')
+        # Also enable the master output (required for any channel to deliver power)
+        self.visa_session.write('OUTP:STAT 1')
         self.visa_session.write('*WAI')
         return self.visa_session.query('CHAN:OUTP:STAT?') == '1'
 

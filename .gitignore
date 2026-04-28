@@ -1,2 +1,26 @@
 *__pycache__*
+
+# Python venv
+venv/
+
+# Local Claude Code state
+.claude/settings.local.json
+
+# Local hardware configuration (use hardware_configuration_template.json as a starting point)
 hardware_configuration.json
+
+# STM32CubeIDE machine-specific settings
+src/boards/NUCLEO-H503RB/firmware/.settings/language.settings.xml
+
+# Firmware build artifacts
+src/boards/NUCLEO-H503RB/firmware/Debug/
+src/boards/NUCLEO-H503RB/firmware/build/
+
+# Vendored third-party SDKs / driver installers (install via requirements.txt or vendor sites)
+src/oscilloscopes/picosdk-python-wrappers/
+src/power_supplies/BK9129B/drivers/PL2303_Prolific_DriverInstaller_v1_12_0/
+src/power_supplies/BK9129B/drivers/*.zip
+
+# Measurement outputs
+*.png
+*.csv

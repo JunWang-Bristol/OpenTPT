@@ -1,7 +1,24 @@
+/* USER CODE BEGIN Header */
 /**
- * Bare-metal main header for TPT SCPI Server (NUCLEO-H503RB).
- * No HAL / LL dependencies — CMSIS register definitions only.
- */
+  ******************************************************************************
+  * @file    Examples_LL/USART/USART_Communication_Rx_IT_Continuous_VCP_Init/Inc/main.h
+  * @author  MCD Application Team
+  * @brief   Header for main.c module
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2023 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
+  */
+/* USER CODE END Header */
+
+/* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __MAIN_H
 #define __MAIN_H
 
@@ -9,29 +26,71 @@
 extern "C" {
 #endif
 
-#include "stm32h5xx.h"
-#include <stdbool.h>
-#include <stdint.h>
+/* Includes ------------------------------------------------------------------*/
+#include "stm32h5xx_hal.h"
+#include "stm32h5xx_ll_icache.h"
+#include "stm32h5xx_ll_pwr.h"
+#include "stm32h5xx_ll_crs.h"
+#include "stm32h5xx_ll_rcc.h"
+#include "stm32h5xx_ll_bus.h"
+#include "stm32h5xx_ll_system.h"
+#include "stm32h5xx_ll_exti.h"
+#include "stm32h5xx_ll_cortex.h"
+#include "stm32h5xx_ll_utils.h"
+#include "stm32h5xx_ll_dma.h"
+#include "stm32h5xx_ll_usart.h"
+#include "stm32h5xx_ll_gpio.h"
 
-/* ── Pin definitions (bit masks for GPIOB->BSRR / GPIOA->BSRR) ── */
-#define PositivePulse_Pin    (1U << 10)   /* PB10 */
-#define NegativePulse_Pin    (1U << 4)    /* PB4  */
-#define LED2_Pin             (1U << 5)    /* PA5  */
-#define USER_BUTTON_Pin      (1U << 13)   /* PC13 */
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
+/* USER CODE END Includes */
 
-/* ── LED blink periods (ms) ── */
-#define LED_BLINK_FAST   200
-#define LED_BLINK_SLOW   500
-#define LED_BLINK_ERROR  1000
+/* Exported types ------------------------------------------------------------*/
+/* USER CODE BEGIN ET */
 
-/* ── Millisecond tick (replaces HAL_GetTick / HAL_IncTick) ── */
-extern volatile uint32_t uwTick;
+/* USER CODE END ET */
 
-/* ── Exported functions ── */
+/* Exported constants --------------------------------------------------------*/
+/* USER CODE BEGIN EC */
+
+/* USER CODE END EC */
+
+/* Exported macro ------------------------------------------------------------*/
+/* USER CODE BEGIN EM */
+
+/* USER CODE END EM */
+
+/* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
+
+/* USER CODE BEGIN EFP */
 void UserButton_Callback(void);
 void USART_CharReception_Callback(void);
 void Error_Callback(void);
+/* USER CODE END EFP */
+
+/* Private defines -----------------------------------------------------------*/
+#define USER_BUTTON_Pin LL_GPIO_PIN_13
+#define USER_BUTTON_GPIO_Port GPIOC
+#define USER_BUTTON_EXTI_IRQn EXTI13_IRQn
+#define LED2_Pin LL_GPIO_PIN_5
+#define LED2_GPIO_Port GPIOA
+#define PositivePulse_Pin LL_GPIO_PIN_10
+#define PositivePulse_GPIO_Port GPIOB
+#define NegativePulse_Pin LL_GPIO_PIN_4
+#define NegativePulse_GPIO_Port GPIOB
+
+/* USER CODE BEGIN Private defines */
+
+/**
+  * @brief Toggle periods for various blinking modes
+  */
+
+#define LED_BLINK_FAST  200
+#define LED_BLINK_SLOW  500
+#define LED_BLINK_ERROR 1000
+
+/* USER CODE END Private defines */
 
 #ifdef __cplusplus
 }

@@ -24,3 +24,11 @@ src/power_supplies/BK9129B/drivers/*.zip
 # Measurement outputs
 *.png
 *.csv
+*.log
+
+# Local toolchain & build artifacts
+arm-toolchain/
+arm-toolchain.zip
+
+# KiCad lock files
+src/boards/ST2402/~ST2402.kicad_pcb.lck

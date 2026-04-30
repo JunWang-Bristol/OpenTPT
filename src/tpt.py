@@ -136,7 +136,7 @@ class Measurement:
     # RTB2004 channel indices (0-based integers accepted by the driver)
     CH_VOLTAGE   = 0   # CH1 — primary / input voltage  (50:1 probe)
     CH_SECONDARY = 1   # CH2 — secondary winding        (10:1 probe, core loss)
-    CH_CURRENT   = 2   # CH3 — inductor current         (100 mV/A probe)
+    CH_CURRENT   = 3   # CH4 — inductor current         (100 mV/A probe)
 
     # GPP-4323 output channels — CH1 positive rail, CH2 negative rail
     PSU_CHANNEL     = 1
@@ -554,16 +554,11 @@ class CoreLossMeasurement(Measurement):
         scope.set_channel_label(self.CH_SECONDARY, "V_sec")
         scope.set_channel_label(self.CH_CURRENT,   "Current")
 
-        # Trigger on current channel — more reliable with high-attenuation voltage probes
-        # Use 30% of expected peak current (in BNC volts) as trigger level
-        cur_probe_scale = scope.probe_scale.get(self.CH_CURRENT, 1.0)
-        if L_henry is not None and L_henry > 0:
-            I_peak_bnc = (voltage * T_half_est / L_henry) / cur_probe_scale
-            cur_trigger = max(0.02, I_peak_bnc * 0.3)
-        else:
-            cur_range = scope.get_channel_configuration(self.CH_CURRENT).input_voltage_range
-            cur_trigger = cur_range * 0.10
-        scope.set_rising_trigger(self.CH_CURRENT, cur_trigger)
+        # Trigger on voltage channel — more reliable than current for small signals
+        # Use 20% of supply voltage as trigger level (with 10:1 probe, scope sees V/10)
+        V_probe_scale = scope.probe_scale.get(self.CH_VOLTAGE, 1.0)
+        volt_trigger = voltage * 0.2 / V_probe_scale
+        scope.set_rising_trigger(self.CH_VOLTAGE, volt_trigger)
 
         # 100 samples per half-period, 1.5× total burst for headroom
         T_half_est = T_total / 8.0
@@ -574,7 +569,7 @@ class CoreLossMeasurement(Measurement):
 
         print(
             f"Scope config — V_pri: {V_pri_scale:.3f} V/div  V_sec: {V_sec_scale:.3f} V/div"
-            f"  I_trig: {cur_trigger:.3f} V (CH_CURRENT)"
+            f"  V_trig: {volt_trigger:.3f} V (CH_VOLTAGE)"
             f"  acqTime: {T_total * 1.5 * 1e6:.0f} us  samples: {n_samples}"
         )
 

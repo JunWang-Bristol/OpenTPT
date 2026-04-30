@@ -1,632 +1,281 @@
-/* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file    Examples_LL/USART/TPT_SCPI_Server/Src/main.c
-  * @author  MCD Application Team
-  * @brief   This example describes how to send bytes over USART IP using
-  *          the STM32H5xx USART LL API.
-  *          Peripheral initialization done using LL unitary services functions.
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2023 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
-/* USER CODE END Header */
-/* Includes ------------------------------------------------------------------*/
+ * Bare-metal main for TPT SCPI Server (NUCLEO-H503RB).
+ *
+ * Peripherals initialised with direct register writes — no HAL / LL.
+ *   - System clock: HSE 24 MHz → PLL1 → 250 MHz
+ *   - USART3 on PA3 (RX) / PA4 (TX), 115 200 baud, RX interrupt
+ *   - GPIO: PB10 (PositivePulse), PB4 (NegativePulse), PA5 (LED2), PC13 (Button)
+ *   - EXTI13 rising edge for user button
+ *   - SysTick 1 ms tick
+ *   - ICACHE enabled
+ */
 #include "main.h"
-
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
-#include "scpi/scpi.h"
 #include "tpt-scpi.h"
-#include "stdio.h"
-/* USER CODE END Includes */
+#include <stdio.h>
+#include <string.h>
 
-/* Private typedef -----------------------------------------------------------*/
-/* USER CODE BEGIN PTD */
+/* ── Millisecond tick ── */
+volatile uint32_t uwTick = 0;
 
-/* USER CODE END PTD */
+/* ── UART double-buffer for single-byte reception ── */
+#define RX_BUFFER_SIZE  1
+static uint8_t aRXBufferA[RX_BUFFER_SIZE];
+static uint8_t aRXBufferB[RX_BUFFER_SIZE];
+static volatile uint32_t uwNbReceivedChars;
+static volatile uint32_t uwBufferReadyIndication;
+static uint8_t *pBufferReadyForUser;
+static uint8_t *pBufferReadyForReception;
 
-/* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN PD */
-#define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
-#define RX_BUFFER_SIZE   1
+/* ── Forward declarations ── */
+static void SystemClock_Config(void);
+static void GPIO_Init(void);
+static void USART3_Init(void);
+static void ICACHE_Init(void);
+static void StartReception(void);
+static void HandleContinuousReception(void);
 
-/* USER CODE END PD */
+/* ════════════════════════════════════════════════════════════════════ */
 
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PM */
-
-/* Private variables ---------------------------------------------------------*/
-
-TIM_HandleTypeDef htim2;
-
-/* USER CODE BEGIN PV */
-
-
-/**
-  * @brief Text strings printed on PC Com port for user information
-  */
-uint8_t aTextInfoStart[] = "\r\nUSART Example : Enter characters to fill reception buffers.\r\n";
-uint8_t aTextInfoSwap1[] = "\r\n- Current RX buffer is full : ";
-uint8_t aTextInfoSwap2[] = "\r\n- Reception will go on in alternate buffer\r\n";
-
-/**
-  * @brief RX buffers for storing received data
-  */
-uint8_t aRXBufferA[RX_BUFFER_SIZE];
-uint8_t aRXBufferB[RX_BUFFER_SIZE];
-__IO uint32_t     uwNbReceivedChars;
-__IO uint32_t     uwBufferReadyIndication;
-uint8_t *pBufferReadyForUser;
-uint8_t *pBufferReadyForReception;
-
-/* USER CODE END PV */
-
-/* Private function prototypes -----------------------------------------------*/
-void SystemClock_Config(void);
-static void MX_GPIO_Init(void);
-static void MX_USART3_UART_Init(void);
-static void MX_ICACHE_Init(void);
-static void MX_TIM2_Init(void);
-/* USER CODE BEGIN PFP */
-
-void     HandleContinuousReception(void);
-void     LED_Off(void);
-void     LED_Blinking(uint32_t Period);
-void     PrintInfo(uint8_t *String, uint32_t Size);
-void     StartReception(void);
-/* USER CODE END PFP */
-
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
-
-/* USER CODE END 0 */
-
-/**
-  * @brief  The application entry point.
-  * @retval int
-  */
 int main(void)
 {
+    SystemClock_Config();
+    GPIO_Init();
+    USART3_Init();
+    ICACHE_Init();
 
-  /* USER CODE BEGIN 1 */
-  /* USER CODE END 1 */
+    /* SysTick: 1 ms tick at 250 MHz */
+    SysTick_Config(250000000U / 1000U);
 
-  /* MCU Configuration--------------------------------------------------------*/
+    /* LED off */
+    GPIOA->BSRR = LED2_Pin << 16;
 
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+    /* Start UART reception */
+    StartReception();
 
-  /* USER CODE BEGIN Init */
+    /* Initialise SCPI */
+    SCPI_Init(&scpi_context,
+              scpi_commands,
+              &scpi_interface,
+              scpi_units_def,
+              SCPI_IDN1, SCPI_IDN2, SCPI_IDN3, SCPI_IDN4,
+              scpi_input_buffer, SCPI_INPUT_BUFFER_LENGTH,
+              scpi_error_queue_data, SCPI_ERROR_QUEUE_SIZE);
 
-  /* USER CODE END Init */
+    printf("TPT 2402 r2 bare-metal SCPI\r\n");
 
-  /* Configure the system clock */
-  SystemClock_Config();
+    reset_pins();
 
-  /* USER CODE BEGIN SysInit */
-
-  /* USER CODE END SysInit */
-
-  /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-  MX_USART3_UART_Init();
-  MX_ICACHE_Init();
-  MX_TIM2_Init();
-  /* USER CODE BEGIN 2 */
-  HAL_TIM_Base_Start(&htim2);
-  /* Set LED2 Off */
-  LED_Off();
-
-  /* Initiate Continuous byte reception */
-  StartReception();
-
-
-  SCPI_Init(&scpi_context,
-          scpi_commands,
-          &scpi_interface,
-          scpi_units_def,
-          SCPI_IDN1, SCPI_IDN2, SCPI_IDN3, SCPI_IDN4,
-          scpi_input_buffer, SCPI_INPUT_BUFFER_LENGTH,
-          scpi_error_queue_data, SCPI_ERROR_QUEUE_SIZE);
-
-  printf("TPT 2402 r1 SCPI interface\r\n");
-
-  /* USER CODE END 2 */
-  reset_pins();
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-  while (1)
-  {
-
-    /* USER CODE END WHILE */
-
-    /* USER CODE BEGIN 3 */
-	  HandleContinuousReception();
-  }
-  /* USER CODE END 3 */
+    while (1) {
+        HandleContinuousReception();
+    }
 }
 
-/**
-  * @brief System Clock Configuration
-  * @retval None
-  */
-void SystemClock_Config(void)
+/* ── Clock: HSE 24 MHz → PLL1 → SYSCLK 250 MHz ── */
+static void SystemClock_Config(void)
 {
-  LL_FLASH_SetLatency(LL_FLASH_LATENCY_5);
-  while(LL_FLASH_GetLatency()!= LL_FLASH_LATENCY_5)
-  {
-  }
+    /* Flash latency 5 WS for 250 MHz at VOS0 */
+    FLASH->ACR = (FLASH->ACR & ~FLASH_ACR_LATENCY) | FLASH_ACR_LATENCY_5WS;
+    while ((FLASH->ACR & FLASH_ACR_LATENCY) != FLASH_ACR_LATENCY_5WS) {}
 
-  LL_PWR_SetRegulVoltageScaling(LL_PWR_REGU_VOLTAGE_SCALE0);
-  while (LL_PWR_IsActiveFlag_VOS() == 0)
-  {
-  }
-  LL_RCC_HSE_Enable();
+    /* Voltage scaling VOS0 (highest performance) */
+    PWR->VOSCR = (PWR->VOSCR & ~PWR_VOSCR_VOS) | (3U << PWR_VOSCR_VOS_Pos);
+    while (!(PWR->VOSSR & PWR_VOSSR_VOSRDY)) {}
 
-   /* Wait till HSE is ready */
-  while(LL_RCC_HSE_IsReady() != 1)
-  {
-  }
+    /* Enable HSE (24 MHz crystal on NUCLEO-H503RB) */
+    RCC->CR |= RCC_CR_HSEON;
+    while (!(RCC->CR & RCC_CR_HSERDY)) {}
 
-  LL_RCC_PLL1_SetSource(LL_RCC_PLL1SOURCE_HSE);
-  LL_RCC_PLL1_SetVCOInputRange(LL_RCC_PLLINPUTRANGE_2_4);
-  LL_RCC_PLL1_SetVCOOutputRange(LL_RCC_PLLVCORANGE_WIDE);
-  LL_RCC_PLL1_SetM(12);
-  LL_RCC_PLL1_SetN(250);
-  LL_RCC_PLL1_SetP(2);
-  LL_RCC_PLL1_SetQ(2);
-  LL_RCC_PLL1_SetR(2);
-  LL_RCC_PLL1P_Enable();
-  LL_RCC_PLL1_Enable();
+    /* Configure PLL1: HSE/12 × 250 / 2 = 250 MHz
+     *   PLL input  = 24 / 12 = 2 MHz   (range 2–4 MHz)
+     *   VCO output = 2 × 250 = 500 MHz  (wide range)
+     *   P output   = 500 / 2 = 250 MHz                    */
+    RCC->PLL1CFGR = (3U  << RCC_PLL1CFGR_PLL1SRC_Pos)   /* HSE */
+                  | (12U << RCC_PLL1CFGR_PLL1M_Pos)      /* M = 12 */
+                  | (1U  << RCC_PLL1CFGR_PLL1RGE_Pos)    /* Input 2–4 MHz */
+                  | (0U  << RCC_PLL1CFGR_PLL1VCOSEL_Pos) /* Wide VCO */
+                  | RCC_PLL1CFGR_PLL1PEN;                 /* Enable P output */
 
-   /* Wait till PLL is ready */
-  while(LL_RCC_PLL1_IsReady() != 1)
-  {
-  }
+    /* N = 250 (register value N−1 = 249), P = 2 (P−1 = 1), Q = 2, R = 2 */
+    RCC->PLL1DIVR = ((250U - 1U) << RCC_PLL1DIVR_PLL1N_Pos)
+                  | ((2U - 1U)   << RCC_PLL1DIVR_PLL1P_Pos)
+                  | ((2U - 1U)   << RCC_PLL1DIVR_PLL1Q_Pos)
+                  | ((2U - 1U)   << RCC_PLL1DIVR_PLL1R_Pos);
 
-  LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_PLL1);
+    /* Enable PLL1 */
+    RCC->CR |= RCC_CR_PLL1ON;
+    while (!(RCC->CR & RCC_CR_PLL1RDY)) {}
 
-   /* Wait till System clock is ready */
-  while(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_PLL1)
-  {
-  }
+    /* Switch SYSCLK to PLL1 */
+    RCC->CFGR1 = (RCC->CFGR1 & ~RCC_CFGR1_SW) | (3U << RCC_CFGR1_SW_Pos);
+    while ((RCC->CFGR1 & RCC_CFGR1_SWS) != (3U << RCC_CFGR1_SWS_Pos)) {}
 
-  LL_RCC_SetAHBPrescaler(LL_RCC_SYSCLK_DIV_1);
-  LL_RCC_SetAPB1Prescaler(LL_RCC_APB1_DIV_1);
-  LL_RCC_SetAPB2Prescaler(LL_RCC_APB2_DIV_1);
-  LL_RCC_SetAPB3Prescaler(LL_RCC_APB3_DIV_1);
-  LL_SetSystemCoreClock(250000000);
+    /* AHB / APB prescalers = 1 (default) */
+    RCC->CFGR2 = 0;
 
-   /* Update the time base */
-  if (HAL_InitTick (TICK_INT_PRIORITY) != HAL_OK)
-  {
-    Error_Handler();
-  }
+    SystemCoreClock = 250000000U;
 }
 
-/**
-  * @brief ICACHE Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_ICACHE_Init(void)
+/* ── GPIO init ── */
+static void GPIO_Init(void)
 {
+    /* Enable clocks for GPIOA, GPIOB, GPIOC */
+    RCC->AHB2ENR |= RCC_AHB2ENR_GPIOAEN | RCC_AHB2ENR_GPIOBEN | RCC_AHB2ENR_GPIOCEN;
+    /* Short delay for clock to stabilise */
+    __DSB();
 
-  /* USER CODE BEGIN ICACHE_Init 0 */
+    /* ── PB10 (PositivePulse) + PB4 (NegativePulse): output, push-pull, very-high speed, pull-down ── */
+    /* MODER: 01 = output */
+    GPIOB->MODER &= ~((3U << (10*2)) | (3U << (4*2)));
+    GPIOB->MODER |=  ((1U << (10*2)) | (1U << (4*2)));
+    /* OTYPER: 0 = push-pull (default) */
+    GPIOB->OTYPER &= ~(PositivePulse_Pin | NegativePulse_Pin);
+    /* OSPEEDR: 11 = very high */
+    GPIOB->OSPEEDR |= ((3U << (10*2)) | (3U << (4*2)));
+    /* PUPDR: 10 = pull-down */
+    GPIOB->PUPDR &= ~((3U << (10*2)) | (3U << (4*2)));
+    GPIOB->PUPDR |=  ((2U << (10*2)) | (2U << (4*2)));
+    /* Start LOW */
+    GPIOB->BSRR = (PositivePulse_Pin | NegativePulse_Pin) << 16;
 
-  /* USER CODE END ICACHE_Init 0 */
+    /* ── PA5 (LED2): output, push-pull, low speed ── */
+    GPIOA->MODER &= ~(3U << (5*2));
+    GPIOA->MODER |=  (1U << (5*2));
 
-  /* USER CODE BEGIN ICACHE_Init 1 */
+    /* ── PA3 (USART3_RX AF13) + PA4 (USART3_TX AF13): alternate function, high speed, pull-up ── */
+    GPIOA->MODER &= ~((3U << (3*2)) | (3U << (4*2)));
+    GPIOA->MODER |=  ((2U << (3*2)) | (2U << (4*2)));   /* AF mode */
+    GPIOA->OSPEEDR |= ((2U << (3*2)) | (2U << (4*2)));   /* high speed */
+    GPIOA->PUPDR &= ~((3U << (3*2)) | (3U << (4*2)));
+    GPIOA->PUPDR |=  ((1U << (3*2)) | (1U << (4*2)));    /* pull-up */
+    GPIOA->OTYPER &= ~((1U << 3) | (1U << 4));           /* push-pull */
+    /* AFR[0]: AF13 = 0x0D for PA3 (bits 15:12) and PA4 (bits 19:16) */
+    GPIOA->AFR[0] &= ~((0xFU << (3*4)) | (0xFU << (4*4)));
+    GPIOA->AFR[0] |=  ((0xDU << (3*4)) | (0xDU << (4*4)));
 
-  /* USER CODE END ICACHE_Init 1 */
+    /* ── PC13 (USER_BUTTON): input, pull-down ── */
+    GPIOC->MODER &= ~(3U << (13*2));   /* input (00) */
+    GPIOC->PUPDR &= ~(3U << (13*2));
+    GPIOC->PUPDR |=  (2U << (13*2));   /* pull-down */
 
-  /** Enable instruction cache (default 2-ways set associative cache)
-  */
-  LL_ICACHE_Enable();
-  /* USER CODE BEGIN ICACHE_Init 2 */
-
-  /* USER CODE END ICACHE_Init 2 */
-
+    /* ── EXTI13 rising edge on PC13 ── */
+    EXTI->EXTICR[3] = (EXTI->EXTICR[3] & ~(0xFFU << 8)) | (0x02U << 8);  /* port C, line 13 */
+    EXTI->RTSR1 |= (1U << 13);   /* rising trigger */
+    EXTI->IMR1  |= (1U << 13);   /* unmask */
+    NVIC_SetPriority(EXTI13_IRQn, 3);
+    NVIC_EnableIRQ(EXTI13_IRQn);
 }
 
-/**
-  * @brief TIM2 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_TIM2_Init(void)
+/* ── USART3: 115200 8N1, RX interrupt ── */
+static void USART3_Init(void)
 {
+    /* Enable USART3 clock (APB1) */
+    RCC->APB1LENR |= RCC_APB1LENR_USART3EN;
+    __DSB();
 
-  /* USER CODE BEGIN TIM2_Init 0 */
+    /* Disable USART while configuring */
+    USART3->CR1 = 0;
+    USART3->CR2 = 0;   /* 1 stop bit, async mode */
+    USART3->CR3 = 0;   /* no flow control */
+    USART3->PRESC = 0; /* prescaler /1 */
 
-  /* USER CODE END TIM2_Init 0 */
+    /* BRR = PCLK1 / baud = 250 000 000 / 115 200 ≈ 2170 */
+    USART3->BRR = 2170U;
 
-  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
-  TIM_MasterConfigTypeDef sMasterConfig = {0};
+    /* Enable TX + RX + USART */
+    USART3->CR1 = USART_CR1_TE | USART_CR1_RE | USART_CR1_UE;
 
-  /* USER CODE BEGIN TIM2_Init 1 */
-
-  /* USER CODE END TIM2_Init 1 */
-  htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 125-1;
-  htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 4294967295;
-  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
-  if (HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-  if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN TIM2_Init 2 */
-
-  /* USER CODE END TIM2_Init 2 */
-
+    /* NVIC */
+    NVIC_SetPriority(USART3_IRQn, 0);
+    NVIC_EnableIRQ(USART3_IRQn);
 }
 
-/**
-  * @brief USART3 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_USART3_UART_Init(void)
+/* ── ICACHE ── */
+static void ICACHE_Init(void)
 {
-
-  /* USER CODE BEGIN USART3_Init 0 */
-
-  /* USER CODE END USART3_Init 0 */
-
-  LL_USART_InitTypeDef USART_InitStruct = {0};
-
-  LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
-
-  LL_RCC_SetUSARTClockSource(LL_RCC_USART3_CLKSOURCE_PCLK1);
-
-  /* Peripheral clock enable */
-  LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_USART3);
-
-  LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_GPIOA);
-  /**USART3 GPIO Configuration
-  PA3   ------> USART3_RX
-  PA4   ------> USART3_TX
-  */
-  GPIO_InitStruct.Pin = LL_GPIO_PIN_3|LL_GPIO_PIN_4;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
-  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_UP;
-  GPIO_InitStruct.Alternate = LL_GPIO_AF_13;
-  LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-  /* USART3 interrupt Init */
-  NVIC_SetPriority(USART3_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),0, 0));
-  NVIC_EnableIRQ(USART3_IRQn);
-
-  /* USER CODE BEGIN USART3_Init 1 */
-
-  /* USER CODE END USART3_Init 1 */
-  USART_InitStruct.PrescalerValue = LL_USART_PRESCALER_DIV1;
-  USART_InitStruct.BaudRate = 115200;
-  USART_InitStruct.DataWidth = LL_USART_DATAWIDTH_8B;
-  USART_InitStruct.StopBits = LL_USART_STOPBITS_1;
-  USART_InitStruct.Parity = LL_USART_PARITY_NONE;
-  USART_InitStruct.TransferDirection = LL_USART_DIRECTION_TX_RX;
-  USART_InitStruct.HardwareFlowControl = LL_USART_HWCONTROL_NONE;
-  USART_InitStruct.OverSampling = LL_USART_OVERSAMPLING_16;
-  LL_USART_Init(USART3, &USART_InitStruct);
-  LL_USART_SetTXFIFOThreshold(USART3, LL_USART_FIFOTHRESHOLD_1_8);
-  LL_USART_SetRXFIFOThreshold(USART3, LL_USART_FIFOTHRESHOLD_1_8);
-  LL_USART_DisableFIFO(USART3);
-  LL_USART_ConfigAsyncMode(USART3);
-  LL_USART_Enable(USART3);
-  /* USER CODE BEGIN USART3_Init 2 */
-
-  /* USER CODE END USART3_Init 2 */
-
+    ICACHE->CR |= ICACHE_CR_EN;
 }
 
-/**
-  * @brief GPIO Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_GPIO_Init(void)
+/* ── putchar for printf → USART3 ── */
+int __io_putchar(int ch)
 {
-  LL_EXTI_InitTypeDef EXTI_InitStruct = {0};
-  LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
-/* USER CODE BEGIN MX_GPIO_Init_1 */
-/* USER CODE END MX_GPIO_Init_1 */
-
-  /* GPIO Ports Clock Enable */
-  LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_GPIOC);
-  LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_GPIOH);
-  LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_GPIOA);
-  LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_GPIOB);
-
-  /**/
-  LL_GPIO_ResetOutputPin(LED2_GPIO_Port, LED2_Pin);
-
-  /**/
-  LL_GPIO_ResetOutputPin(GPIOB, PositivePulse_Pin|NegativePulse_Pin);
-
-  /**/
-  LL_EXTI_SetEXTISource(LL_EXTI_EXTI_PORTC, LL_EXTI_EXTI_LINE13);
-
-  /**/
-  EXTI_InitStruct.Line_0_31 = LL_EXTI_LINE_13;
-  EXTI_InitStruct.Line_32_63 = LL_EXTI_LINE_NONE;
-  EXTI_InitStruct.LineCommand = ENABLE;
-  EXTI_InitStruct.Mode = LL_EXTI_MODE_IT;
-  EXTI_InitStruct.Trigger = LL_EXTI_TRIGGER_RISING;
-  LL_EXTI_Init(&EXTI_InitStruct);
-
-  /**/
-  LL_GPIO_SetPinPull(USER_BUTTON_GPIO_Port, USER_BUTTON_Pin, LL_GPIO_PULL_DOWN);
-
-  /**/
-  LL_GPIO_SetPinMode(USER_BUTTON_GPIO_Port, USER_BUTTON_Pin, LL_GPIO_MODE_INPUT);
-
-  /**/
-  GPIO_InitStruct.Pin = LED2_Pin;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-  LL_GPIO_Init(LED2_GPIO_Port, &GPIO_InitStruct);
-
-  /**/
-  GPIO_InitStruct.Pin = PositivePulse_Pin|NegativePulse_Pin;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
-  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_DOWN;
-  LL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-  /* EXTI interrupt init*/
-  NVIC_SetPriority(EXTI13_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),3, 0));
-  NVIC_EnableIRQ(EXTI13_IRQn);
-
-/* USER CODE BEGIN MX_GPIO_Init_2 */
-/* USER CODE END MX_GPIO_Init_2 */
+    while (!(USART3->ISR & USART_ISR_TC)) {}
+    USART3->TDR = (uint8_t)ch;
+    return ch;
 }
 
-/* USER CODE BEGIN 4 */
-
-/**
-  * @brief  This function prints user info on PC com port and initiates RX transfer
-  * @param  None
-  * @retval None
-  */
-void StartReception(void)
+/* ── UART reception helpers (same logic as original) ── */
+static void StartReception(void)
 {
-  /* Initializes Buffer swap mechanism :
-     - 2 physical buffers aRXBufferA and aRXBufferB (RX_BUFFER_SIZE length)
-
-  */
-  pBufferReadyForReception = aRXBufferA;
-  pBufferReadyForUser      = aRXBufferB;
-  uwNbReceivedChars = 0;
-  uwBufferReadyIndication = 0;
-
-  /* Print user info on PC com port */
-  PrintInfo(aTextInfoStart, sizeof(aTextInfoStart));
-
-  /* Clear Overrun flag, in case characters have already been sent to USART */
-  LL_USART_ClearFlag_ORE(USART3);
-
-  /* Enable RXNE and Error interrupts */
-  LL_USART_EnableIT_RXNE(USART3);
-  LL_USART_EnableIT_ERROR(USART3);
-}
-
-/**
-  * @brief  This function monitors buffer filling indication and calls User callbacks when a buffer is full
-  * @param  None
-  * @retval None
-  */
-void HandleContinuousReception(void)
-{
-  /* Checks if Buffer full indication has been set */
-  if (uwBufferReadyIndication != 0)
-  {
-    /* Reset indication */
+    pBufferReadyForReception = aRXBufferA;
+    pBufferReadyForUser      = aRXBufferB;
+    uwNbReceivedChars = 0;
     uwBufferReadyIndication = 0;
 
-    /* Call user Callback in charge of consuming data from filled buffer */
-    SCPI_Input(&scpi_context, pBufferReadyForUser, strlen(pBufferReadyForUser));
-    LL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
-  }
+    /* Clear overrun flag, enable RXNE + error interrupts */
+    USART3->ICR = USART_ICR_ORECF;
+    USART3->CR1 |= USART_CR1_RXNEIE_RXFNEIE;
+    USART3->CR3 |= USART_CR3_EIE;
 }
 
-/**
-  * @brief  Turn-off LED2.
-  * @param  None
-  * @retval None
-  */
-void LED_Off(void)
+static void HandleContinuousReception(void)
 {
-  /* Turn LED2 off */
-  LL_GPIO_ResetOutputPin(LED2_GPIO_Port, LED2_Pin);
-}
-
-/**
-  * @brief  Set LED2 to Blinking mode for an infinite loop (toggle period based on value provided as input parameter).
-  * @param  Period : Period of time (in ms) between each toggling of LED
-  *   This parameter can be user defined values. Pre-defined values used in that example are :
-  *     @arg LED_BLINK_FAST : Fast Blinking
-  *     @arg LED_BLINK_SLOW : Slow Blinking
-  *     @arg LED_BLINK_ERROR : Error specific Blinking
-  * @retval None
-  */
-void LED_Blinking(uint32_t Period)
-{
-  /* Toggle LED2 in an infinite loop */
-  while (1)
-  {
-    LL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
-    LL_mDelay(Period);
-  }
-}
-
-/**
-  * @brief  Send Txt information message on USART Tx line (to PC Com port).
-  * @param  None
-  * @retval None
-  */
-void PrintInfo(uint8_t *String, uint32_t Size)
-{
-  uint32_t index = 0;
-  uint8_t *pchar = String;
-
-  /* Send characters one per one, until last char to be sent */
-  for (index = 0; index < Size; index++)
-  {
-    /* Wait for TXE flag to be raised */
-    while (!LL_USART_IsActiveFlag_TXE(USART3))
-    {
+    if (uwBufferReadyIndication != 0) {
+        uwBufferReadyIndication = 0;
+        SCPI_Input(&scpi_context, (const char *)pBufferReadyForUser,
+                   strlen((const char *)pBufferReadyForUser));
+        GPIOA->ODR ^= LED2_Pin;   /* toggle LED */
     }
-
-    /* Write character in Transmit Data register.
-       TXE flag is cleared by writing data in TDR register */
-    LL_USART_TransmitData8(USART3, *pchar++);
-  }
-
-  /* Wait for TC flag to be raised for last char */
-  while (!LL_USART_IsActiveFlag_TC(USART3))
-  {
-  }
 }
 
-/******************************************************************************/
-/*   USER IRQ HANDLER TREATMENT Functions                                     */
-/******************************************************************************/
-/**
-  * @brief  Function to manage USER push-button
-  * @param  None
-  * @retval None
-  */
+/* ── Callbacks (called from ISR context) ── */
 void UserButton_Callback(void)
 {
-  /* Update USER push-button variable : to be checked in waiting loop in main program */
-  printf("Button pressed\n\r");
+    printf("Button pressed\n\r");
 }
 
-/**
-  * @brief  Function called from USART IRQ Handler when RXNE flag is set
-  *         Function is in charge of reading character received on USART RX line.
-  * @param  None
-  * @retval None
-  */
 void USART_CharReception_Callback(void)
 {
-  uint8_t *ptemp;
+    uint8_t *ptemp;
 
-  /* Read Received character. RXNE flag is cleared by reading of RDR register */
-  pBufferReadyForReception[uwNbReceivedChars++] = LL_USART_ReceiveData8(USART3);
+    pBufferReadyForReception[uwNbReceivedChars++] =
+        (uint8_t)(USART3->RDR & 0xFFU);
 
-  /* Checks if Buffer full indication has been set */
-  if (uwNbReceivedChars >= RX_BUFFER_SIZE)
-  {
-    /* Set Buffer swap indication */
-    uwBufferReadyIndication = 1;
-
-    /* Swap buffers for next bytes to be received */
-    ptemp = pBufferReadyForUser;
-    pBufferReadyForUser = pBufferReadyForReception;
-    pBufferReadyForReception = ptemp;
-    uwNbReceivedChars = 0;
-  }
+    if (uwNbReceivedChars >= RX_BUFFER_SIZE) {
+        uwBufferReadyIndication = 1;
+        ptemp = pBufferReadyForUser;
+        pBufferReadyForUser = pBufferReadyForReception;
+        pBufferReadyForReception = ptemp;
+        uwNbReceivedChars = 0;
+    }
 }
 
-/**
-  * @brief  Function called in case of error detected in USART IT Handler
-  * @param  None
-  * @retval None
-  */
 void Error_Callback(void)
 {
-  __IO uint32_t isr_reg;
-
-  /* Disable USARTx_IRQn */
-  NVIC_DisableIRQ(USART3_IRQn);
-
-  /* Error handling example :
-    - Read USART ISR register to identify flag that leads to IT raising
-    - Perform corresponding error handling treatment according to flag
-  */
-  isr_reg = LL_USART_ReadReg(USART3, ISR);
-  if (isr_reg & LL_USART_ISR_NE)
-  {
-    /* case Noise Error flag is raised : Clear NF Flag */
-    LL_USART_ClearFlag_NE(USART3);
-  }
-  else
-  {
-    /* Unexpected IT source : Set LED to Blinking mode to indicate error occurs */
-    LED_Blinking(LED_BLINK_ERROR);
-  }
+    uint32_t isr = USART3->ISR;
+    if (isr & USART_ISR_NE) {
+        USART3->ICR = USART_ICR_NECF;
+    }
+    /* Clear other error flags to avoid stuck IRQ */
+    if (isr & USART_ISR_FE)  USART3->ICR = USART_ICR_FECF;
+    if (isr & USART_ISR_ORE) USART3->ICR = USART_ICR_ORECF;
 }
 
-PUTCHAR_PROTOTYPE
-{
-  /* Place your implementation of fputc here */
-  /* e.g. write a character to the USART1 and Loop until the end of transmission */
-  //HAL_UART_Transmit(&huart3, (uint8_t *)&ch, 1, 0xFFFF);
-  while (!LL_USART_IsActiveFlag_TC(USART3))
-  {
-  }
-  LL_USART_TransmitData8(USART3, ch);
-  return ch;
-}
-
-/* USER CODE END 4 */
-
-/**
-  * @brief  This function is executed in case of error occurrence.
-  * @retval None
-  */
 void Error_Handler(void)
 {
-  /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
-
-  /* USER CODE END Error_Handler_Debug */
+    __disable_irq();
+    while (1) {}
 }
 
-#ifdef  USE_FULL_ASSERT
-/**
-  * @brief  Reports the name of the source file and the source line number
-  *         where the assert_param error has occurred.
-  * @param  file: pointer to the source file name
-  * @param  line: assert_param error line source number
-  * @retval None
-  */
-void assert_failed(uint8_t *file, uint32_t line)
+void LED_Blinking(uint32_t period)
 {
-  /* USER CODE BEGIN 6 */
-  /* User can add his own implementation to report the file name and line number,
-     tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-  /* USER CODE END 6 */
+    while (1) {
+        GPIOA->ODR ^= LED2_Pin;
+        /* Simple ms delay using SysTick uwTick */
+        uint32_t start = uwTick;
+        while ((uwTick - start) < period) {}
+    }
 }
-#endif /* USE_FULL_ASSERT */
+
+#ifdef USE_FULL_ASSERT
+void assert_failed(uint8_t *file, uint32_t line) { (void)file; (void)line; }
+#endif

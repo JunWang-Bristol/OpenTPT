@@ -243,7 +243,7 @@ TPT-Bristol/
 
 **🚧 Open TPT – Project Under Construction**
 
-Expected release: **APEC 2026**
+Expected release: **APEC 2027**
 
 ---
 

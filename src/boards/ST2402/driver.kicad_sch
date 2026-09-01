@@ -7,7 +7,7 @@
 	(title_block
 		(title "Triple Pulse Core Tester")
 		(date "2025-01-31")
-		(rev "0")
+		(rev "1")
 	)
 	(lib_symbols
 		(symbol "Connector:Screw_Terminal_01x01"
@@ -2088,7 +2088,7 @@
 		)
 		(uuid "aa4a086c-57fe-4798-acf6-be602a3c19bb")
 	)
-	(text "V+"
+	(text "V+ RED"
 		(exclude_from_sim no)
 		(at 257.81 70.358 0)
 		(effects
@@ -2097,17 +2097,6 @@
 			)
 		)
 		(uuid "ae011e7f-8c91-47af-98c5-67fa1ac934cb")
-	)
-	(text "Used\nR11 = 100R\nR12 = 470R+825R"
-		(exclude_from_sim no)
-		(at 201.676 24.638 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "d5cc6bae-ee67-41cd-b1bd-52674dfbf23d")
 	)
 	(text "Floating Gnd"
 		(exclude_from_sim no)
@@ -2119,7 +2108,7 @@
 		)
 		(uuid "dc54f0fc-1fec-42f8-a208-792b70310d90")
 	)
-	(text "Gnd"
+	(text "V- BLU"
 		(exclude_from_sim no)
 		(at 257.81 113.284 0)
 		(effects
@@ -2129,7 +2118,7 @@
 		)
 		(uuid "f719d5db-7af7-40ce-819f-893e0b286430")
 	)
-	(text "Com"
+	(text "Com BLK"
 		(exclude_from_sim no)
 		(at 258.572 91.694 0)
 		(effects
@@ -4838,8 +4827,35 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Isolated gate driver"
 			(at 97.79 130.81 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "634-Si8271DB-IS"
+			(at 96.52 129.54 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 96.52 129.54 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 96.52 129.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4934,6 +4950,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" "603-CC210KKX7R9BB106"
+			(at 199.39 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 199.39 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 199.39 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "7bb82ad0-d740-4a74-a8e9-53961101ae33")
 		)
@@ -4994,7 +5037,34 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "test point"
+		(property "Description" "test point black"
+			(at 26.67 176.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "534-5011"
+			(at 26.67 176.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 26.67 176.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 26.67 176.53 0)
 			(effects
 				(font
@@ -5060,6 +5130,33 @@
 		)
 		(property "Description" "Resistor"
 			(at 115.57 132.08 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "603-RC0805FR-072RL "
+			(at 115.57 132.08 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 115.57 132.08 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 115.57 132.08 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5137,6 +5234,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" "710-885012207098"
+			(at 73.66 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 73.66 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 73.66 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "232df46d-44be-464a-a580-737610573164")
 		)
@@ -5197,6 +5321,33 @@
 		)
 		(property "Description" "Resistor"
 			(at 45.72 55.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "603-RC0805FR-07100RL"
+			(at 45.72 55.88 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 45.72 55.88 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 45.72 55.88 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5472,6 +5623,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" "603-RSF100JB-73-3K"
+			(at 248.92 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 248.92 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 248.92 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "9766d6cd-7777-4f45-ab99-07387098f071")
 		)
@@ -5482,6 +5660,101 @@
 			(project ""
 				(path "/05d99ba5-bbac-4bd6-931a-0f6166a2e0ac/b5655a49-0d59-42fc-a534-902e1d3483c1"
 					(reference "R10")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:Fuse")
+		(at 228.6 72.39 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "37aaa2b6-7f80-4a9e-9d65-2df8c5bd4837")
+		(property "Reference" "FH1"
+			(at 228.6 70.612 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "6.3A FA"
+			(at 228.6 74.422 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "Fuse:Fuseholder_TR5_Littelfuse_No560_No460"
+			(at 228.6 74.168 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 228.6 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Fuse holder"
+			(at 228.6 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "576-56000001319"
+			(at 228.6 72.39 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 228.6 72.39 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 228.6 72.39 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "5b27ea6a-2abf-4ddf-8bdf-287451fa51bc")
+		)
+		(pin "1"
+			(uuid "561448c6-ed50-41de-bb17-54749656da51")
+		)
+		(instances
+			(project "ST2402"
+				(path "/05d99ba5-bbac-4bd6-931a-0f6166a2e0ac/b5655a49-0d59-42fc-a534-902e1d3483c1"
+					(reference "FH1")
 					(unit 1)
 				)
 			)
@@ -5598,7 +5871,34 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Unpolarized capacitor"
+		(property "Description" "Polarized capacitor"
+			(at 238.76 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "710-861141085021"
+			(at 238.76 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 238.76 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 238.76 100.33 0)
 			(effects
 				(font
@@ -5668,6 +5968,33 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 219.71 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "603-CC210KKX7R9BB106"
+			(at 219.71 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 219.71 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 219.71 100.33 0)
 			(effects
 				(font
@@ -5746,6 +6073,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" "710-885012207098"
+			(at 176.53 41.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 176.53 41.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 176.53 41.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "2d211871-7840-460f-b62e-0847bbcad0d2")
 		)
@@ -5816,6 +6170,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" "710-885012108022"
+			(at 73.66 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 73.66 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 73.66 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "4f71be4c-78ca-4c1e-816c-b84ff4bce99a")
 		)
@@ -5839,18 +6220,17 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "5a5968e3-a152-44ce-86e7-9ff2993935eb")
 		(property "Reference" "R24"
-			(at 116.84 57.15 90)
+			(at 117.094 61.214 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "87R"
-			(at 116.84 59.69 90)
+		(property "Value" "88R7"
+			(at 122.428 61.214 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5877,6 +6257,33 @@
 		)
 		(property "Description" "Resistor"
 			(at 116.84 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "603-RC0805FR-0788R7L"
+			(at 116.84 63.5 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 116.84 63.5 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 116.84 63.5 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5967,7 +6374,7 @@
 	)
 	(symbol
 		(lib_id "Device:Fuse")
-		(at 228.6 72.39 90)
+		(at 228.6 66.04 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -5975,7 +6382,7 @@
 		(dnp no)
 		(uuid "5d570ca0-a507-440e-aab8-71002a384a23")
 		(property "Reference" "F1"
-			(at 228.6 70.612 90)
+			(at 228.6 64.262 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5983,7 +6390,7 @@
 			)
 		)
 		(property "Value" "6.3A FA"
-			(at 228.6 74.422 90)
+			(at 228.6 68.072 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5991,7 +6398,7 @@
 			)
 		)
 		(property "Footprint" "Fuse:Fuseholder_TR5_Littelfuse_No560_No460"
-			(at 228.6 74.168 90)
+			(at 228.6 67.818 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6000,7 +6407,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 228.6 72.39 0)
+			(at 228.6 66.04 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6009,7 +6416,34 @@
 			)
 		)
 		(property "Description" "Fuse"
-			(at 228.6 72.39 0)
+			(at 228.6 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "576-37416300000 "
+			(at 228.6 66.04 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 228.6 66.04 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 228.6 66.04 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6087,6 +6521,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" "710-885012207098"
+			(at 76.2 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 76.2 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 76.2 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "4e142e2a-059f-457c-a12a-d5139650bfc0")
 		)
@@ -6148,6 +6609,33 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 189.23 87.63 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "603-CC210KKX7R9BB106"
+			(at 189.23 87.63 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 189.23 87.63 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 189.23 87.63 0)
 			(effects
 				(font
@@ -6218,6 +6706,33 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 116.84 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "710-885012108022"
+			(at 116.84 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 116.84 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 116.84 109.22 0)
 			(effects
 				(font
@@ -6317,7 +6832,7 @@
 		(dnp no)
 		(uuid "6ca09280-7651-4768-890c-cb2d6fdbdbd1")
 		(property "Reference" "C13"
-			(at 227.584 107.188 0)
+			(at 226.822 107.188 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6326,7 +6841,7 @@
 			)
 		)
 		(property "Value" "1000uF"
-			(at 225.806 111.76 0)
+			(at 223.266 109.728 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6352,7 +6867,34 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Unpolarized capacitor"
+		(property "Description" "Polarized capacitor"
+			(at 233.68 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "710-861141085021"
+			(at 233.68 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 233.68 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 233.68 109.22 0)
 			(effects
 				(font
@@ -6422,6 +6964,33 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 199.39 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "603-CC210KKX7R9BB106"
+			(at 199.39 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 199.39 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 199.39 109.22 0)
 			(effects
 				(font
@@ -6569,6 +7138,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" "511-STP100N10F7"
+			(at 153.67 107.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 153.67 107.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 153.67 107.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "3"
 			(uuid "202a69c7-47c2-486c-9be9-2867b79c73ea")
 		)
@@ -6633,6 +7229,33 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 189.23 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "603-CC210KKX7R9BB106"
+			(at 189.23 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 189.23 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 189.23 100.33 0)
 			(effects
 				(font
@@ -6710,6 +7333,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" "603-CC210KKX7R9BB106"
+			(at 214.63 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 214.63 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 214.63 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "df8de09e-7ede-4572-a81c-1423a6517657")
 		)
@@ -6771,6 +7421,33 @@
 		)
 		(property "Description" "Resistor"
 			(at 67.31 135.89 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "603-RC0805FR-0710KL"
+			(at 67.31 135.89 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 67.31 135.89 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 67.31 135.89 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6840,6 +7517,33 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 53.34 62.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "603-RC0805FR-0710KL"
+			(at 53.34 62.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 53.34 62.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 53.34 62.23 0)
 			(effects
 				(font
@@ -6918,6 +7622,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" "603-RC0805FR-07100KL"
+			(at 124.46 73.66 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 124.46 73.66 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 124.46 73.66 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "34b50187-5976-4f15-8766-350f255c7d72")
 		)
@@ -6979,6 +7710,33 @@
 		)
 		(property "Description" "Resistor"
 			(at 46.99 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "603-RC0805FR-07100RL"
+			(at 46.99 120.65 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 46.99 120.65 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 46.99 120.65 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7057,6 +7815,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" "490-TB006-508-02BE  "
+			(at 44.45 27.94 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 44.45 27.94 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 44.45 27.94 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "ab19b9f4-07be-4b22-8210-4d819ce86458")
 		)
@@ -7118,6 +7903,33 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 184.15 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "603-CC210KKX7R9BB106"
+			(at 184.15 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 184.15 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 184.15 109.22 0)
 			(effects
 				(font
@@ -7195,6 +8007,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" "603-CC210KKX7R9BB106"
+			(at 184.15 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 184.15 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 184.15 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "e7bdc5f8-263a-4fbf-a695-8d333220fb40")
 		)
@@ -7264,6 +8103,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" "595-LM317LCPK"
+			(at 190.5 31.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 190.5 31.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 190.5 31.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "3"
 			(uuid "16d6ad17-eae1-45ca-9662-f3aa43f4ea28")
 		)
@@ -7301,7 +8167,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "Screw_Terminal_01x01"
+		(property "Value" "~"
 			(at 256.54 95.2499 0)
 			(effects
 				(font
@@ -7329,7 +8195,34 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Generic screw terminal, single row, 01x01, script generated (kicad-library-utils/schlib/autogen/connector/)"
+		(property "Description" "pcb 4mm blk"
+			(at 254 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "163-6218"
+			(at 254 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 254 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 254 93.98 0)
 			(effects
 				(font
@@ -7405,6 +8298,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" "710-885012207098"
+			(at 73.66 128.27 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 73.66 128.27 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 73.66 128.27 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "4cb427d6-f705-4b2e-8e79-07c085638a1c")
 		)
@@ -7415,6 +8335,101 @@
 			(project "ST2402"
 				(path "/05d99ba5-bbac-4bd6-931a-0f6166a2e0ac/b5655a49-0d59-42fc-a534-902e1d3483c1"
 					(reference "C7")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:Fuse")
+		(at 228.6 115.57 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "aa900450-c931-4f06-bc1a-9fa406e31840")
+		(property "Reference" "FH2"
+			(at 228.6 113.792 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "6.3A FA"
+			(at 228.6 117.602 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "Fuse:Fuseholder_TR5_Littelfuse_No560_No460"
+			(at 228.6 117.348 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 228.6 115.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Fuse holder"
+			(at 228.6 115.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "576-56000001319"
+			(at 228.6 115.57 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 228.6 115.57 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 228.6 115.57 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "0cb2aaae-ba61-4bb0-a219-609d7d3e21c2")
+		)
+		(pin "1"
+			(uuid "382f9866-8d04-43fd-aa01-2d5060405385")
+		)
+		(instances
+			(project "ST2402"
+				(path "/05d99ba5-bbac-4bd6-931a-0f6166a2e0ac/b5655a49-0d59-42fc-a534-902e1d3483c1"
+					(reference "FH2")
 					(unit 1)
 				)
 			)
@@ -7496,7 +8511,7 @@
 		(dnp no)
 		(uuid "b2e589ff-152c-4788-a840-e325767247ca")
 		(property "Reference" "C10"
-			(at 227.584 76.962 0)
+			(at 226.568 76.962 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7505,7 +8520,7 @@
 			)
 		)
 		(property "Value" "1000uF"
-			(at 226.06 81.28 0)
+			(at 223.266 79.248 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7531,7 +8546,34 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Unpolarized capacitor"
+		(property "Description" "Polarized capacitor"
+			(at 233.68 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "710-861141085021"
+			(at 233.68 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 233.68 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 233.68 78.74 0)
 			(effects
 				(font
@@ -7600,7 +8642,34 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Unpolarized capacitor"
+		(property "Description" "Polarized capacitor"
+			(at 238.76 87.63 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "710-861141085021"
+			(at 238.76 87.63 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 238.76 87.63 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 238.76 87.63 0)
 			(effects
 				(font
@@ -7669,7 +8738,34 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "test point"
+		(property "Description" "test point orange"
+			(at 151.13 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "534-5013"
+			(at 151.13 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 151.13 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 151.13 93.98 0)
 			(effects
 				(font
@@ -7740,6 +8836,33 @@
 			)
 		)
 		(property "Description" "34A Id, 600V Vds, N-Channel MDmesh M2 MOSFET, 78mOhm Ron, D2PAK"
+			(at 153.67 80.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "511-STP100N10F7"
+			(at 153.67 80.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 153.67 80.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 153.67 80.01 0)
 			(effects
 				(font
@@ -7887,6 +9010,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" "603-RC0805FR-07470RL"
+			(at 205.74 35.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 205.74 35.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 205.74 35.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "12b94619-1aa3-45f0-8086-6043fbde7fac")
 		)
@@ -7949,6 +9099,33 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 76.2 142.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "710-885012207098"
+			(at 76.2 142.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 76.2 142.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 76.2 142.24 0)
 			(effects
 				(font
@@ -8027,6 +9204,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" "603-RC0805FR-0710KL"
+			(at 53.34 128.27 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 53.34 128.27 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 53.34 128.27 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "5642cfad-ec96-490c-99bb-e2d641ea09b6")
 		)
@@ -8096,6 +9300,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" "603-CC210KKX7R9BB106"
+			(at 204.47 87.63 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 204.47 87.63 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 204.47 87.63 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "a79f15dc-47fc-482c-ad9b-923e9e1f9835")
 		)
@@ -8157,6 +9388,33 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 219.71 87.63 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "603-CC210KKX7R9BB106"
+			(at 219.71 87.63 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 219.71 87.63 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 219.71 87.63 0)
 			(effects
 				(font
@@ -8235,6 +9493,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" "603-RC0805FR-071K43L "
+			(at 205.74 46.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 205.74 46.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 205.74 46.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "12b94619-1aa3-45f0-8086-6043fbde7fad")
 		)
@@ -8267,8 +9552,8 @@
 				)
 			)
 		)
-		(property "Value" "87R"
-			(at 115.316 123.19 90)
+		(property "Value" "88R7"
+			(at 121.158 125.984 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8295,6 +9580,33 @@
 		)
 		(property "Description" "Resistor"
 			(at 115.57 128.27 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "603-RC0805FR-0788R7L"
+			(at 115.57 128.27 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 115.57 128.27 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 115.57 128.27 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8364,6 +9676,33 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 128.27 44.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "710-85012207103"
+			(at 128.27 44.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 128.27 44.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 128.27 44.45 0)
 			(effects
 				(font
@@ -8442,6 +9781,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" "710-885012108022"
+			(at 73.66 44.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 73.66 44.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 73.66 44.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "a6009d56-ad2d-4d7a-a3dc-e1485046bead")
 		)
@@ -8504,6 +9870,33 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 129.54 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "710-85012207103"
+			(at 129.54 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 129.54 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 129.54 109.22 0)
 			(effects
 				(font
@@ -8579,6 +9972,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" "603-RC0805FR-072RL "
+			(at 116.84 67.31 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 116.84 67.31 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 116.84 67.31 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "51b31e4b-a511-4ea6-8308-b07ea05efe70")
 		)
@@ -8640,6 +10060,33 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 204.47 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "603-CC210KKX7R9BB106"
+			(at 204.47 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 204.47 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 204.47 100.33 0)
 			(effects
 				(font
@@ -8718,6 +10165,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" "710-885012108022"
+			(at 116.84 44.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 116.84 44.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 116.84 44.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "8f4bd7a6-4efe-447c-a656-ab9a0b16b5c8")
 		)
@@ -8780,6 +10254,33 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 217.17 41.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "710-85012207103"
+			(at 217.17 41.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 217.17 41.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 217.17 41.91 0)
 			(effects
 				(font
@@ -8923,6 +10424,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" "603-CC210KKX7R9BB106"
+			(at 214.63 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 214.63 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 214.63 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "9db3de42-06d1-4b20-a3f5-13510b26e9d8")
 		)
@@ -8993,6 +10521,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" "710-885012108022"
+			(at 162.56 41.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 162.56 41.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 162.56 41.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "3c337882-a9bd-4e2c-8d84-999790dfb979")
 		)
@@ -9027,7 +10582,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "Screw_Terminal_01x01"
+		(property "Value" "~"
 			(at 256.54 73.6599 0)
 			(effects
 				(font
@@ -9055,7 +10610,34 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Generic screw terminal, single row, 01x01, script generated (kicad-library-utils/schlib/autogen/connector/)"
+		(property "Description" "pcb 4mm red"
+			(at 254 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "164-6219 "
+			(at 254 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 254 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 254 72.39 0)
 			(effects
 				(font
@@ -9084,10 +10666,9 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "eb0dc514-a9da-4e36-91e6-5cfdb152bd45")
 		(property "Reference" "TP12"
-			(at 38.1 171.9579 0)
+			(at 38.354 170.942 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9095,14 +10676,13 @@
 				(justify left)
 			)
 		)
-		(property "Value" "TestPoint"
-			(at 38.1 174.4979 0)
+		(property "Value" "BLK"
+			(at 38.608 173.228 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
-				(hide yes)
 			)
 		)
 		(property "Footprint" "TestPoint:TestPoint_Keystone_5010-5014_Multipurpose"
@@ -9123,7 +10703,34 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "test point"
+		(property "Description" "test point black"
+			(at 35.56 176.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "534-5011"
+			(at 35.56 176.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 35.56 176.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 35.56 176.53 0)
 			(effects
 				(font
@@ -9146,7 +10753,7 @@
 	)
 	(symbol
 		(lib_id "Device:Fuse")
-		(at 228.6 115.57 90)
+		(at 228.6 121.92 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -9154,7 +10761,7 @@
 		(dnp no)
 		(uuid "ec05a2dd-c365-456d-9fb2-4de79a66d3a0")
 		(property "Reference" "F2"
-			(at 228.6 113.538 90)
+			(at 228.6 119.888 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9162,7 +10769,7 @@
 			)
 		)
 		(property "Value" "6.3A FA"
-			(at 228.6 117.856 90)
+			(at 228.6 124.206 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9170,7 +10777,7 @@
 			)
 		)
 		(property "Footprint" "Fuse:Fuseholder_TR5_Littelfuse_No560_No460"
-			(at 228.6 117.348 90)
+			(at 228.6 123.698 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9179,7 +10786,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 228.6 115.57 0)
+			(at 228.6 121.92 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9188,7 +10795,34 @@
 			)
 		)
 		(property "Description" "Fuse"
-			(at 228.6 115.57 0)
+			(at 228.6 121.92 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "576-37416300000 "
+			(at 228.6 121.92 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 228.6 121.92 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 228.6 121.92 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9254,7 +10888,34 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "1W, 12 to 12 DC-DC converter"
+			(at 96.52 107.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "919-R1S-1212"
+			(at 96.52 107.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 96.52 107.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 96.52 107.95 0)
 			(effects
 				(font
@@ -9306,7 +10967,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "Screw_Terminal_01x01"
+		(property "Value" "~"
 			(at 256.54 116.8399 0)
 			(effects
 				(font
@@ -9334,7 +10995,34 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Generic screw terminal, single row, 01x01, script generated (kicad-library-utils/schlib/autogen/connector/)"
+		(property "Description" "pcb 4mm blue"
+			(at 254 115.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "164-7120"
+			(at 254 115.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 254 115.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 254 115.57 0)
 			(effects
 				(font
@@ -9408,6 +11096,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" "603-RC0805FR-0710KL"
+			(at 67.31 71.12 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 67.31 71.12 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 67.31 71.12 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "54530164-0832-4046-a96a-1a5e887449a7")
 		)
@@ -9470,6 +11185,33 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 248.92 82.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "603-RSF100JB-73-3K"
+			(at 248.92 82.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 248.92 82.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 248.92 82.55 0)
 			(effects
 				(font
@@ -9668,8 +11410,35 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Isolated gate driver"
 			(at 97.79 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "634-Si8271DB-IS"
+			(at 96.52 64.77 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 96.52 64.77 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 96.52 64.77 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9831,6 +11600,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" "603-RC0805FR-07100KL"
+			(at 124.46 138.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 124.46 138.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 124.46 138.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "c6e9ff47-7b1b-464b-bcf5-5bfef77c964d")
 		)
@@ -9889,7 +11685,34 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "1W, 12 to 12 DC-DC converter"
+			(at 96.52 43.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "919-R1S-1212"
+			(at 96.52 43.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 96.52 43.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 96.52 43.18 0)
 			(effects
 				(font

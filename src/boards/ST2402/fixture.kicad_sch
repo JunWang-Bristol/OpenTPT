@@ -7,7 +7,7 @@
 	(title_block
 		(title "Triple Pulse Core Tester")
 		(date "2025-01-31")
-		(rev "0")
+		(rev "1")
 	)
 	(lib_symbols
 		(symbol "Connector:Conn_Coaxial"
@@ -1007,6 +1007,46 @@
 			(embedded_fonts no)
 		)
 	)
+	(text "DNP"
+		(exclude_from_sim no)
+		(at 118.364 62.23 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "3243ed4c-9615-4e2e-90b2-ad425ae225f4")
+	)
+	(text "DNP"
+		(exclude_from_sim no)
+		(at 154.94 81.026 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "4cb7bc0e-697b-41ef-8927-2daf8cf7285f")
+	)
+	(text "DNP"
+		(exclude_from_sim no)
+		(at 118.11 83.82 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "87f64364-bdde-4e12-8b00-5b5de7f9d693")
+	)
+	(text "DNP"
+		(exclude_from_sim no)
+		(at 155.194 59.69 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "d9df21e0-eef9-4c8f-b78b-f5203191852d")
+	)
 	(junction
 		(at 124.46 80.01)
 		(diameter 0)
@@ -1277,7 +1317,7 @@
 	)
 	(wire
 		(pts
-			(xy 148.59 59.69) (xy 161.29 59.69)
+			(xy 148.59 62.23) (xy 161.29 62.23)
 		)
 		(stroke
 			(width 0)
@@ -1314,16 +1354,6 @@
 			(type default)
 		)
 		(uuid "20eed309-e105-476f-b8dd-2f1921fa16c1")
-	)
-	(wire
-		(pts
-			(xy 161.29 55.88) (xy 161.29 59.69)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "27f59854-90cc-4bef-9b01-ddae7049e3de")
 	)
 	(wire
 		(pts
@@ -1367,7 +1397,7 @@
 	)
 	(wire
 		(pts
-			(xy 148.59 55.88) (xy 148.59 59.69)
+			(xy 148.59 55.88) (xy 148.59 62.23)
 		)
 		(stroke
 			(width 0)
@@ -1457,6 +1487,16 @@
 	)
 	(wire
 		(pts
+			(xy 161.29 55.88) (xy 161.29 62.23)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "750adb9e-1254-46a2-a30d-5247a32bbbfe")
+	)
+	(wire
+		(pts
 			(xy 107.95 124.46) (xy 107.95 130.81)
 		)
 		(stroke
@@ -1504,16 +1544,6 @@
 			(type default)
 		)
 		(uuid "83be34b1-dd82-4bfc-9f8c-9ced02954e87")
-	)
-	(wire
-		(pts
-			(xy 161.29 77.47) (xy 161.29 81.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8410b81f-7d36-4192-9b8e-bfb11b6de329")
 	)
 	(wire
 		(pts
@@ -1627,7 +1657,7 @@
 	)
 	(wire
 		(pts
-			(xy 148.59 77.47) (xy 148.59 81.28)
+			(xy 148.59 77.47) (xy 148.59 83.82)
 		)
 		(stroke
 			(width 0)
@@ -1657,7 +1687,7 @@
 	)
 	(wire
 		(pts
-			(xy 148.59 81.28) (xy 161.29 81.28)
+			(xy 148.59 83.82) (xy 161.29 83.82)
 		)
 		(stroke
 			(width 0)
@@ -1704,6 +1734,16 @@
 			(type default)
 		)
 		(uuid "c28a4e93-3c8e-420b-b898-ca18dbd44a2b")
+	)
+	(wire
+		(pts
+			(xy 161.29 77.47) (xy 161.29 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c3fc4d7a-4406-4b89-8706-2bc3c83e26cd")
 	)
 	(wire
 		(pts
@@ -1955,7 +1995,34 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "test point"
+		(property "Description" "test point white"
+			(at 172.72 55.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "534-5012"
+			(at 172.72 55.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 172.72 55.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 172.72 55.88 0)
 			(effects
 				(font
@@ -2021,6 +2088,33 @@
 		)
 		(property "Description" "Resistor"
 			(at 104.14 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "71-RCWE1206R820FKEA"
+			(at 104.14 111.76 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 104.14 111.76 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 104.14 111.76 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2095,6 +2189,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" "71-RCWE1206R820FKEA"
+			(at 104.14 124.46 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 104.14 124.46 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 104.14 124.46 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "2a2140e2-c0b3-42d8-945f-179324d7953d")
 		)
@@ -2156,7 +2277,34 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "test point"
+		(property "Description" "test point white"
+			(at 167.64 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "534-5012"
+			(at 167.64 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 167.64 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 167.64 114.3 0)
 			(effects
 				(font
@@ -2222,6 +2370,33 @@
 			)
 		)
 		(property "Description" "Generic connector, double row, 02x03, top/bottom pin numbering scheme (row 1: 1...pins_per_row, row2: pins_per_row+1 ... num_pins), script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 116.84 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "200-SSQ10301GD "
+			(at 116.84 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 116.84 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 116.84 77.47 0)
 			(effects
 				(font
@@ -2312,6 +2487,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" "571-227661-1 "
+			(at 182.88 55.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 182.88 55.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 182.88 55.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "95415c2b-41d5-4f4e-bb97-785de76fba1b")
 		)
@@ -2373,8 +2575,35 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "test point"
+		(property "Description" "test point leaf spring"
 			(at 146.05 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "706-02-0"
+			(at 146.05 77.47 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 146.05 77.47 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 146.05 77.47 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2441,8 +2670,35 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "test point"
+		(property "Description" "test point leaf spring"
 			(at 127 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "706-02-0"
+			(at 127 77.47 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 127 77.47 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 127 77.47 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2507,6 +2763,33 @@
 		)
 		(property "Description" "Resistor"
 			(at 104.14 92.71 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "71-RCWE1206R820FKEA"
+			(at 104.14 92.71 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 104.14 92.71 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 104.14 92.71 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2585,6 +2868,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" "510-CT4397-08-2"
+			(at 127 58.42 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 127 58.42 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 127 58.42 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "a40dd96c-a2a5-4e9b-a0d7-a6b748b401e4")
 		)
@@ -2653,6 +2963,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" "510-CT4397-08-2"
+			(at 127 80.01 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 127 80.01 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 127 80.01 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "b81f4bc2-ffff-40bb-abce-442993209953")
 		)
@@ -2710,6 +3047,33 @@
 		)
 		(property "Description" "Resistor"
 			(at 104.14 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "71-RCWE1206R820FKEA"
+			(at 104.14 118.11 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 104.14 118.11 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 104.14 118.11 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2784,6 +3148,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" "71-RCWE1206R820FKEA"
+			(at 104.14 99.06 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 104.14 99.06 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 104.14 99.06 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "ef55d414-45e6-41ec-a72d-fad7c93f113d")
 		)
@@ -2844,6 +3235,33 @@
 			)
 		)
 		(property "Description" "Generic connector, double row, 02x02, top/bottom pin numbering scheme (row 1: 1...pins_per_row, row2: pins_per_row+1 ... num_pins), script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 153.67 53.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "200-SSQ10203FD"
+			(at 153.67 53.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 153.67 53.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 153.67 53.34 0)
 			(effects
 				(font
@@ -2926,6 +3344,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" "200-SSQ10301GD "
+			(at 116.84 55.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 116.84 55.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 116.84 55.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "4"
 			(uuid "67044918-b61d-4a0d-96e7-40e47c39945f")
 		)
@@ -2999,8 +3444,35 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "test point"
+		(property "Description" "test point leaf spring"
 			(at 146.05 55.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "706-02-0"
+			(at 146.05 55.88 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 146.05 55.88 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 146.05 55.88 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3065,6 +3537,33 @@
 		)
 		(property "Description" "Resistor"
 			(at 104.14 130.81 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "71-RCWE1206R820FKEA"
+			(at 104.14 130.81 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 104.14 130.81 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 104.14 130.81 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3142,6 +3641,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" "---"
+			(at 86.36 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 86.36 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 86.36 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "f2aafe35-9a25-41b4-b18e-03b63030687e")
 		)
@@ -3201,6 +3727,33 @@
 			)
 		)
 		(property "Description" "coaxial connector (BNC, SMA, SMB, SMC, Cinch/RCA, LEMO, ...)"
+			(at 182.88 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "571-227661-1 "
+			(at 182.88 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 182.88 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 182.88 114.3 0)
 			(effects
 				(font
@@ -3269,7 +3822,34 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "test point"
+		(property "Description" "test point orange"
+			(at 167.64 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "534-5013"
+			(at 167.64 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 167.64 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 167.64 120.65 0)
 			(effects
 				(font
@@ -3335,6 +3915,33 @@
 		)
 		(property "Description" "Resistor"
 			(at 104.14 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "71-RCWE1206R820FKEA"
+			(at 104.14 105.41 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 104.14 105.41 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 104.14 105.41 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3410,6 +4017,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" "200-SSQ10203FD"
+			(at 153.67 74.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 153.67 74.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 153.67 74.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "fa9bfba7-b434-41f4-b02c-37a70729a133")
 		)
@@ -3477,7 +4111,34 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "test point"
+		(property "Description" "test point orange"
+			(at 172.72 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "534-5013"
+			(at 172.72 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 172.72 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 172.72 77.47 0)
 			(effects
 				(font
@@ -3550,6 +4211,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" "71-RCWE1206R820FKEA"
+			(at 104.14 137.16 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 104.14 137.16 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 104.14 137.16 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "44005f88-c170-4152-8d5c-749a2e93753b")
 		)
@@ -3612,8 +4300,35 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "test point"
+		(property "Description" "test point leaf spring"
 			(at 127 55.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "706-02-0"
+			(at 127 55.88 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 127 55.88 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 127 55.88 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3680,6 +4395,33 @@
 			)
 		)
 		(property "Description" "Generic screw terminal, single row, 01x01, script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 78.74 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "---"
+			(at 78.74 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 78.74 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 78.74 114.3 0)
 			(effects
 				(font

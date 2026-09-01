@@ -7,7 +7,7 @@
 	(title_block
 		(title "Triple Pulse Core Tester")
 		(date "2025-01-31")
-		(rev "3")
+		(rev "1")
 		(company "CoreDataX")
 	)
 	(lib_symbols
@@ -2599,6 +2599,16 @@
 		)
 		(uuid "0ce03a2d-755a-4a9e-837e-b6296e8cb8a5")
 	)
+	(text "DNP"
+		(exclude_from_sim no)
+		(at 151.384 118.872 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "0ffbf41e-eda1-4117-a4e6-ed453dd75c12")
+	)
 	(text "~D9"
 		(exclude_from_sim no)
 		(at 79.248 86.614 0)
@@ -2779,6 +2789,16 @@
 		)
 		(uuid "6f9961cc-fef2-4581-ae01-ac5594ccc4fc")
 	)
+	(text "DNP"
+		(exclude_from_sim no)
+		(at 66.294 53.086 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "71d7480e-cdfc-4dc1-96c8-d695e4d61e7a")
+	)
 	(text "D8"
 		(exclude_from_sim no)
 		(at 79.502 89.154 0)
@@ -2788,6 +2808,16 @@
 			)
 		)
 		(uuid "781bba80-6eb1-4368-a56f-8a23297052db")
+	)
+	(text "DNP\n"
+		(exclude_from_sim no)
+		(at 67.31 118.364 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "7ae450ea-0e2b-41b1-82d1-733c4b7191c4")
 	)
 	(text "TX"
 		(exclude_from_sim no)
@@ -2868,6 +2898,16 @@
 			)
 		)
 		(uuid "c2dc40a9-7c14-4a80-8511-cceb06961e90")
+	)
+	(text "DNP"
+		(exclude_from_sim no)
+		(at 152.654 53.086 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "c6c96b9d-1060-444e-8ec0-9f7a2a81caf9")
 	)
 	(text "A4"
 		(exclude_from_sim no)
@@ -3142,6 +3182,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" ""
+			(at 60.96 172.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 60.96 172.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 60.96 172.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(instances
 			(project ""
 				(path "/05d99ba5-bbac-4bd6-931a-0f6166a2e0ac"
@@ -3206,6 +3273,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" ""
+			(at 27.94 179.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 27.94 179.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 27.94 179.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(instances
 			(project ""
 				(path "/05d99ba5-bbac-4bd6-931a-0f6166a2e0ac"
@@ -3225,20 +3319,19 @@
 		(dnp no)
 		(uuid "22139ddf-4aa8-44d9-ac19-c5c880c00f5d")
 		(property "Reference" "TP4"
-			(at 107.696 95.758 90)
+			(at 105.41 93.472 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "TestPoint"
-			(at 107.95 95.758 90)
+		(property "Value" "YEL"
+			(at 101.854 96.012 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(hide yes)
 			)
 		)
 		(property "Footprint" "TestPoint:TestPoint_Keystone_5010-5014_Multipurpose"
@@ -3259,8 +3352,35 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "test point"
+		(property "Description" "test point white"
 			(at 105.41 99.06 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "534-5012"
+			(at 105.41 99.06 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 105.41 99.06 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 105.41 99.06 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3335,6 +3455,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" ""
+			(at 60.96 166.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 60.96 166.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 60.96 166.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(instances
 			(project ""
 				(path "/05d99ba5-bbac-4bd6-931a-0f6166a2e0ac"
@@ -3389,6 +3536,33 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x10, script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 82.55 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "200-SSQ11023GS"
+			(at 82.55 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 82.55 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 82.55 78.74 0)
 			(effects
 				(font
@@ -3492,6 +3666,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" "200-SSQ10802GS"
+			(at 135.89 86.36 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 135.89 86.36 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 135.89 86.36 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "4"
 			(uuid "405a7daa-e0a7-4fb1-a6c4-6ee03c45f98d")
 		)
@@ -3571,6 +3772,33 @@
 			)
 		)
 		(property "Description" "Generic connector, double row, 02x19, odd/even pin numbering scheme (row 1 odd numbers, row 2 even numbers), script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 66.04 91.44 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "200-SSQ11901GD  "
+			(at 66.04 91.44 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 66.04 91.44 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 66.04 91.44 0)
 			(effects
 				(font
@@ -3755,6 +3983,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" "200-SSQ10802GS"
+			(at 82.55 106.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 82.55 106.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 82.55 106.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "5"
 			(uuid "d9b21a06-10de-4a2d-bd54-e3892ebe935c")
 		)
@@ -3843,6 +4098,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" "200-SSQ10202GS"
+			(at 152.4 46.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 152.4 46.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 152.4 46.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "c24c2d82-d697-48be-b2ef-442abc084b7b")
 		)
@@ -3913,6 +4195,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" ""
+			(at 60.96 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 60.96 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 60.96 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(instances
 			(project ""
 				(path "/05d99ba5-bbac-4bd6-931a-0f6166a2e0ac"
@@ -3969,6 +4278,33 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x06, script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 135.89 106.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "200-SSQ10602GS"
+			(at 135.89 106.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 135.89 106.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 135.89 106.68 0)
 			(effects
 				(font
@@ -4059,6 +4395,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" ""
+			(at 27.94 166.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 27.94 166.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 27.94 166.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(instances
 			(project ""
 				(path "/05d99ba5-bbac-4bd6-931a-0f6166a2e0ac"
@@ -4123,6 +4486,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" ""
+			(at 60.96 179.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 60.96 179.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 60.96 179.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(instances
 			(project ""
 				(path "/05d99ba5-bbac-4bd6-931a-0f6166a2e0ac"
@@ -4179,6 +4569,33 @@
 			)
 		)
 		(property "Description" "Mounting Hole without connection"
+			(at 27.94 172.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" ""
+			(at 27.94 172.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 27.94 172.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 27.94 172.72 0)
 			(effects
 				(font
@@ -4308,6 +4725,33 @@
 			)
 		)
 		(property "Description" "Generic connector, double row, 02x19, odd/even pin numbering scheme (row 1 odd numbers, row 2 even numbers), script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 149.86 91.44 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "200-SSQ11901GD  "
+			(at 149.86 91.44 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 149.86 91.44 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 149.86 91.44 0)
 			(effects
 				(font
@@ -4449,20 +4893,19 @@
 		(dnp no)
 		(uuid "bf02c44a-dce8-40af-b81b-be3cc7ac467b")
 		(property "Reference" "TP5"
-			(at 107.95 104.648 90)
+			(at 105.41 107.696 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "TestPoint"
-			(at 102.87 104.902 90)
+		(property "Value" "ORG"
+			(at 101.6 104.902 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(hide yes)
 			)
 		)
 		(property "Footprint" "TestPoint:TestPoint_Keystone_5010-5014_Multipurpose"
@@ -4483,8 +4926,35 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "test point"
+		(property "Description" "test point orange"
 			(at 105.41 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" "534-5014"
+			(at 105.41 101.6 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 105.41 101.6 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 105.41 101.6 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4560,6 +5030,33 @@
 				(hide yes)
 			)
 		)
+		(property "Mouser ordercode" "200-SSQ10202GS"
+			(at 66.04 46.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 66.04 46.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 66.04 46.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "336bdd3a-d2c0-4a86-a89a-42eb65f4acb8")
 		)
@@ -4622,6 +5119,33 @@
 			)
 		)
 		(property "Description" "Mounting Hole without connection"
+			(at 27.94 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser ordercode" ""
+			(at 27.94 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 27.94 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
 			(at 27.94 160.02 0)
 			(effects
 				(font

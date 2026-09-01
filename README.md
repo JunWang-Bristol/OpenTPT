@@ -241,7 +241,7 @@ OpenTPT/
 
 ## 📅 Roadmap
 
-**🚧 Open TPT – Project Under Construction**
+**🚧 OpenTPT – Project Under Construction**
 
 Expected release: **APEC 2027**
 

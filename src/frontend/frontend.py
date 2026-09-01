@@ -101,7 +101,7 @@ app.layout = html.Div([
         html.H6("Wang, Jun", style={'width': '100%', 'display': 'inline-block', 'margin-left': '10%'}),
         html.H6("Wilkowski, Matt", style={'width': '100%', 'display': 'inline-block', 'margin-left': '10%'}),
         html.H6(" ", style={'width': '100%', 'display': 'inline-block'}),
-        dcc.Link(href="https://github.com/JunWang-Bristol/TPT-Bristol/tree/open-tpt", style={'width': '100%', 'display': 'inline-block'}),
+        dcc.Link(href="https://github.com/JunWang-Bristol/OpenTPT", style={'width': '100%', 'display': 'inline-block'}),
         html.H6(" ", style={'width': '100%', 'display': 'inline-block'}),
     ], style={'display': 'inline-block', 'width': '30%'}),
 

@@ -1,9 +1,9 @@
-# 🧲 Open Triple Pulse Test (OpenTPT)
+# OpenTPT - Open Triple Pulse Test
 
 [![License](https://img.shields.io/badge/License-BSD%204--Clause-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.8%2B-green.svg)](https://www.python.org/)
 
-> Open-source measurement system for magnetic core loss and inductance characterization.
+OpenTPT is an open-source Triple Pulse Test (TPT) platform for magnetic characterization of core loss and inductance in power magnetics and power electronics applications.
 
 **📄 Paper:** [Triple Pulse Test (TPT) for Characterizing Magnetic Components](https://research-information.bris.ac.uk/en/publications/triple-pulse-test-tpt-for-characterizing-power-loss-in-magnetic-c)
 
@@ -76,8 +76,8 @@ The **Triple Pulse Test (TPT)** is a discontinuous excitation method for charact
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/JunWang-Bristol/TPT-Bristol.git
-   cd TPT-Bristol
+   git clone https://github.com/JunWang-Bristol/OpenTPT.git
+   cd OpenTPT
    ```
 
 2. **Create a virtual environment** (recommended)
@@ -183,7 +183,7 @@ meas.demagnetize()
 ## 📁 Project Structure
 
 ```
-TPT-Bristol/
+OpenTPT/
 ├── src/
 │   ├── tpt.py                 # Main measurement classes (InductanceMeasurement, CoreLossesMeasurement)
 │   ├── post_processor.py      # Waveform analysis and loop extraction
@@ -273,6 +273,6 @@ If you use this project in your research, please cite:
 ## 📧 Contact
 
 For questions, issues, or contributions, please:
-- Open an [issue](https://github.com/JunWang-Bristol/TPT-Bristol/issues) on GitHub
+- Open an [issue](https://github.com/JunWang-Bristol/OpenTPT/issues) on GitHub
 - Contact the team at jun.wang@bristol.ac.uk
 

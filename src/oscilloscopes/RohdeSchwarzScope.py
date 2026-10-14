@@ -429,6 +429,29 @@ class RTB2004Scope(Oscilloscope):
             raise Exception(f"Channel {ch_idx} has not been configured yet")
         return self.channel_info[ch_idx]
 
+    # ── Scope-neutral interface: every value below is in probe-tip units (V or A) ──
+    # The screen is 10 divisions tall, centred on the channel offset.
+
+    def fit_channel(self, channel, low, high, coupling="DC", headroom=1.25):
+        """Centre [low, high] on screen and pick the smallest V/div that fits it."""
+        centre = (low + high) / 2.0
+        half_span = (high - low) / 2.0 * headroom
+        self.set_channel_configuration(channel, half_span / 5.0, coupling, centre)
+
+    def get_full_scale(self, channel):
+        """(lowest, highest) value the channel can display, in probe-tip units."""
+        info = self.get_channel_configuration(channel)
+        half = 5.0 * info.input_voltage_range
+        return info.analog_offset - half, info.analog_offset + half
+
+    def set_rising_trigger_level(self, channel, level, timeout=0):
+        """Rising-edge trigger at `level` in probe-tip units (the RTB's native unit)."""
+        self.set_rising_trigger(channel, level, timeout=timeout)
+
+    def describe_scale(self, channel, unit):
+        scale = self.get_channel_configuration(channel).input_voltage_range
+        return f"{scale * 1e3:g} m{unit}/div" if scale < 1 else f"{scale:g} {unit}/div"
+
     def enable_channel(self, channel):
         ch_idx = self.check_channel(channel)
         hw_ch = ch_idx

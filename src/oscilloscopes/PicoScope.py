@@ -348,6 +348,36 @@ class PicoScope(Oscilloscope):
         """No-op for PicoScope — units are implicit in probe_scale."""
         pass
 
+    # ── Scope-neutral interface: every value below is in probe-tip units (V or A) ──
+
+    def fit_channel(self, channel, low, high, coupling="DC", headroom=1.25):
+        """Pick the smallest range that shows [low, high] with headroom.
+
+        PicoScope ranges are ± full scale at the BNC, so the larger excursion
+        sets the range and the analog offset stays at zero.
+        """
+        channel_index = self.check_channel(channel)
+        probe = self.get_probe_scale(channel_index) or 1.0
+        peak_bnc = max(abs(low), abs(high)) * headroom / probe
+        self.set_channel_configuration(channel_index, peak_bnc, coupling, 0.0)
+
+    def get_full_scale(self, channel):
+        """(lowest, highest) value the channel can report, in probe-tip units."""
+        channel_index = self.check_channel(channel)
+        fs = (self.get_channel_configuration(channel_index).input_voltage_range
+              * (self.get_probe_scale(channel_index) or 1.0))
+        return -fs, fs
+
+    def set_rising_trigger_level(self, channel, level, timeout=0):
+        """Rising-edge trigger at `level` in probe-tip units (converted to BNC volts)."""
+        channel_index = self.check_channel(channel)
+        probe = self.get_probe_scale(channel_index) or 1.0
+        self.set_rising_trigger(channel_index, level / probe, timeout=timeout)
+
+    def describe_scale(self, channel, unit):
+        low, high = self.get_full_scale(channel)
+        return f"+/-{high:g} {unit} range"
+
     def get_maximum_ADC_count(self):
         maxADC = ctypes.c_int16(0)
         maxADC_pointer = ctypes.pointer(maxADC)

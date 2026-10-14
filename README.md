@@ -112,7 +112,7 @@ The **Triple Pulse Test (TPT)** is a discontinuous excitation method for charact
        "board_port": "COM6",
        "input_voltage_probe_scale": 10,
        "output_voltage_probe_scale": 10,
-       "current_probe_scale": 0.1
+       "current_probe_scale": 10
    }
    ```
 
@@ -144,7 +144,7 @@ meas = InductanceMeasurement(
     power_supply_port='COM3',
     oscilloscope_port='USB',
     board_port='COM6',
-    current_probe_scale=0.1  # 100 mV/A probe
+    current_probe_scale=10   # 100 mV/A probe (10 A/V)
 )
 
 # Demagnetize the core before measurement
@@ -214,14 +214,17 @@ OpenTPT/
 > ⚠️ **Important:** The `current_probe_scale` defines how to convert oscilloscope voltage readings to actual current values:
 >
 > `Current (A) = Oscilloscope Voltage (V) × probe_scale`
+>
+> `probe_scale` must be entered in **A/V** — the reciprocal of the probe's rated sensitivity
+> (often printed as mV/A, V/A, or as a current-probe amplifier's "mA/mV" gain setting).
 
 | Probe Sensitivity | Probe Scale Value |
 |-------------------|-------------------|
-| 100 mV/A | `0.1` |
+| 100 mV/A (0.1 V/A) | `10` |
 | 1 V/A | `1.0` |
-| 10 mV/A | `0.01` |
+| 10 mV/A (0.01 V/A) | `100` |
 
-**Common mistake:** For a 100 mV/A probe, use `scale=0.1` (not 10). The probe outputs 100 mV when 1 A flows, so you multiply by 0.1 to get amperes.
+**Common mistake:** For a 100 mV/A probe, use `scale=10` (not 0.1). The probe outputs 0.1 V when 1 A flows, so you must *divide* by 0.1 (i.e. multiply by 10) to recover amperes. Using the raw 0.1 V/A rating directly under-reports current by 100x — if a Tektronix P6021-style current-probe amplifier is set to "10 mA/mV", that dial reading is already in A/V and can be entered as `scale=10` with no conversion.
 
 ---
 

@@ -7,5 +7,8 @@
     "board_port": "COM3",
     "input_voltage_probe_scale": 50,
     "output_voltage_probe_scale": 10,
-    "current_probe_scale": 0.1
+    "current_probe_scale": 10,
+    "voltage_channel": 0,
+    "secondary_channel": 1,
+    "current_channel": 2
 }

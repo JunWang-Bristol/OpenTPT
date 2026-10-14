@@ -242,10 +242,26 @@ class Measurement:
 
     @classmethod
     def from_config(cls, config_path="hardware_configuration.json"):
-        """Instantiate from a JSON configuration file."""
+        """Instantiate from a JSON configuration file.
+
+        Keys this class does not take are IGNORED rather than fatal.  The file
+        is shared with the ``opentpt`` engine, which reads settings these older
+        classes know nothing about (``current_channel_skew_s`` was the first),
+        and ``cls(**cfg)`` turned every such addition into a TypeError that
+        broke every script here at import of the config — a failure with no
+        relation to what the script was doing.
+        """
+        import inspect
+
         with open(config_path) as f:
             cfg = json.load(f)
-        return cls(**cfg)
+        accepted = set(inspect.signature(cls.__init__).parameters) - {"self"}
+        known = {k: v for k, v in cfg.items() if k in accepted}
+        ignored = sorted(set(cfg) - accepted)
+        if ignored:
+            print(f"note: {cls.__name__} ignores config keys {ignored} "
+                  f"(the opentpt engine reads them)")
+        return cls(**known)
 
 
 # ─── Inductance measurement ───────────────────────────────────────────────────
